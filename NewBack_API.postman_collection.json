@@ -1,0 +1,591 @@
+{
+    "info": {
+        "_postman_id": "newback-api-collection",
+        "name": "NewBack API",
+        "description": "Full API collection for the NewBack project with role-based access control.\n\nRoles:\n• GOD — full access to everything\n• SEMI-GOD — read-only: own detachment + brigades + tests in own detachment\n• RW — read/write tests only for own brigade\n\nLogin-only API — users are pre-created via seed. Login with any user to auto-save the Bearer token. The response includes the user's role, brigade, and detachment automatically.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:3000"
+        },
+        {
+            "key": "token",
+            "value": ""
+        }
+    ],
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{token}}",
+                "type": "string"
+            }
+        ]
+    },
+    "item": [
+        {
+            "name": "Auth",
+            "item": [
+                {
+                    "name": "Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "const res = pm.response.json();",
+                                    "if (res.token) {",
+                                    "    pm.collectionVariables.set('token', res.token);",
+                                    "    console.log('Token saved ✅');",
+                                    "    console.log('Role: ' + res.user.role);",
+                                    "    console.log('Brigade: ' + (res.user.brigadeName || 'none'));",
+                                    "    console.log('Detachment: ' + (res.user.detachmentName || 'none'));",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "url": "{{baseUrl}}/api/auth/login",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"afryca\",\n  \"password\": \"qwerty\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Users",
+            "item": [
+                {
+                    "name": "Get All Users",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/users"
+                    }
+                },
+                {
+                    "name": "Get User by ID",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/users/1"
+                    }
+                },
+                {
+                    "name": "Create User (GOD only)",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/api/users",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"testuser\",\n  \"password\": \"123456\",\n  \"role\": \"RW\",\n  \"brigadeId\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update User (GOD only)",
+                    "request": {
+                        "method": "PUT",
+                        "url": "{{baseUrl}}/api/users/1",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"updatedName\",\n  \"role\": \"SEMI-GOD\",\n  \"brigadeId\": 2\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete User (GOD only)",
+                    "request": {
+                        "method": "DELETE",
+                        "url": "{{baseUrl}}/api/users/1"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Detachments",
+            "description": "GOD: full CRUD | SEMI-GOD: read own detachment only | RW: 403 blocked",
+            "item": [
+                {
+                    "name": "Get All Detachments (GOD: all, SEMI-GOD: own only)",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/detachments"
+                    }
+                },
+                {
+                    "name": "Get Detachment by ID (GOD: any, SEMI-GOD: own only)",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/detachments/1"
+                    }
+                },
+                {
+                    "name": "Create Detachment (GOD only)",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/api/detachments",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Detachment Gamma\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update Detachment (GOD only)",
+                    "request": {
+                        "method": "PUT",
+                        "url": "{{baseUrl}}/api/detachments/1",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Detachment Alpha Updated\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Detachment (GOD only)",
+                    "request": {
+                        "method": "DELETE",
+                        "url": "{{baseUrl}}/api/detachments/1"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Brigades",
+            "description": "GOD: full CRUD | SEMI-GOD: read own detachment's brigades only | RW: 403 blocked",
+            "item": [
+                {
+                    "name": "Get All Brigades (GOD: all, SEMI-GOD: own detachment only)",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/brigades"
+                    }
+                },
+                {
+                    "name": "Get Brigade by ID (GOD: any, SEMI-GOD: own detachment only)",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/brigades/1"
+                    }
+                },
+                {
+                    "name": "Create Brigade (GOD only)",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/api/brigades",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Brigade 4\",\n  \"detachmentId\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update Brigade (GOD only)",
+                    "request": {
+                        "method": "PUT",
+                        "url": "{{baseUrl}}/api/brigades/1",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Brigade 1 Updated\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Brigade (GOD only)",
+                    "request": {
+                        "method": "DELETE",
+                        "url": "{{baseUrl}}/api/brigades/1"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Test Lists",
+            "description": "Global test lists — everyone can read, only GOD can create/update/delete",
+            "item": [
+                {
+                    "name": "Get All Test Lists",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/test-lists"
+                    }
+                },
+                {
+                    "name": "Get Test List by ID",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/test-lists/1"
+                    }
+                },
+                {
+                    "name": "Create Test List (GOD only)",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/api/test-lists",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"New Test List\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update Test List (GOD only)",
+                    "request": {
+                        "method": "PUT",
+                        "url": "{{baseUrl}}/api/test-lists/1",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Updated Name\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Test List (GOD only)",
+                    "request": {
+                        "method": "DELETE",
+                        "url": "{{baseUrl}}/api/test-lists/1"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Test Items",
+            "description": "GOD: full CRUD | SEMI-GOD: read own detachment | RW: CRUD own brigade only. Items belong to a testList + brigade.",
+            "item": [
+                {
+                    "name": "Get All Test Items (scoped by role)",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/test-items"
+                    }
+                },
+                {
+                    "name": "Get Test Items by Brigade (grouped by TestList)",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/test-items/brigade/1",
+                        "description": "Returns all test lists with their test items filtered by brigade. Response: [ { testList, TestItems: [...] }, ... ]"
+                    }
+                },
+                {
+                    "name": "Get Test Items by Brigade + TestList",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/test-items/brigade/1/test-list/1"
+                    }
+                },
+                {
+                    "name": "Get Test Item by ID",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/test-items/1"
+                    }
+                },
+                {
+                    "name": "Create Test Item",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/api/test-items",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Pressure Test\",\n  \"result\": \"pass\",\n  \"notes\": \"All values OK\",\n  \"testListId\": 1,\n  \"brigadeId\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update Test Item (all fields)",
+                    "request": {
+                        "method": "PUT",
+                        "url": "{{baseUrl}}/api/test-items/1",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Updated Name\",\n  \"result\": \"fail\",\n  \"notes\": \"Updated notes\",\n  \"testListId\": 1,\n  \"brigadeId\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Transfer Test Items to Brigade",
+                    "request": {
+                        "method": "PUT",
+                        "url": "{{baseUrl}}/api/test-items/transfer",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"itemIds\": [2, 3],\n  \"toBrigadeId\": 2\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Test Item",
+                    "request": {
+                        "method": "DELETE",
+                        "url": "{{baseUrl}}/api/test-items/1"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Test Links",
+            "description": "Links (schedule + order) per brigade. GET to read, PUT to create/update.",
+            "item": [
+                {
+                    "name": "Get Links for Brigade",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/test-links/brigade/1"
+                    }
+                },
+                {
+                    "name": "Update Links for Brigade",
+                    "request": {
+                        "method": "PUT",
+                        "url": "{{baseUrl}}/api/test-links/brigade/1",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"linkSchedule\": \"https://docs.google.com/schedule\",\n  \"linkOrder\": \"https://docs.google.com/order\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Tool Lists",
+            "description": "Global tool categories. GOD-only for CUD, all authenticated can read.",
+            "item": [
+                {
+                    "name": "Get All Tool Lists",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/tool-lists"
+                    }
+                },
+                {
+                    "name": "Get Tool List by ID",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/tool-lists/1"
+                    }
+                },
+                {
+                    "name": "Create Tool List (GOD)",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/api/tool-lists",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Пожежні рукави\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update Tool List (GOD)",
+                    "request": {
+                        "method": "PUT",
+                        "url": "{{baseUrl}}/api/tool-lists/1",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Updated Tool List\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Tool List (GOD)",
+                    "request": {
+                        "method": "DELETE",
+                        "url": "{{baseUrl}}/api/tool-lists/1"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Tool Items",
+            "description": "Tool items scoped by brigade. GOD full access, SEMI-GOD read-only (own detachment), RW read/write own brigade.",
+            "item": [
+                {
+                    "name": "Get All Tool Items",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/tool-items"
+                    }
+                },
+                {
+                    "name": "Get Tool Items by Brigade (grouped)",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/tool-items/brigade/1"
+                    }
+                },
+                {
+                    "name": "Get Tool Items by Brigade + List",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/tool-items/brigade/1/tool-list/1"
+                    }
+                },
+                {
+                    "name": "Get Tool Item by ID",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/tool-items/1"
+                    }
+                },
+                {
+                    "name": "Create Tool Item",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/api/tool-items",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Рукав 51мм\",\n  \"quantity\": 5,\n  \"notes\": \"\",\n  \"toolListId\": 1,\n  \"brigadeId\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update Tool Item (all fields)",
+                    "request": {
+                        "method": "PUT",
+                        "url": "{{baseUrl}}/api/tool-items/1",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Updated\",\n  \"quantity\": 10,\n  \"notes\": \"Updated notes\",\n  \"toolListId\": 1,\n  \"brigadeId\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Transfer Tool Items to Brigade",
+                    "request": {
+                        "method": "PUT",
+                        "url": "{{baseUrl}}/api/tool-items/transfer",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"itemIds\": [1, 2],\n  \"toBrigadeId\": 2\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Tool Item",
+                    "request": {
+                        "method": "DELETE",
+                        "url": "{{baseUrl}}/api/tool-items/1"
+                    }
+                }
+            ]
+        }
+    ]
+}

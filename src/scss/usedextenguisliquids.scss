@@ -1,0 +1,271 @@
+.used-liquids-wrapper {
+    margin-top: 2rem;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    border: 2px solid var(--navy);
+    background-color: var(--white);
+}
+
+.add-record-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--navy);
+    color: var(--white);
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s;
+
+    &:hover {
+        background-color: var(--navy-hover);
+    }
+}
+
+.records-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: 24rem;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+
+}
+
+.empty-records {
+    border: 1px solid var(--navy);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    background-color: var(--white);
+    text-align: center;
+    color: var(--gray-500);
+    font-style: italic;
+}
+
+.record-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    position: relative;
+    transition: border-color 0.2s;
+    margin: 0;
+    padding: 1rem;
+    border: 1px solid var(--navy);
+    border-radius: 0.5rem;
+    background-color: var(--white);
+
+    &:hover {
+        border-color: var(--gold);
+    }
+}
+
+.record-field {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.field-label {
+    font-weight: 600;
+    color: var(--gray-600);
+    font-size: 0.875rem;
+}
+
+.field-value {
+    font-weight: 500;
+    color: var(--gray-700);
+
+    &.highlight {
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: var(--navy);
+    }
+}
+
+.record-divider {
+    width: 1px;
+    background-color: var(--gray-300);
+    height: 2.5rem;
+}
+
+.delete-btn {
+    position: absolute;
+    top: 50%;
+    right: 0.5rem;
+    transform: translateY(-50%);
+    font-size: 1.5rem;
+    color: var(--danger-dark);
+    cursor: pointer;
+    transition: color 0.2s;
+
+    &:hover {
+        color: var(--danger-darker);
+    }
+}
+
+/* Modal styles */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 1rem;
+}
+
+.modal-content {
+    background-color: var(--white);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    max-width: 32rem;
+    width: 100%;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--gold);
+    padding-bottom: 0.5rem;
+}
+
+.modal-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--navy);
+    margin: 0;
+}
+
+.close-btn {
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--gray-600);
+    transition: color 0.2s;
+
+    &:hover {
+        color: var(--danger-dark);
+    }
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 1rem;
+}
+
+.input-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 0.5rem;
+}
+
+.form-input,
+.form-select {
+    width: 100%;
+    border: 2px solid var(--navy);
+    border-radius: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+    background-color: var(--white);
+
+    &:focus {
+        border-color: var(--gold);
+    }
+}
+
+.modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    padding-top: 1rem;
+}
+
+.cancel-btn {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--gray-300);
+    color: var(--gray-700);
+    border-radius: 0.25rem;
+    font-weight: 600;
+    cursor: pointer;
+    background-color: transparent;
+    transition: background-color 0.2s;
+
+    &:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+
+    &:hover:not(:disabled) {
+        background-color: var(--gray-100);
+    }
+}
+
+.save-btn {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    font-weight: 600;
+    color: var(--white);
+    cursor: pointer;
+    background-color: var(--navy);
+    border: none;
+    transition: background-color 0.2s;
+
+    &:disabled {
+        background-color: var(--gray-400);
+        cursor: not-allowed;
+    }
+
+    &:hover:not(:disabled) {
+        background-color: var(--navy-hover);
+    }
+}
+
+/* Totals styles */
+.totals-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.totals-card {
+    margin: 0;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid var(--navy);
+    border-radius: 0.5rem;
+    background-color: var(--white);
+}
+
+.totals-label {
+    font-size: 0.75rem;
+    color: var(--gray-600);
+    font-weight: 600;
+}
+
+.totals-value {
+    font-weight: bold;
+    font-size: 1.25rem;
+    color: var(--success);
+}

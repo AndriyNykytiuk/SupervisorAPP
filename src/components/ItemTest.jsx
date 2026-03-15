@@ -1,0 +1,267 @@
+import React, { useState } from 'react'
+import { MdUpdate } from "react-icons/md";
+import { FaArrowDownWideShort } from "react-icons/fa6";
+import '../scss/itemtest.scss'
+
+const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
+    const [showForm, setShowForm] = useState(false)
+    const [isExpanded, setIsExpanded] = useState(false)
+
+    const [formData, setFormData] = useState({
+        inventoryNumber: '',
+        name: '',
+        testDate: '',
+        result: 'pass',
+        nextTestDate: '',
+        linkName: '',
+        link: '',
+        quantity: 1
+    })
+
+    const [editingItemId, setEditingItemId] = useState(null)
+    const [editFormData, setEditFormData] = useState({})
+
+    const handleCreate = async (e) => {
+        e.preventDefault()
+        if (!formData.name.trim()) return
+
+        const qty = Math.max(1, parseInt(formData.quantity) || 1)
+
+        // Розбираємо інвентарний номер на префікс і число
+        const invRaw = formData.inventoryNumber.trim()
+        let prefix = ''
+        let baseNum = 0
+        let hasNumber = false
+
+        if (invRaw) {
+            const match = invRaw.match(/^(.*?)(\d+)$/)
+            if (match) {
+                prefix = match[1]
+                baseNum = parseInt(match[2], 10)
+                hasNumber = true
+            }
+        }
+
+        try {
+            const token = localStorage.getItem('token')
+
+            for (let i = 0; i < qty; i++) {
+                let inventoryNumber = null
+                if (invRaw) {
+                    inventoryNumber = hasNumber
+                        ? `${prefix}${baseNum + i}`
+                        : (qty === 1 ? invRaw : `${invRaw}-${i + 1}`)
+                }
+
+                await fetch('/api/test-items', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        inventoryNumber,
+                        name: formData.name,
+                        testDate: formData.testDate || null,
+                        result: formData.result,
+                        nextTestDate: formData.nextTestDate || null,
+                        linkName: formData.linkName || null,
+                        link: formData.link || null,
+                        testListId: testList.id,
+                        brigadeId: selectedBrigade,
+                    }),
+                })
+            }
+
+            setFormData({
+                inventoryNumber: '',
+                name: '',
+                testDate: '',
+                result: 'pass',
+                nextTestDate: '',
+                linkName: '',
+                link: '',
+                quantity: 1
+            })
+            setShowForm(false)
+            onItemCreated()
+        } catch (err) {
+            console.error('Failed to create item:', err)
+        }
+    }
+
+    const handleUpdateSubmit = async (e, id) => {
+        e.preventDefault()
+        if (!editFormData.name.trim()) return
+
+        try {
+            const token = localStorage.getItem('token')
+            const res = await fetch(`/api/test-items/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    inventoryNumber: editFormData.inventoryNumber || null,
+                    name: editFormData.name,
+                    testDate: editFormData.testDate || null,
+                    result: editFormData.result,
+                    nextTestDate: editFormData.nextTestDate || null,
+                    linkName: editFormData.linkName || null,
+                    link: editFormData.link || null,
+                }),
+            })
+
+            if (res.ok) {
+                setEditingItemId(null)
+                onItemCreated() // refetch the updated data
+            }
+        } catch (err) {
+            console.error('Failed to update item:', err)
+        }
+    }
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value })
+    }
+
+    const handleEditChange = (e) => {
+        setEditFormData({ ...editFormData, [e.target.name]: e.target.value })
+    }
+
+    const handleEditClick = (item) => {
+        setEditingItemId(item.id)
+        setEditFormData({
+            inventoryNumber: item.inventoryNumber || '',
+            name: item.name || '',
+            testDate: item.testDate ? item.testDate.split('T')[0] : '',
+            result: item.result || 'pass',
+            nextTestDate: item.nextTestDate ? item.nextTestDate.split('T')[0] : '',
+            linkName: item.linkName || '',
+            link: item.link || ''
+        })
+    }
+
+    const handleCancelEdit = () => {
+        setEditingItemId(null)
+        setEditFormData({})
+    }
+
+    const formatDate = (dateString) => {
+        if (!dateString) return '—'
+        return new Date(dateString).toLocaleDateString('uk-UA')
+    }
+
+    return (
+        <div className='item-wrapper'>
+            <div className='item-header'>
+                <div className='item-header-title'>
+                    <div className='item-header-title-add' >
+                        <h2>{testList.name} - {testList.TestItems?.length} шт.</h2>
+                        <FaArrowDownWideShort className='arrow-down' onClick={() => setIsExpanded(!isExpanded)}/>
+                    </div>
+
+                    <h3 className='add-btn' onClick={() => setShowForm(!showForm)}>
+                        {showForm ? '✕' : '+ додати'}
+                    </h3>
+                </div>
+                {isExpanded && testList.TestItems?.length > 0 && (
+                    <div className='item-header-row'>
+                        <span>івентарний номер</span>
+                        <span>назва обладнання</span>
+                        <span>дата випробування</span>
+                        <span>результат</span>
+                        <span>наступне випробування</span>
+                        <span>посилання на акт/протокол</span>
+                        <span>оновити дані</span>
+                    </div>
+                )}
+            </div>
+
+            {showForm && (
+                <div className='modal-overlay' onClick={() => setShowForm(false)}>
+                    <div className='modal-content' onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>Додати обладнання</h3>
+                            <button className="close-btn" onClick={() => setShowForm(false)}>✕</button>
+                        </div>
+                        <form className='add-form' onSubmit={handleCreate}>
+                            <input type='text' name='inventoryNumber' placeholder='Інв. номер (напр. ВП-100)' value={formData.inventoryNumber} onChange={handleChange} />
+                            <input type='text' name='name' placeholder='Назва обладнання' value={formData.name} onChange={handleChange} required />
+
+                            <label>Кількість:</label>
+                            <input type='number' name='quantity' min='1' max='100' placeholder='1' value={formData.quantity} onChange={handleChange} />
+
+                            <label>Дата випробування:</label>
+                            <input type='date' name='testDate' value={formData.testDate} onChange={handleChange} />
+
+                            <select name='result' value={formData.result} onChange={handleChange}>
+                                <option value="pass">Придатний</option>
+                                <option value="fail">Непридатний</option>
+                            </select>
+
+                            <label>Наступне випробування:</label>
+                            <input type='date' name='nextTestDate' value={formData.nextTestDate} onChange={handleChange} />
+
+                            <input type='text' name='linkName' placeholder='Назва документу' value={formData.linkName} onChange={handleChange} />
+                            <input type='url' name='link' placeholder='Посилання на документ' value={formData.link} onChange={handleChange} />
+
+                            <button type='submit'>Створити {formData.quantity > 1 ? `(${formData.quantity} шт.)` : ''}</button>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            <div className={`item-body ${isExpanded ? 'expanded' : ''}`}>
+                {testList.TestItems?.length > 0 ? (
+                    testList.TestItems.map((item) => (
+                        <div key={item.id} className='item-row-container'>
+                            {editingItemId === item.id ? (
+                                <form className='edit-form' onSubmit={(e) => handleUpdateSubmit(e, item.id)}>
+                                    <input type='text' name='inventoryNumber' placeholder='Інв. номер' value={editFormData.inventoryNumber} onChange={handleEditChange} />
+                                    <input type='text' name='name' placeholder='Назва елементу' value={editFormData.name} onChange={handleEditChange} required />
+                                    <input type='date' name='testDate' value={editFormData.testDate} onChange={handleEditChange} />
+                                    <select name='result' value={editFormData.result} onChange={handleEditChange}>
+                                        <option value="pass">Придатний</option>
+                                        <option value="fail">Непридатний</option>
+                                    </select>
+                                    <input type='date' name='nextTestDate' value={editFormData.nextTestDate} onChange={handleEditChange} />
+                                    <div className='link-box'>
+                                        <input type='text' name='linkName' placeholder='Назва документу' value={editFormData.linkName} onChange={handleEditChange}></input>
+                                        <input type='url' name='link' placeholder='Посилання на документ' value={editFormData.link} onChange={handleEditChange} />
+                                    </div>
+
+
+                                    <div className='edit-actions'>
+                                        <button type='submit' className='save-btn'>Зберегти</button>
+                                        <button type='button' className='cancel-btn' onClick={handleCancelEdit}>відмінити</button>
+                                    </div>
+                                </form>
+                            ) : (
+                                <div className={`item-row ${item.result === 'pass' ? 'item-pass' : item.result === 'fail' ? 'item-fail' : ''}`}>
+                                    <span style={{ flex: '0.5' }} title="Інвентарний номер">{item.inventoryNumber || '—'}</span>
+                                    <span style={{ flex: '1.5' }} title="Назва">{item.name}</span>
+
+                                    <span style={{ flex: '1' }} title="Дата випробування">{formatDate(item.testDate)}</span>
+                                    <span style={{ flex: '0.5' }} title="Результат">{item.result === 'pass' ? 'Придатний' : item.result === 'fail' ? 'Непридатний' : item.result}</span>
+                                    <span style={{ flex: '1' }} title="Наступне випробування">{formatDate(item.nextTestDate)}</span>
+                                    <span className="link-cell" style={{ flex: '0.5' }}>
+                                        {item.link ? <a href={item.link} target="_blank" rel="noreferrer" style={{ color: 'var(--navy)', textDecoration: 'underline' }}>{item.linkName || 'Акт'}</a> : '—'}
+                                    </span>
+                                    <button className='update-btn' onClick={() => handleEditClick(item)}>
+                                        <MdUpdate />
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    ))
+                ) : (
+                    <p>Частина поки не має такого обладнання</p>
+                )}
+            </div>
+        </div>
+    )
+}
+
+export default ItemTest

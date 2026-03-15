@@ -1,0 +1,26 @@
+.paper-wrap {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-around;
+    gap: 1rem;
+  
+
+
+    a {
+        color: var(--navy);
+        font-size: 1rem;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+
+        border-radius: 6px;
+        background: var(--white);
+        transition: all 0.2s;
+
+        &:hover {
+                 transition: all 0.2s;
+            font-weight: 700;
+         text-decoration: underline;
+        }
+    }
+}

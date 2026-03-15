@@ -1,0 +1,93 @@
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 80px);
+    width: 250px;
+    min-width: 250px;
+    background-color: #ffffff;
+    padding: 1rem;
+    gap: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--navy);
+    transition: transform 0.3s ease-in-out;
+    z-index: 999;
+
+    .mobile-sidebar-header {
+        display: none;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--gray-200);
+        padding-bottom: 1rem;
+        margin-bottom: 0.5rem;
+
+        h2 {
+            font-size: 1.25rem;
+            color: var(--navy);
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .close-sidebar-btn {
+            background: none;
+            border: none;
+            color: var(--gray-800);
+            cursor: pointer;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            &:hover {
+                color: var(--danger);
+            }
+        }
+    }
+
+    a {
+        display: block;
+        padding: 1rem;
+        color: var(--navy);
+        background: var(--white);
+        font-size: 1rem;
+        font-weight: 700;
+        text-align: center;
+        border: 1px solid var(--navy);
+        border-radius: 8px;
+        transition: all 0.2s;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        word-break: break-word;
+
+        &:hover,
+        &.active {
+            border-color: var(--gold);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transform: scale(1.02);
+        }
+    }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        min-height: 100vh;
+        border-radius: 0;
+        border: none;
+        border-right: 1px solid var(--navy);
+        box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+        transform: translateX(-100%);
+        margin: 0;
+        overflow-y: auto;
+
+        &.open {
+            transform: translateX(0);
+        }
+
+        .mobile-sidebar-header {
+            display: flex;
+        }
+    }
+}

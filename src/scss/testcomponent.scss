@@ -1,0 +1,17 @@
+.testcomponent-header{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--navy);
+    border-radius: 8px;
+    .btn-box{
+        display: flex;
+        padding: 1rem 2rem;
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+}

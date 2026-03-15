@@ -1,0 +1,190 @@
+.foam-wrapper {
+    flex: 1;
+    background-color: var(--white);
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    border: 2px solid var(--navy);
+
+    .foam-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 2.5rem;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 1rem;
+        color: var(--navy);
+        border-bottom: 2px solid var(--gold);
+        padding-bottom: 0.5rem;
+
+        @media (max-width: 640px) {
+            font-size: 0.875rem;
+            padding: 0 1rem;
+        }
+
+        @media (min-width: 641px) and (max-width: 768px) {
+            font-size: 1rem;
+        }
+
+        @media (min-width: 769px) {
+            font-size: 1.125rem;
+        }
+
+        h3 {
+            margin: 0;
+        }
+
+        .edit-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+
+            button {
+                color: #dc2626;
+                transition: color 0.2s;
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 0;
+                margin: 0;
+                font-weight: bold;
+                font-size: 1.25rem;
+
+                &:disabled {
+                    opacity: 0.5;
+                    cursor: not-allowed;
+                }
+
+                &:not(:disabled):hover {
+                    color: var(--danger-darker);
+                }
+            }
+
+            .save-icon {
+                cursor: pointer;
+                transition: color 0.2s;
+                font-size: 1.5rem;
+
+                &.disabled {
+                    opacity: 0.5;
+                    cursor: not-allowed;
+                }
+
+                &:not(.disabled):hover {
+                    color: #16a34a;
+                }
+            }
+        }
+
+        .edit-icon {
+            cursor: pointer;
+            transition: color 0.2s;
+            font-size: 1.5rem;
+
+            &:hover {
+                color: var(--gold);
+            }
+        }
+    }
+
+    .foam-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+
+        @media (min-width: 640px) {
+            flex-direction: row;
+        }
+
+        .foam-card {
+            flex: 1;
+            border: 1px solid var(--navy);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            background-color: var(--white);
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+
+            @media (max-width: 640px) {
+                padding: 0.5rem;
+            }
+
+            h4 {
+                font-weight: 600;
+                color: var(--navy);
+                margin-bottom: 0.75rem;
+                margin-top: 0;
+
+                @media (max-width: 640px) {
+                    font-size: 0.75rem;
+                }
+
+                @media (min-width: 641px) and (max-width: 768px) {
+                    font-size: 0.875rem;
+                }
+
+                @media (min-width: 769px) {
+                    font-size: 1rem;
+                }
+            }
+
+            .card-body {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+
+                .card-row {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.25rem;
+                    color: #374151;
+
+                    @media (min-width: 640px) {
+                        flex-direction: row;
+                        justify-content: space-between;
+                        align-items: center;
+                    }
+
+                    .label {
+                        font-weight: 500;
+                    }
+
+                    .val-green {
+                        font-weight: bold;
+                        color: var(--success);
+                    }
+
+                    .val-red {
+                        font-weight: bold;
+                        color: var(--danger-darker);
+                    }
+
+                    input.input-val {
+                        font-weight: bold;
+                        font-size: 1rem;
+                        border: 2px solid var(--navy);
+                        border-radius: 0.25rem;
+                        padding: 0.25rem 0.5rem;
+                        width: 5rem;
+                        outline: none;
+
+                        &:focus {
+                            border-color: var(--gold);
+                        }
+
+                        @media (max-width: 640px) {
+                            font-size: 0.875rem;
+                        }
+
+                        &.green {
+                            color: var(--success);
+                        }
+
+                        &.red {
+                            color: var(--danger-darker);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
