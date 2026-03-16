@@ -37,12 +37,9 @@ const PORT = process.env.PORT || 3000
 // ── Middleware ──────────────────────────────────
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.use(express.static('public'))
 
-// ── Root route ──────────────────────────────────
-app.get('/', (req, res) => {
-    res.json({ message: 'Supervisor API is running' })
-})
+// Serve static files from the 'dist' folder (Vite build)
+app.use(express.static(path.resolve(__dirname, '../dist')))
 
 // ── Auth routes (public — no token needed) ─────
 app.use('/api/auth', authRouter)
@@ -66,10 +63,12 @@ app.use('/api/powder', authenticate, powderRouter)
 app.use('/api/extenguis-document-links', authenticate, extenguisDocumentLinkRouter)
 app.use('/api/usage-liquids-log', authenticate, usageLiquidsLogRouter)
 
-// ── 404 handler ────────────────────────────────
-app.use((req, res) => {
-    res.status(404).json({ error: 'Not found' })
+// ── Catch-all: serve index.html for any other route (React routing) ─────
+app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../dist/index.html'))
 })
+
+// ── Error handler ──────────────────────────────
 
 // ── Error handler ──────────────────────────────
 app.use((err, req, res, next) => {
