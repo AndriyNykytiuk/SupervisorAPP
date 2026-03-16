@@ -39,6 +39,11 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(express.static('public'))
 
+// ── Root route ──────────────────────────────────
+app.get('/', (req, res) => {
+    res.json({ message: 'Supervisor API is running' })
+})
+
 // ── Auth routes (public — no token needed) ─────
 app.use('/api/auth', authRouter)
 
