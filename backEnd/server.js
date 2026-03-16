@@ -34,12 +34,17 @@ import usageLiquidsLogRouter from './routes/usageLiquidsLog.js'
 const app = express()
 const PORT = process.env.PORT || 3000
 
+import fs from 'fs'
+
 // ── Middleware ──────────────────────────────────
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-// Serve static files from the 'dist' folder (Vite build)
-app.use(express.static(path.resolve(__dirname, '../dist')))
+// Serve static files from the 'dist' folder (Vite build) - only if it exists (production)
+const distPath = path.resolve(__dirname, '../dist')
+if (fs.existsSync(distPath)) {
+    app.use(express.static(distPath))
+}
 
 // ── Auth routes (public — no token needed) ─────
 app.use('/api/auth', authRouter)
@@ -64,9 +69,17 @@ app.use('/api/extenguis-document-links', authenticate, extenguisDocumentLinkRout
 app.use('/api/usage-liquids-log', authenticate, usageLiquidsLogRouter)
 
 // ── Catch-all: serve index.html for any other route (React routing) ─────
-app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../dist/index.html'))
-})
+const indexPath = path.resolve(__dirname, '../dist/index.html')
+if (fs.existsSync(indexPath)) {
+    app.get('*', (req, res) => {
+        res.sendFile(indexPath)
+    })
+} else {
+    // ── 404 handler for local development (when dist is missing) ──────────
+    app.use((req, res) => {
+        res.status(404).json({ error: 'Endpoint not found, and /dist folder is missing' })
+    })
+}
 
 // ── Error handler ──────────────────────────────
 
