@@ -9,7 +9,8 @@
     "server": "nodemon backEnd/server.js",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "nodemon backEnd/server.js",
+    "start": "node backEnd/server.js",
+    "start:dev": "nodemon backEnd/server.js",
     "dev": "concurrently \"npm run client\" \"npm run server\""
   },
   "dependencies": {
@@ -39,7 +40,7 @@
     "vite": "^7.3.1"
   },
   "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
-  "main": "eslint.config.js",
+  "main": "backEnd/server.js",
   "keywords": [],
   "author": "",
   "license": "ISC"
