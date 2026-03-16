@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "start": "node backEnd/server.js",
     "start:dev": "nodemon backEnd/server.js",
+    "seed": "node backEnd/seed.js",
     "dev": "concurrently \"npm run client\" \"npm run server\""
   },
   "dependencies": {
