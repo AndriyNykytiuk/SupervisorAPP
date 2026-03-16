@@ -71,7 +71,7 @@ app.use('/api/usage-liquids-log', authenticate, usageLiquidsLogRouter)
 // ── Catch-all: serve index.html for any other route (React routing) ─────
 const indexPath = path.resolve(__dirname, '../dist/index.html')
 if (fs.existsSync(indexPath)) {
-    app.get('/:path*', (req, res) => {
+    app.get('*', (req, res) => {
         res.sendFile(indexPath)
     })
 } else {
