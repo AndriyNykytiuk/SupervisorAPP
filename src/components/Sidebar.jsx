@@ -19,6 +19,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                 <NavLink to="/tools" onClick={toggleSidebar}>Відомості ПТО та АРО</NavLink>
                 <NavLink to="/extenguisLiquids" onClick={toggleSidebar}>Вогонегасні речовини</NavLink>
                 <NavLink to="/transfer" onClick={toggleSidebar}>Передача майна</NavLink>
+                <NavLink to="/genericDatas" onClick={toggleSidebar}>Загальні дані</NavLink>
             </div>
         </div>
     );

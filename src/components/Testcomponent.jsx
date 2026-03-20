@@ -51,7 +51,7 @@ const Testcomponent = ({ selectedBrigade }) => {
     }
 
     if (!selectedBrigade) {
-        return <p>Оберіть бригаду</p>
+        return <p>Оберіть ідрозділ</p>
     }
 
     if (loading) return <LoadingSpinner />;

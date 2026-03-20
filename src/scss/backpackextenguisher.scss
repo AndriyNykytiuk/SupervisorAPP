@@ -1,0 +1,72 @@
+@use 'shared' as *;
+
+.item-backpackextenguisher-wrapper {
+    @include card-wrapper;
+
+    .item-header {
+        @include item-header;
+        padding: 0;
+
+        .item-header-title {
+            @include item-header-title;
+            h2 { font-size: 1.2rem; color: var(--navy); }
+        }
+
+        .item-header-row {
+            @include item-header-row;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 0.8fr;
+            align-items: center;
+            border-bottom: none;
+            padding-bottom: 0;
+            span { text-align: center; }
+        }
+
+        h2 { color: var(--navy); font-size: 1.1rem; font-weight: 700; margin: 0; }
+        h3 { color: var(--navy); font-size: 1rem; font-weight: 700; margin: 0; }
+    }
+
+    .add-btn { @include btn-gold; }
+
+    .item-body {
+        display: flex; flex-direction: column; gap: 0.75rem;
+        border-radius: var(--radius-sm); padding: 0;
+    }
+
+    .item-row-container {
+        display: flex; flex-direction: column; width: 100%; gap: 0.5rem;
+        border-bottom: none; padding-bottom: 0;
+    }
+
+    .item-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr 0.8fr;
+        align-items: center; justify-content: space-between; text-align: center;
+        @include item-row-base;
+        font-size: 0.92rem !important;
+        span { text-align: center; word-break: break-word; }
+    }
+
+    .action-buttons-wrap { display: flex; justify-content: center; gap: 0.5rem; }
+    .update-btn { @include btn-update; }
+    .delete-btn { @include btn-delete; }
+    
+    .edit-form { 
+        @include edit-form; 
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr 0.8fr;
+        gap: 0.5rem;
+        input { min-width: 40px; padding: 0.3rem;} 
+    }
+
+    @include mobile-card-layout;
+}
+
+.modal-overlay {
+    @include modal-overlay;
+    .modal-content {
+        @include modal-content;
+        .modal-header { @include modal-header; }
+        .add-form { @include modal-form; }
+    }
+}

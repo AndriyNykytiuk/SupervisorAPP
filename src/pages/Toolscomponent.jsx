@@ -8,6 +8,7 @@ import ItemElectricTool from '../components/ItemElectricTool.jsx'
 import ItemWaterPump from '../components/ItemWaterPump.jsx'
 import ItemHydravlicTool from '../components/ItemHydravlicTool.jsx'
 import ItemSwimTool from '../components/ItemSwimTool.jsx'
+import BackPackExtenguisher from '../components/backPackExtenguisher.jsx'
 import '../scss/toolscomponent.scss'
 
 const Toolscomponent = ({ selectedBrigade }) => {
@@ -39,6 +40,7 @@ const Toolscomponent = ({ selectedBrigade }) => {
             <ItemHydravlicTool selectedBrigade={selectedBrigade} />
             {/* Окремий блок для засобів порятунку на воді */}
             <ItemSwimTool selectedBrigade={selectedBrigade} />
+            <BackPackExtenguisher selectedBrigade={selectedBrigade} />
 
             {(toolLists || []).map((list) => (
                 <ItemTool key={list.id} toolList={list} selectedBrigade={selectedBrigade} onItemCreated={refetch} />

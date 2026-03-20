@@ -28,6 +28,9 @@ import foamAgentRouter from './routes/foamAgent.js'
 import powderRouter from './routes/powder.js'
 import extenguisDocumentLinkRouter from './routes/extenguisDocumentlink.js'
 import usageLiquidsLogRouter from './routes/usageLiquidsLog.js'
+import backPackExtenguisherRouter from './routes/backPackExtenguisher.js'
+import genericDatasRouter from './routes/genericDatas.js'
+
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -65,6 +68,8 @@ app.use('/api/foam-agents', authenticate, foamAgentRouter)
 app.use('/api/powder', authenticate, powderRouter)
 app.use('/api/extenguis-document-links', authenticate, extenguisDocumentLinkRouter)
 app.use('/api/usage-liquids-log', authenticate, usageLiquidsLogRouter)
+app.use('/api/backpack-extenguishers', authenticate, backPackExtenguisherRouter)
+app.use('/api/generic-datas', authenticate, genericDatasRouter)
 
 // ── Catch-all: serve index.html for any other route (React routing) ─────
 const indexPath = path.resolve(__dirname, '../dist/index.html')
@@ -111,6 +116,9 @@ async function start() {
 
     const { UsageLiquidsLog } = await import('./models/index.js')
     await UsageLiquidsLog.sync({ alter: true })
+
+    const { backPackExtenguisher } = await import('./models/index.js')
+    await backPackExtenguisher.sync({ alter: true })
 
     console.log('📦 Tables synced')
 

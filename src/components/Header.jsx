@@ -5,11 +5,15 @@ import useApi from '../hooks/useApi.js';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { IoLogOutOutline, IoCalendarOutline } from 'react-icons/io5';
 import { HiOutlineBuildingOffice2 } from 'react-icons/hi2';
+import { useLocation } from 'react-router-dom';
 import '../scss/header.scss';
 import logopict from '../img/DSNSlogo.svg';
 
 const Header = ({ toggleSidebar }) => {
     const { user, selectedBrigade, setBrigade, logout } = useAuth();
+    const location = useLocation();
+    const isGenericDatasPage = location.pathname === '/genericDatas';
+
     const showDropdown = user?.role === 'GOD' || user?.role === 'SEMI-GOD';
 
     const { data: detachments } = useApi(
@@ -49,40 +53,42 @@ const Header = ({ toggleSidebar }) => {
                     </div>
 
                     <div className='header__actions'>
-                        {showDropdown ? (
-                            <>
-                                <div className='header__selector'>
-                                    <HiOutlineBuildingOffice2 className='header__selector-icon' />
-                                    <select
-                                        className='header__select'
-                                        value={selectedBrigade || ''}
-                                        onChange={(e) => setBrigade(Number(e.target.value))}
-                                    >
-                                        <option value="">Обрати частину</option>
-                                        {(detachments || []).map((det) => (
-                                            <optgroup key={det.id} label={det.name}>
-                                                {det.Brigades?.map((brig) => (
-                                                    <option key={brig.id} value={brig.id}>
-                                                        {brig.name}
-                                                    </option>
-                                                ))}
-                                            </optgroup>
-                                        ))}
-                                    </select>
-                                </div>
-
-                                {lastLogin && (
-                                    <div className='header__date-badge'>
-                                        <IoCalendarOutline />
-                                        <span>Оновлено: {new Date(lastLogin).toLocaleDateString('uk-UA')}</span>
+                        {!isGenericDatasPage && (
+                            showDropdown ? (
+                                <>
+                                    <div className='header__selector'>
+                                        <HiOutlineBuildingOffice2 className='header__selector-icon' />
+                                        <select
+                                            className='header__select'
+                                            value={selectedBrigade || ''}
+                                            onChange={(e) => setBrigade(Number(e.target.value))}
+                                        >
+                                            <option value="">Обрати частину</option>
+                                            {(detachments || []).map((det) => (
+                                                <optgroup key={det.id} label={det.name}>
+                                                    {det.Brigades?.map((brig) => (
+                                                        <option key={brig.id} value={brig.id}>
+                                                            {brig.name}
+                                                        </option>
+                                                    ))}
+                                                </optgroup>
+                                            ))}
+                                        </select>
                                     </div>
-                                )}
-                            </>
-                        ) : (
-                            <div className='header__brigade-badge'>
-                                <HiOutlineBuildingOffice2 />
-                                <span>{user?.brigadeName || 'Моя частина'}</span>
-                            </div>
+
+                                    {lastLogin && (
+                                        <div className='header__date-badge'>
+                                            <IoCalendarOutline />
+                                            <span>Оновлено: {new Date(lastLogin).toLocaleDateString('uk-UA')}</span>
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <div className='header__brigade-badge'>
+                                    <HiOutlineBuildingOffice2 />
+                                    <span>{user?.brigadeName || 'Моя частина'}</span>
+                                </div>
+                            )
                         )}
 
                         <div className='header__user-info'>

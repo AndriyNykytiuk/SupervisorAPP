@@ -541,7 +541,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n  \"name\": \"Рукав 51мм\",\n  \"quantity\": 5,\n  \"notes\": \"\",\n  \"toolListId\": 1,\n  \"brigadeId\": 1\n}"
+                            "raw": "{\n  \"name\": \"Рукав 51мм\",\n  \"yearOfPurchase\": 2023,\n  \"powerfull\": 0,\n  \"storagePlace\": \"Склад\",\n  \"quantity\": 5,\n  \"notes\": \"Нові\",\n  \"toolListId\": 1,\n  \"brigadeId\": 1\n}"
                         }
                     }
                 },
@@ -558,7 +558,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n  \"name\": \"Updated\",\n  \"quantity\": 10,\n  \"notes\": \"Updated notes\",\n  \"toolListId\": 1,\n  \"brigadeId\": 1\n}"
+                            "raw": "{\n  \"name\": \"Updated Name\",\n  \"yearOfPurchase\": 2024,\n  \"powerfull\": 10,\n  \"storagePlace\": \"Гараж\",\n  \"quantity\": 10,\n  \"notes\": \"Updated notes\",\n  \"toolListId\": 1,\n  \"brigadeId\": 1\n}"
                         }
                     }
                 },
@@ -584,6 +584,502 @@
                     "request": {
                         "method": "DELETE",
                         "url": "{{baseUrl}}/api/tool-items/1"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Electric Stations",
+            "description": "Electric stations per brigade. GOD/RW can create/update/delete.",
+            "item": [
+                {
+                    "name": "Get All Electric Stations",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/electric-stations"
+                    }
+                },
+                {
+                    "name": "Get Electric Stations by Brigade",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/electric-stations/brigade/1"
+                    }
+                },
+                {
+                    "name": "Get Electric Station by ID",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/electric-stations/1"
+                    }
+                },
+                {
+                    "name": "Create Electric Station",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/api/electric-stations",
+                        "header": [{ "key": "Content-Type", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"brand\": \"Honda\",\n  \"model\": \"EU22i\",\n  \"power\": 2200,\n  \"brigadeId\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update Electric Station",
+                    "request": {
+                        "method": "PUT",
+                        "url": "{{baseUrl}}/api/electric-stations/1",
+                        "header": [{ "key": "Content-Type", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"brand\": \"Honda Updated\",\n  \"power\": 3000\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Electric Station",
+                    "request": {
+                        "method": "DELETE",
+                        "url": "{{baseUrl}}/api/electric-stations/1"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Water Pumps",
+            "description": "Water pumps per brigade. GOD/RW can create/update/delete.",
+            "item": [
+                {
+                    "name": "Get All Water Pumps",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/water-pumps"
+                    }
+                },
+                {
+                    "name": "Get Water Pumps by Brigade",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/water-pumps/brigade/1"
+                    }
+                },
+                {
+                    "name": "Get Water Pump by ID",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/water-pumps/1"
+                    }
+                },
+                {
+                    "name": "Create Water Pump",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/api/water-pumps",
+                        "header": [{ "key": "Content-Type", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"brand\": \"Tohatsu\",\n  \"model\": \"V20D2\",\n  \"productivity\": 800,\n  \"brigadeId\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update Water Pump",
+                    "request": {
+                        "method": "PUT",
+                        "url": "{{baseUrl}}/api/water-pumps/1",
+                        "header": [{ "key": "Content-Type", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"brand\": \"Tohatsu Updated\",\n  \"productivity\": 1000\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Water Pump",
+                    "request": {
+                        "method": "DELETE",
+                        "url": "{{baseUrl}}/api/water-pumps/1"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Hydraulic Tools",
+            "description": "Hydraulic tools per brigade. GOD/RW can create/update/delete.",
+            "item": [
+                {
+                    "name": "Get All Hydraulic Tools",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/hydravlic-tools"
+                    }
+                },
+                {
+                    "name": "Get Hydraulic Tools by Brigade",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/hydravlic-tools/brigade/1"
+                    }
+                },
+                {
+                    "name": "Get Hydraulic Tool by ID",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/hydravlic-tools/1"
+                    }
+                },
+                {
+                    "name": "Create Hydraulic Tool",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/api/hydravlic-tools",
+                        "header": [{ "key": "Content-Type", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"brand\": \"Holmatro\",\n  \"model\": \"SP4240\",\n  \"force\": 240,\n  \"brigadeId\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update Hydraulic Tool",
+                    "request": {
+                        "method": "PUT",
+                        "url": "{{baseUrl}}/api/hydravlic-tools/1",
+                        "header": [{ "key": "Content-Type", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"brand\": \"Holmatro Updated\",\n  \"force\": 300\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Hydraulic Tool",
+                    "request": {
+                        "method": "DELETE",
+                        "url": "{{baseUrl}}/api/hydravlic-tools/1"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Swim Tools",
+            "description": "Swim/rescue tools per brigade. GOD/RW can create/update/delete.",
+            "item": [
+                {
+                    "name": "Get All Swim Tools",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/swim-tools"
+                    }
+                },
+                {
+                    "name": "Get Swim Tools by Brigade",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/swim-tools/brigade/1"
+                    }
+                },
+                {
+                    "name": "Get Swim Tool by ID",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/swim-tools/1"
+                    }
+                },
+                {
+                    "name": "Create Swim Tool",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/api/swim-tools",
+                        "header": [{ "key": "Content-Type", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"lifeBoat\": 2,\n  \"motorLifeBoat\": 1,\n  \"lifeBouy\": 5,\n  \"lifeRoup\": 3,\n  \"lifePath\": 2,\n  \"rescueSlad\": 1,\n  \"lifeJacket\": 10,\n  \"drySuits\": 4,\n  \"brigadeId\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update Swim Tool",
+                    "request": {
+                        "method": "PUT",
+                        "url": "{{baseUrl}}/api/swim-tools/1",
+                        "header": [{ "key": "Content-Type", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"lifeBoat\": 3,\n  \"lifeJacket\": 15\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Swim Tool",
+                    "request": {
+                        "method": "DELETE",
+                        "url": "{{baseUrl}}/api/swim-tools/1"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Foam Agents",
+            "description": "Foam agent quantities per brigade. GOD/RW can create/update/delete.",
+            "item": [
+                {
+                    "name": "Get All Foam Agents",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/foam-agents"
+                    }
+                },
+                {
+                    "name": "Get Foam Agents by Brigade",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/foam-agents/brigade/1"
+                    }
+                },
+                {
+                    "name": "Get Foam Agent by ID",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/foam-agents/1"
+                    }
+                },
+                {
+                    "name": "Create Foam Agent",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/api/foam-agents",
+                        "header": [{ "key": "Content-Type", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"vehiclePassed\": 100,\n  \"vehicleNotPassed\": 20,\n  \"wherehousePassed\": 500,\n  \"wherehouseNotPassed\": 50,\n  \"cannisteroVolume\": 20,\n  \"barrelVolume\": 200,\n  \"ibcVolume\": 1000,\n  \"brigadeId\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update Foam Agent",
+                    "request": {
+                        "method": "PUT",
+                        "url": "{{baseUrl}}/api/foam-agents/1",
+                        "header": [{ "key": "Content-Type", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"vehiclePassed\": 120,\n  \"wherehousePassed\": 600\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Foam Agent",
+                    "request": {
+                        "method": "DELETE",
+                        "url": "{{baseUrl}}/api/foam-agents/1"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Powder",
+            "description": "Powder quantities per brigade. GOD/RW can create/update/delete.",
+            "item": [
+                {
+                    "name": "Get All Powder",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/powder"
+                    }
+                },
+                {
+                    "name": "Get Powder by Brigade",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/powder/brigade/1"
+                    }
+                },
+                {
+                    "name": "Get Powder by ID",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/powder/1"
+                    }
+                },
+                {
+                    "name": "Create Powder",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/api/powder",
+                        "header": [{ "key": "Content-Type", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"vehiclePassed\": 50,\n  \"vehicleNotPassed\": 10,\n  \"wherehousePassed\": 200,\n  \"wherehouseNotPassed\": 30,\n  \"brigadeId\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update Powder",
+                    "request": {
+                        "method": "PUT",
+                        "url": "{{baseUrl}}/api/powder/1",
+                        "header": [{ "key": "Content-Type", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"vehiclePassed\": 60,\n  \"wherehousePassed\": 250\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Powder",
+                    "request": {
+                        "method": "DELETE",
+                        "url": "{{baseUrl}}/api/powder/1"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Extenguis Document Links",
+            "description": "Document links per brigade. GOD/RW can create/update/delete.",
+            "item": [
+                {
+                    "name": "Get All Document Links",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/extenguis-document-links"
+                    }
+                },
+                {
+                    "name": "Get Document Links by Brigade",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/extenguis-document-links/brigade/1"
+                    }
+                },
+                {
+                    "name": "Get Document Link by ID",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/extenguis-document-links/1"
+                    }
+                },
+                {
+                    "name": "Create Document Link",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/api/extenguis-document-links",
+                        "header": [{ "key": "Content-Type", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"documentName\": \"Протокол перевірки\",\n  \"documentLink\": \"https://docs.google.com/example\",\n  \"brigadeId\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update Document Link",
+                    "request": {
+                        "method": "PUT",
+                        "url": "{{baseUrl}}/api/extenguis-document-links/1",
+                        "header": [{ "key": "Content-Type", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"documentName\": \"Оновлений протокол\",\n  \"documentLink\": \"https://docs.google.com/updated\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Document Link",
+                    "request": {
+                        "method": "DELETE",
+                        "url": "{{baseUrl}}/api/extenguis-document-links/1"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Usage Liquids Log",
+            "description": "Log of foam/powder usage events per brigade. GOD/RW can create/update/delete.",
+            "item": [
+                {
+                    "name": "Get All Usage Logs",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/usage-liquids-log"
+                    }
+                },
+                {
+                    "name": "Get Usage Logs by Brigade",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/usage-liquids-log/brigade/1"
+                    }
+                },
+                {
+                    "name": "Get Usage Log by ID",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/usage-liquids-log/1"
+                    }
+                },
+                {
+                    "name": "Create Usage Log",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/api/usage-liquids-log",
+                        "header": [{ "key": "Content-Type", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"volume\": 100,\n  \"date\": \"2026-03-20\",\n  \"substance\": \"foam\",\n  \"eventType\": \"Пожежа\",\n  \"address\": \"вул. Шевченка 10\",\n  \"brigadeId\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update Usage Log",
+                    "request": {
+                        "method": "PUT",
+                        "url": "{{baseUrl}}/api/usage-liquids-log/1",
+                        "header": [{ "key": "Content-Type", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"volume\": 150,\n  \"address\": \"вул. Франка 5\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Usage Log",
+                    "request": {
+                        "method": "DELETE",
+                        "url": "{{baseUrl}}/api/usage-liquids-log/1"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Transfer",
+            "description": "Transfer test items and tool items between brigades.",
+            "item": [
+                {
+                    "name": "Get All Brigades (for selector)",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/transfer/brigades"
+                    }
+                },
+                {
+                    "name": "Get All Items by Brigade (test + tool)",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/api/transfer/brigade/1"
+                    }
+                },
+                {
+                    "name": "Transfer Items to Brigade",
+                    "request": {
+                        "method": "PUT",
+                        "url": "{{baseUrl}}/api/transfer",
+                        "header": [{ "key": "Content-Type", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"testItemIds\": [1, 2],\n  \"toolItemIds\": [3, 4],\n  \"toBrigadeId\": 2\n}"
+                        }
                     }
                 }
             ]

@@ -243,3 +243,30 @@ export const deleteUsedLiquid = async (id) => {
     const { data } = await api.delete(`/usage-liquids-log/${id}`);
     return data;
 };
+
+// ── BackPack Extenguishers ───────────────────────────
+export const fetchBackPackExtenguishersByBrigade = async (brigadeId) => {
+    const { data } = await api.get(`/backpack-extenguishers/brigade/${brigadeId}`);
+    return data;
+};
+
+export const createBackPackExtenguisher = async (payload) => {
+    const { data } = await api.post('/backpack-extenguishers', payload);
+    return data;
+};
+
+export const updateBackPackExtenguisher = async (id, payload) => {
+    const { data } = await api.put(`/backpack-extenguishers/${id}`, payload);
+    return data;
+};
+
+export const deleteBackPackExtenguisher = async (id) => {
+    const { data } = await api.delete(`/backpack-extenguishers/${id}`);
+    return data;
+};
+
+// ── Generic Datas ────────────────────────────────────
+export const fetchGenericDatas = async () => {
+    const { data } = await api.get('/generic-datas');
+    return data;
+};

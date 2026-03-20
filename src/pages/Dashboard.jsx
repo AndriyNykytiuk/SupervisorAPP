@@ -10,6 +10,7 @@ import Transfercomponent from './Transfercomponent.jsx'
 import Toolscomponent from './Toolscomponent.jsx'
 import CloseTestesComponent from './CloseTestesComponent.jsx'
 import ExtenguisLiquidsComponent from './ExtenguisLiquidsComponent.jsx'
+import GenericDatas from './GenericDatas.jsx'
 
 const Dashboard = () => {
     const { selectedBrigade } = useAuth()
@@ -38,6 +39,7 @@ const Dashboard = () => {
                         <Route path="/transfer" element={<Transfercomponent selectedBrigade={selectedBrigade} />} />
                         <Route path="/tools" element={<Toolscomponent selectedBrigade={selectedBrigade} />} />
                         <Route path="/extenguisLiquids" element={<ExtenguisLiquidsComponent selectedBrigade={selectedBrigade} />} />
+                        <Route path="/genericDatas" element={<GenericDatas selectedBrigade={selectedBrigade} />} />
                     </Route>
                 </Routes>
             </div>
