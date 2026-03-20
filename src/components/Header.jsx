@@ -42,14 +42,13 @@ const Header = ({ toggleSidebar }) => {
             <div className='header__top'>
                 <div className='header__top-inner'>
                     <div className='header__brand'>
-                        <button className='header__hamburger' onClick={toggleSidebar} aria-label="Toggle sidebar">
-                            <GiHamburgerMenu />
-                        </button>
+                   
                         <img className='header__logo' src={logopict} alt="ДСНС Logo" />
                         <div className='header__brand-text'>
                             <h1 className='header__title'>Наглядова справа</h1>
                             <p className='header__subtitle'>ГУ ДСНС України у Рівненській області</p>
                         </div>
+
                     </div>
 
                     <div className='header__actions'>
@@ -97,7 +96,9 @@ const Header = ({ toggleSidebar }) => {
                             </div>
                             <span className='header__username'>{user?.name || 'User'}</span>
                         </div>
-
+                        <button className='header__hamburger' onClick={toggleSidebar} aria-label="Toggle sidebar">
+                            <GiHamburgerMenu />
+                        </button>
                         <button className='header__logout' onClick={logout} title="Вийти">
                             <IoLogOutOutline />
                             <span>Вийти</span>

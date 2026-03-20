@@ -98,6 +98,9 @@
 @include mobile-row-as-card;
 
 @media (max-width: 768px) {
+    .item-header-title{
+        padding: 0;
+    }
     .add-btn {
         display: none;
     }

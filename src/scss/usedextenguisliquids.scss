@@ -33,6 +33,9 @@
         box-shadow: var(--shadow-sm);
         transform: translateY(-1px);
     }
+    @media (max-width:800px) {
+        display: none;
+    }
 }
 
 .records-list {
@@ -264,6 +267,9 @@
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
     margin-bottom: 1rem;
+    @media (max-width: 800px) {
+        grid-template-columns: 1fr;
+    }
 }
 
 .totals-card {

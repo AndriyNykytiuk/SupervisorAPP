@@ -15,7 +15,10 @@
     box-shadow: var(--shadow-sm);
 
     transition: box-shadow var(--transition);
-
+    h2{
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
     &:hover { box-shadow: var(--shadow-md); }
 
     .btn-box {
@@ -32,6 +35,8 @@
         .btn-box {
             display: flex;
             flex-direction: column;
+            align-items: center;
+            font-size: 0.6rem;
             gap: 1rem;
         }
       .edit-button {

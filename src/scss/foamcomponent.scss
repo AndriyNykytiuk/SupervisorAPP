@@ -118,7 +118,7 @@
                     gap: 0.25rem;
                     color: var(--gray-700);
 
-                    @media (min-width: 640px) {
+                    @media (max-width: 800px) {
                         flex-direction: row;
                         justify-content: space-between;
                         align-items: center;
@@ -155,8 +155,14 @@
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-xs);
     transition: all var(--transition);
+    margin-left: 0 !important;
 
     &:hover {
         box-shadow: var(--shadow-sm);
+    }
+}
+@media (max-width: 800px) {
+    .add-icon{
+        display: none;
     }
 }

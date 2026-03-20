@@ -330,6 +330,7 @@
 
         &__top-inner {
             padding: 0.5rem 0.75rem;
+            
             flex-wrap: wrap;
         }
 
@@ -360,6 +361,10 @@
         &__brigade-badge {
             font-size: 0.78rem;
             padding: 0.35rem 0.65rem;
+        }
+
+        &__logout {
+            display: none;
         }
     }
 }

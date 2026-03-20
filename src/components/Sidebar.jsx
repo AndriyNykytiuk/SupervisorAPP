@@ -1,11 +1,12 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { MdClose } from 'react-icons/md';
+import { IoLogOutOutline } from 'react-icons/io5';
 import { useAuth } from '../context/AuthContext.jsx';
 import '../scss/sidebar.scss'
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
 
     return (
         <div className={`sidebar ${isOpen ? 'open' : ''}`}>
@@ -26,6 +27,11 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                     <NavLink to="/genericDatas" onClick={() => isOpen && toggleSidebar()}>Загальні дані</NavLink>
                 )}
             </div>
+
+            <button className="sidebar-logout" onClick={logout} title="Вийти">
+                <IoLogOutOutline />
+                <span>Вийти</span>
+            </button>
         </div>
     );
 };

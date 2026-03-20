@@ -115,6 +115,33 @@
             }
         }
     }
+
+    .sidebar-logout {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.8rem 1rem;
+        margin-top: auto; /* Push to bottom */
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.25);
+        color: #fca5a5;
+        border-radius: var(--radius-md);
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all var(--transition);
+
+        svg {
+            font-size: 1.25rem;
+        }
+
+        &:hover {
+            background: rgba(239, 68, 68, 0.25);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #fff;
+        }
+    }
 }
 
 /* Mobile Responsiveness */
@@ -136,6 +163,10 @@
         }
 
         .mobile-sidebar-header {
+            display: flex;
+        }
+
+        .sidebar-logout {
             display: flex;
         }
     }

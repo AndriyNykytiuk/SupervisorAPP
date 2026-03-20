@@ -3,6 +3,7 @@
 .transfer-wrapper {
     @include card-wrapper;
     
+  
 
     .item-header {
         @include item-header;
@@ -22,6 +23,10 @@
         display: flex; justify-content: space-around; align-items: center;
         width: 100%; padding: 0.5rem 1rem; margin-bottom: 1rem; border-bottom: 2px solid var(--navy);
         h3 { font-size: 1rem; font-weight: 700; margin: 0; }
+          @media (max-width: 800px) {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
     }
 
     .link-box, .edit-actions { display: flex; flex-direction: column; gap: 0.5rem; }

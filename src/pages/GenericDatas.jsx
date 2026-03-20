@@ -159,13 +159,13 @@ const GenericDatas = () => {
                 </div>
                 <div className="gd-totals-grid" style={{ marginTop: '1rem' }}>
                     <div className="gd-totals-card">
-                        <div>
+                        <div className='gd-tatal-liquid'>
                             <div className="gd-totals-label">Піноутворювач (Придатний)</div>
                             <div className="gd-totals-value" style={{ color: 'var(--success)' }}>{totalFoamPassed} л</div>
                         </div>
                     </div>
                     <div className="gd-totals-card">
-                        <div>
+                        <div className='gd-tatal-liquid'>
                             <div className="gd-totals-label">Піноутворювач (Непридатний)</div>
                             <div className="gd-totals-value" style={{ color: 'var(--danger)' }}>{totalFoamNotPassed} л</div>
                         </div>
@@ -173,13 +173,13 @@ const GenericDatas = () => {
                 </div>
                 <div className="gd-totals-grid" style={{ marginTop: '1rem' }}>
                     <div className="gd-totals-card">
-                        <div>
+                        <div className='gd-tatal-liquid'>
                             <div className="gd-totals-label">Порошок (Придатний)</div>
                             <div className="gd-totals-value" style={{ color: 'var(--success)' }}>{totalPowderPassed} кг</div>
                         </div>
                     </div>
                     <div className="gd-totals-card">
-                        <div>
+                        <div className='gd-tatal-liquid'>
                             <div className="gd-totals-label">Порошок (Непридатний)</div>
                             <div className="gd-totals-value" style={{ color: 'var(--danger)' }}>{totalPowderNotPassed} кг</div>
                         </div>
@@ -198,13 +198,13 @@ const GenericDatas = () => {
                 </div>
                 <div className="gd-totals-grid" style={{ marginTop: '1rem' }}>
                     <div className="gd-totals-card">
-                        <div>
+                        <div className='gd-tatal-liquid'>
                             <div className="gd-totals-label">Піноутворювач використано</div>
                             <div className="gd-totals-value">{usedFoam} л</div>
                         </div>
                     </div>
                     <div className="gd-totals-card">
-                        <div>
+                        <div className='gd-tatal-liquid'>
                             <div className="gd-totals-label">Порошок використано</div>
                             <div className="gd-totals-value">{usedPowder} кг</div>
                         </div>
