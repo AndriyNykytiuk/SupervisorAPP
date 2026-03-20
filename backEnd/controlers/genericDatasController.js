@@ -10,7 +10,7 @@ export const getGenericDatas = async (req, res, next) => {
         let brigadeIds = null 
         if (req.user.role === 'SEMI-GOD') {
             const brigades = await Brigade.findAll({
-                where: { detachmentId: req.user.detachmentId },
+                where: { detachmentId: req.scope.detachmentId },
                 attributes: ['id'],
             })
             brigadeIds = brigades.map((b) => b.id)
