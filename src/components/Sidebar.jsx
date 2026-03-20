@@ -17,13 +17,13 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             </div>
 
             <div className='sidebar-links'>
-                <NavLink to='/nextTestes' onClick={toggleSidebar}>Найближчі випробування</NavLink>
-                <NavLink to="/tests" onClick={toggleSidebar}>Випробування</NavLink>
-                <NavLink to="/tools" onClick={toggleSidebar}>Відомості ПТО та АРО</NavLink>
-                <NavLink to="/extenguisLiquids" onClick={toggleSidebar}>Вогонегасні речовини</NavLink>
-                <NavLink to="/transfer" onClick={toggleSidebar}>Передача майна</NavLink>
+                <NavLink to='/nextTestes' onClick={() => isOpen && toggleSidebar()}>Найближчі випробування</NavLink>
+                <NavLink to="/tests" onClick={() => isOpen && toggleSidebar()}>Випробування</NavLink>
+                <NavLink to="/tools" onClick={() => isOpen && toggleSidebar()}>Відомості ПТО та АРО</NavLink>
+                <NavLink to="/extenguisLiquids" onClick={() => isOpen && toggleSidebar()}>Вогонегасні речовини</NavLink>
+                <NavLink to="/transfer" onClick={() => isOpen && toggleSidebar()}>Передача майна</NavLink>
                 {user?.role !== 'RW' && (
-                    <NavLink to="/genericDatas" onClick={toggleSidebar}>Загальні дані</NavLink>
+                    <NavLink to="/genericDatas" onClick={() => isOpen && toggleSidebar()}>Загальні дані</NavLink>
                 )}
             </div>
         </div>

@@ -118,7 +118,7 @@
 }
 
 /* Mobile Responsiveness */
-@media (max-width: 768px) {
+@media (max-width: 800px) {
     .sidebar {
         position: fixed;
         top: 0;
@@ -129,7 +129,7 @@
         transform: translateX(-100%);
         margin: 0;
         overflow-y: auto;
-        z-index: 99;
+        z-index: 999;
 
         &.open {
             transform: translateX(0);
