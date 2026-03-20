@@ -15,6 +15,8 @@
     color: var(--gray-500);
     text-transform: uppercase;
     letter-spacing: 0.3px;
+
+
 }
 
 .header-title {
@@ -27,6 +29,7 @@
     background-color: var(--white);
     border-radius: var(--radius-lg);
     padding: 1rem 1.5rem;
+    
     margin-bottom: 1rem;
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--gray-200);
@@ -38,10 +41,11 @@
     justify-content: space-between;
     align-items: center;
     text-align: center;
+    margin-top: 10px;
     padding: 0.85rem 1.5rem;
     background: linear-gradient(135deg, var(--gold) 0%, var(--gold-hover) 100%);
     color: var(--navy);
-    margin-bottom: 0.6rem;
+ 
     border-radius: var(--radius-md);
     font-weight: 600;
     font-size: 0.9rem;
@@ -68,6 +72,7 @@
 
     .item-header-row,
     .close-test-item {
-        min-width: 600px;
+        display: grid;
+        grid-template-columns: repeat(1fr);
     }
 }
