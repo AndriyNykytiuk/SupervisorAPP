@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Routes, Route } from 'react-router-dom'
-import { GiHamburgerMenu } from 'react-icons/gi'
+import { useAuth } from '../context/AuthContext.jsx'
 import '../scss/dashboard.scss'
 import Sidebar from '../components/Sidebar.jsx'
 import Mainbar from '../components/Mainbar.jsx'
@@ -11,7 +11,8 @@ import Toolscomponent from './Toolscomponent.jsx'
 import CloseTestesComponent from './CloseTestesComponent.jsx'
 import ExtenguisLiquidsComponent from './ExtenguisLiquidsComponent.jsx'
 
-const Dashboard = ({ user, selectedBrigade, onBrigadeChange, onLogout }) => {
+const Dashboard = () => {
+    const { selectedBrigade } = useAuth()
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
     const toggleSidebar = () => {
@@ -20,13 +21,7 @@ const Dashboard = ({ user, selectedBrigade, onBrigadeChange, onLogout }) => {
 
     return (
         <div className="dashboard-wrapper">
-            <Header
-                user={user}
-                selectedBrigade={selectedBrigade}
-                onBrigadeChange={onBrigadeChange}
-                onLogout={onLogout}
-                toggleSidebar={toggleSidebar}
-            />
+            <Header toggleSidebar={toggleSidebar} />
 
             <div className="dashboard-main">
                 {/* Overlay for mobile clicking outside to close */}

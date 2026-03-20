@@ -1,38 +1,38 @@
+// ──────────────────────────────────────────────
+//  Foam Component — premium card design
+// ──────────────────────────────────────────────
+
 .foam-wrapper {
     flex: 1;
     background-color: var(--white);
-    padding: 1rem 2rem;
-    border-radius: 8px;
-    border: 2px solid var(--navy);
+    padding: 1.25rem 1.5rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition), border-color var(--transition);
+
+    &:hover {
+        box-shadow: var(--shadow-md);
+        border-color: var(--gray-300);
+    }
 
     .foam-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 0 2.5rem;
+        padding: 0 1rem;
         font-weight: bold;
         text-align: center;
         margin-bottom: 1rem;
         color: var(--navy);
         border-bottom: 2px solid var(--gold);
-        padding-bottom: 0.5rem;
+        padding-bottom: 0.6rem;
 
-        @media (max-width: 640px) {
-            font-size: 0.875rem;
-            padding: 0 1rem;
-        }
+        @media (max-width: 640px) { font-size: 0.875rem; padding: 0 0.5rem; }
+        @media (min-width: 641px) and (max-width: 768px) { font-size: 1rem; }
+        @media (min-width: 769px) { font-size: 1.125rem; }
 
-        @media (min-width: 641px) and (max-width: 768px) {
-            font-size: 1rem;
-        }
-
-        @media (min-width: 769px) {
-            font-size: 1.125rem;
-        }
-
-        h3 {
-            margin: 0;
-        }
+        h3 { margin: 0; }
 
         .edit-actions {
             display: flex;
@@ -40,50 +40,37 @@
             align-items: center;
 
             button {
-                color: #dc2626;
-                transition: color 0.2s;
+                color: var(--danger-dark);
+                transition: all var(--transition);
                 background: none;
                 border: none;
                 cursor: pointer;
-                padding: 0;
-                margin: 0;
+                padding: 0.2rem;
                 font-weight: bold;
                 font-size: 1.25rem;
+                border-radius: var(--radius-sm);
 
-                &:disabled {
-                    opacity: 0.5;
-                    cursor: not-allowed;
-                }
-
-                &:not(:disabled):hover {
-                    color: var(--danger-darker);
-                }
+                &:disabled { opacity: 0.5; cursor: not-allowed; }
+                &:not(:disabled):hover { color: var(--danger-darker); background: var(--fail-bg); }
             }
 
             .save-icon {
                 cursor: pointer;
-                transition: color 0.2s;
+                transition: all var(--transition);
                 font-size: 1.5rem;
+                border-radius: var(--radius-sm);
+                padding: 0.1rem;
 
-                &.disabled {
-                    opacity: 0.5;
-                    cursor: not-allowed;
-                }
-
-                &:not(.disabled):hover {
-                    color: #16a34a;
-                }
+                &.disabled { opacity: 0.5; cursor: not-allowed; }
+                &:not(.disabled):hover { color: var(--success); background: var(--success-bg); }
             }
         }
 
         .edit-icon {
             cursor: pointer;
-            transition: color 0.2s;
+            transition: all var(--transition);
             font-size: 1.5rem;
-
-            &:hover {
-                color: var(--gold);
-            }
+            &:hover { color: var(--gold); transform: scale(1.1); }
         }
     }
 
@@ -92,39 +79,32 @@
         flex-direction: column;
         gap: 1rem;
 
-        @media (min-width: 640px) {
-            flex-direction: row;
-        }
+        @media (min-width: 640px) { flex-direction: row; }
 
         .foam-card {
             flex: 1;
-            border: 1px solid var(--navy);
-            border-radius: 0.5rem;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
             padding: 1rem;
             background-color: var(--white);
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            box-shadow: var(--shadow-xs);
+            transition: all var(--transition);
 
-            @media (max-width: 640px) {
-                padding: 0.5rem;
+            &:hover {
+                box-shadow: var(--shadow-sm);
+                border-color: var(--gray-300);
             }
+
+            @media (max-width: 640px) { padding: 0.75rem; }
 
             h4 {
                 font-weight: 600;
                 color: var(--navy);
                 margin-bottom: 0.75rem;
                 margin-top: 0;
-
-                @media (max-width: 640px) {
-                    font-size: 0.75rem;
-                }
-
-                @media (min-width: 641px) and (max-width: 768px) {
-                    font-size: 0.875rem;
-                }
-
-                @media (min-width: 769px) {
-                    font-size: 1rem;
-                }
+                @media (max-width: 640px) { font-size: 0.8rem; }
+                @media (min-width: 641px) and (max-width: 768px) { font-size: 0.875rem; }
+                @media (min-width: 769px) { font-size: 1rem; }
             }
 
             .card-body {
@@ -136,7 +116,7 @@
                     display: flex;
                     flex-direction: column;
                     gap: 0.25rem;
-                    color: #374151;
+                    color: var(--gray-700);
 
                     @media (min-width: 640px) {
                         flex-direction: row;
@@ -144,47 +124,39 @@
                         align-items: center;
                     }
 
-                    .label {
-                        font-weight: 500;
-                    }
-
-                    .val-green {
-                        font-weight: bold;
-                        color: var(--success);
-                    }
-
-                    .val-red {
-                        font-weight: bold;
-                        color: var(--danger-darker);
-                    }
+                    .label { font-weight: 500; color: var(--gray-600); }
+                    .val-green { font-weight: bold; color: var(--success); }
+                    .val-red { font-weight: bold; color: var(--danger-darker); }
 
                     input.input-val {
                         font-weight: bold;
                         font-size: 1rem;
                         border: 2px solid var(--navy);
-                        border-radius: 0.25rem;
+                        border-radius: var(--radius-sm);
                         padding: 0.25rem 0.5rem;
                         width: 5rem;
                         outline: none;
+                        transition: border-color var(--transition);
 
-                        &:focus {
-                            border-color: var(--gold);
-                        }
-
-                        @media (max-width: 640px) {
-                            font-size: 0.875rem;
-                        }
-
-                        &.green {
-                            color: var(--success);
-                        }
-
-                        &.red {
-                            color: var(--danger-darker);
-                        }
+                        &:focus { border-color: var(--gold); box-shadow: var(--shadow-gold); }
+                        @media (max-width: 640px) { font-size: 0.875rem; }
+                        &.green { color: var(--success); }
+                        &.red { color: var(--danger-darker); }
                     }
                 }
             }
         }
+    }
+}
+
+// Protocol card in the right panel
+.foam-card.protocols {
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-xs);
+    transition: all var(--transition);
+
+    &:hover {
+        box-shadow: var(--shadow-sm);
     }
 }

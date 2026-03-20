@@ -2,6 +2,7 @@ import React from 'react'
 import { IoMdAddCircleOutline } from "react-icons/io";
 import { MdClose } from "react-icons/md";
 import { AiOutlineDelete } from "react-icons/ai";
+import { fetchUsedLiquidsByBrigade, createUsedLiquid, deleteUsedLiquid } from '../api/services.js';
 import '../scss/usedextenguisliquids.scss';
 
 const UsedExtenguishLiquids = ({ selectedBrigade }) => {
@@ -26,14 +27,8 @@ const UsedExtenguishLiquids = ({ selectedBrigade }) => {
     const fetchRecords = async () => {
         if (!selectedBrigade) return;
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`/api/usage-liquids-log/brigade/${selectedBrigade}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            if (res.ok) {
-                const items = await res.json();
-                setUsageRecords(items);
-            }
+            const items = await fetchUsedLiquidsByBrigade(selectedBrigade);
+            setUsageRecords(items);
         } catch (err) {
             console.error('Failed to fetch usage records:', err);
         }
@@ -64,30 +59,18 @@ const UsedExtenguishLiquids = ({ selectedBrigade }) => {
 
         setIsSaving(true);
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch('/api/usage-liquids-log', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    volume: parseInt(newRecord.volume),
-                    date: newRecord.date,
-                    substance: newRecord.liquid,
-                    eventType: newRecord.type,
-                    address: newRecord.address,
-                    brigadeId: selectedBrigade,
-                }),
+            await createUsedLiquid({
+                volume: parseInt(newRecord.volume),
+                date: newRecord.date,
+                substance: newRecord.liquid,
+                eventType: newRecord.type,
+                address: newRecord.address,
+                brigadeId: selectedBrigade,
             });
 
-            if (res.ok) {
-                await fetchRecords();
-                handleCloseModal();
-                showNotification('Запис успішно додано!', 'success');
-            } else {
-                showNotification('Помилка при додаванні запису', 'error');
-            }
+            await fetchRecords();
+            handleCloseModal();
+            showNotification('Запис успішно додано!', 'success');
         } catch (error) {
             console.error('Помилка при додаванні запису:', error);
             showNotification('Помилка при додаванні запису', 'error');
@@ -100,16 +83,8 @@ const UsedExtenguishLiquids = ({ selectedBrigade }) => {
     const handleDeleteRecord = async (id) => {
         if (!confirm('Ви впевнені, що хочете видалити цей запис?')) return;
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`/api/usage-liquids-log/${id}`, {
-                method: 'DELETE',
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            if (res.ok) {
-                await fetchRecords();
-            } else {
-                showNotification('Помилка при видаленні запису', 'error');
-            }
+            await deleteUsedLiquid(id);
+            await fetchRecords();
         } catch (error) {
             console.error('Помилка при видаленні:', error);
             showNotification('Помилка при видаленні запису', 'error');

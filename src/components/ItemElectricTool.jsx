@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { MdUpdate, MdDelete } from "react-icons/md"
+import { fetchElectricStationsByBrigade, createElectricStation, updateElectricStation, deleteElectricStation } from '../api/services.js';
 import '../scss/itemelectrictool.scss'
 
 const ItemElectricTool = ({ selectedBrigade }) => {
@@ -21,14 +22,8 @@ const ItemElectricTool = ({ selectedBrigade }) => {
     const fetchData = async () => {
         if (!selectedBrigade) return
         try {
-            const token = localStorage.getItem('token')
-            const res = await fetch(`/api/electric-stations/brigade/${selectedBrigade}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            })
-            if (res.ok) {
-                const data = await res.json()
-                setElements(data)
-            }
+            const data = await fetchElectricStationsByBrigade(selectedBrigade);
+            setElements(data)
         } catch (err) {
             console.error('Failed to fetch Electric Stations:', err)
         }
@@ -51,28 +46,18 @@ const ItemElectricTool = ({ selectedBrigade }) => {
         if (!formData.name.trim()) return
 
         try {
-            const token = localStorage.getItem('token')
-            const res = await fetch('/api/electric-stations', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    name: formData.name,
-                    yaerOfPurchase: formData.yaerOfPurchase ? parseInt(formData.yaerOfPurchase, 10) : null,
-                    powerOf: formData.powerOf ? parseInt(formData.powerOf, 10) : null,
-                    placeOfStorage: formData.placeOfStorage,
-                    notes: formData.notes,
-                    brigadeId: selectedBrigade,
-                }),
-            })
+            await createElectricStation({
+                name: formData.name,
+                yaerOfPurchase: formData.yaerOfPurchase ? parseInt(formData.yaerOfPurchase, 10) : null,
+                powerOf: formData.powerOf ? parseInt(formData.powerOf, 10) : null,
+                placeOfStorage: formData.placeOfStorage,
+                notes: formData.notes,
+                brigadeId: selectedBrigade,
+            });
 
-            if (res.ok) {
-                setFormData(initialFormState)
-                setShowForm(false)
-                fetchData()
-            }
+            setFormData(initialFormState)
+            setShowForm(false)
+            fetchData()
         } catch (err) {
             console.error('Failed to create Electric Station:', err)
         }
@@ -81,26 +66,16 @@ const ItemElectricTool = ({ selectedBrigade }) => {
     const handleUpdateSubmit = async (e, id) => {
         e.preventDefault()
         try {
-            const token = localStorage.getItem('token')
-            const res = await fetch(`/api/electric-stations/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    name: editFormData.name,
-                    yaerOfPurchase: editFormData.yaerOfPurchase ? parseInt(editFormData.yaerOfPurchase, 10) : null,
-                    powerOf: editFormData.powerOf ? parseInt(editFormData.powerOf, 10) : null,
-                    placeOfStorage: editFormData.placeOfStorage,
-                    notes: editFormData.notes,
-                }),
-            })
+            await updateElectricStation(id, {
+                name: editFormData.name,
+                yaerOfPurchase: editFormData.yaerOfPurchase ? parseInt(editFormData.yaerOfPurchase, 10) : null,
+                powerOf: editFormData.powerOf ? parseInt(editFormData.powerOf, 10) : null,
+                placeOfStorage: editFormData.placeOfStorage,
+                notes: editFormData.notes,
+            });
 
-            if (res.ok) {
-                setEditingItemId(null)
-                fetchData()
-            }
+            setEditingItemId(null)
+            fetchData()
         } catch (err) {
             console.error('Failed to update Electric Station:', err)
         }
@@ -109,14 +84,8 @@ const ItemElectricTool = ({ selectedBrigade }) => {
     const handleDelete = async (id) => {
         if (!window.confirm("Дійсно видалити цей генератор/станцію?")) return;
         try {
-            const token = localStorage.getItem('token')
-            const res = await fetch(`/api/electric-stations/${id}`, {
-                method: 'DELETE',
-                headers: { Authorization: `Bearer ${token}` }
-            })
-            if (res.ok) {
-                fetchData()
-            }
+            await deleteElectricStation(id);
+            fetchData()
         } catch (err) {
             console.error('Failed to delete Electric Station:', err)
         }

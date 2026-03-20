@@ -12,11 +12,14 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                     <MdClose size={24} />
                 </button>
             </div>
-            <NavLink to='/nextTestes' onClick={toggleSidebar}>Найближчі випробування</NavLink>
-            <NavLink to="/tests" onClick={toggleSidebar}>Випробування</NavLink>
-            <NavLink to="/tools" onClick={toggleSidebar}>Відомості ПТО та АРО</NavLink>
-            <NavLink to="/extenguisLiquids" onClick={toggleSidebar}>Вогонегасні речовини</NavLink>
-            <NavLink to="/transfer" onClick={toggleSidebar}>Передача майна</NavLink>
+
+            <div className='sidebar-links'>
+                <NavLink to='/nextTestes' onClick={toggleSidebar}>Найближчі випробування</NavLink>
+                <NavLink to="/tests" onClick={toggleSidebar}>Випробування</NavLink>
+                <NavLink to="/tools" onClick={toggleSidebar}>Відомості ПТО та АРО</NavLink>
+                <NavLink to="/extenguisLiquids" onClick={toggleSidebar}>Вогонегасні речовини</NavLink>
+                <NavLink to="/transfer" onClick={toggleSidebar}>Передача майна</NavLink>
+            </div>
         </div>
     );
 };

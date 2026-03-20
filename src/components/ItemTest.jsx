@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { MdUpdate } from "react-icons/md";
 import { FaArrowDownWideShort } from "react-icons/fa6";
+import { createTestItem, updateTestItem } from '../api/services.js';
 import '../scss/itemtest.scss'
 
 const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
@@ -43,7 +44,6 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
         }
 
         try {
-            const token = localStorage.getItem('token')
 
             for (let i = 0; i < qty; i++) {
                 let inventoryNumber = null
@@ -53,23 +53,16 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
                         : (qty === 1 ? invRaw : `${invRaw}-${i + 1}`)
                 }
 
-                await fetch('/api/test-items', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                        inventoryNumber,
-                        name: formData.name,
-                        testDate: formData.testDate || null,
-                        result: formData.result,
-                        nextTestDate: formData.nextTestDate || null,
-                        linkName: formData.linkName || null,
-                        link: formData.link || null,
-                        testListId: testList.id,
-                        brigadeId: selectedBrigade,
-                    }),
+                await createTestItem({
+                    inventoryNumber,
+                    name: formData.name,
+                    testDate: formData.testDate || null,
+                    result: formData.result,
+                    nextTestDate: formData.nextTestDate || null,
+                    linkName: formData.linkName || null,
+                    link: formData.link || null,
+                    testListId: testList.id,
+                    brigadeId: selectedBrigade,
                 })
             }
 
@@ -95,28 +88,18 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
         if (!editFormData.name.trim()) return
 
         try {
-            const token = localStorage.getItem('token')
-            const res = await fetch(`/api/test-items/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    inventoryNumber: editFormData.inventoryNumber || null,
-                    name: editFormData.name,
-                    testDate: editFormData.testDate || null,
-                    result: editFormData.result,
-                    nextTestDate: editFormData.nextTestDate || null,
-                    linkName: editFormData.linkName || null,
-                    link: editFormData.link || null,
-                }),
-            })
+            await updateTestItem(id, {
+                inventoryNumber: editFormData.inventoryNumber || null,
+                name: editFormData.name,
+                testDate: editFormData.testDate || null,
+                result: editFormData.result,
+                nextTestDate: editFormData.nextTestDate || null,
+                linkName: editFormData.linkName || null,
+                link: editFormData.link || null,
+            });
 
-            if (res.ok) {
-                setEditingItemId(null)
-                onItemCreated() // refetch the updated data
-            }
+            setEditingItemId(null)
+            onItemCreated() // refetch the updated data
         } catch (err) {
             console.error('Failed to update item:', err)
         }

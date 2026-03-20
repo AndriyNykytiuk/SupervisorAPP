@@ -1,0 +1,530 @@
+// ──────────────────────────────────────────────
+//  _shared.scss — premium shared styles for
+//  item cards, modals, rows, buttons, forms
+// ──────────────────────────────────────────────
+
+// ─── Card Wrapper Mixin ───────────────────
+@mixin card-wrapper {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition), border-color var(--transition);
+    position: relative;
+    overflow: hidden;
+
+    // Gold top accent line
+   
+
+    &:hover {
+        box-shadow: var(--shadow-md);
+        border-color: var(--gray-300);
+
+        &::before {
+            opacity: 1;
+        }
+    }
+}
+
+// ─── Item Header ──────────────────────────
+@mixin item-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--gray-200);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+}
+
+@mixin item-header-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    width: 100%;
+    margin-bottom: 0.75rem;
+    border-bottom: 2px solid var(--navy);
+
+    h2 {
+        font-size: 1.2rem;
+        color: var(--navy);
+        font-weight: 700;
+    }
+}
+
+@mixin item-header-row {
+    width: 100%;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+}
+
+// ─── Data Row ─────────────────────────────
+@mixin item-row-base {
+    gap: 0.3rem;
+    padding: 0.45rem 0.75rem;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    font-size: 0.92rem;
+    color: var(--gray-700);
+    background: var(--white);
+    transition: all var(--transition-fast);
+
+    &:hover {
+        background: var(--gray-50);
+        box-shadow: var(--shadow-xs);
+    }
+
+    &.item-pass {
+        background: var(--success-bg);
+        border-color: var(--success-border);
+
+        &:hover {
+            background: var(--success-border);
+        }
+    }
+
+    &.item-fail {
+        background: var(--fail-bg);
+        border-color: var(--fail-border);
+
+        &:hover {
+            background: var(--fail-border);
+        }
+    }
+
+    input[type='checkbox'] {
+        accent-color: var(--navy);
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+
+    span:first-of-type {
+        font-weight: 600;
+        color: var(--navy);
+    }
+}
+
+// ─── Buttons ──────────────────────────────
+@mixin btn-primary {
+    padding: 0.5rem 1.1rem;
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+    color: var(--gold);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+    box-shadow: var(--shadow-xs);
+
+    &:hover {
+        background: linear-gradient(135deg, var(--navy-light) 0%, var(--navy) 100%);
+        box-shadow: var(--shadow-sm);
+        transform: translateY(-1px);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+@mixin btn-gold {
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-hover) 100%);
+    color: var(--navy);
+    font-weight: 600;
+    font-size: 0.88rem;
+    padding: 0.4rem 0.85rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition);
+    box-shadow: var(--shadow-xs);
+
+    &:hover {
+        box-shadow: var(--shadow-sm);
+        transform: translateY(-1px);
+    }
+}
+
+@mixin btn-update {
+    background: transparent !important;
+    color: var(--navy) !important;
+    border: none;
+    cursor: pointer;
+    padding: 0.4rem;
+    font-size: 1.35rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition);
+    border-radius: var(--radius-sm);
+
+    &:hover {
+        transform: scale(1.15);
+        color: var(--gold) !important;
+        background: var(--gold-muted) !important;
+    }
+}
+
+// ─── Edit Form ────────────────────────────
+@mixin edit-form {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 0.85rem;
+    border: 1px solid var(--gold);
+    border-radius: var(--radius-md);
+    background: var(--gray-50);
+    align-items: center;
+
+    input,
+    select {
+        flex: 1;
+        padding: 0.5rem 0.65rem;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--radius-sm);
+        font-size: 0.88rem;
+        min-width: 110px;
+        outline: none;
+        transition: all var(--transition-fast);
+        background: var(--white);
+
+        &:focus {
+            border-color: var(--gold);
+            box-shadow: var(--shadow-gold);
+        }
+    }
+
+    .edit-actions {
+        display: flex;
+        gap: 0.5rem;
+
+        button {
+            padding: 0.45rem 0.9rem;
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+
+        .save-btn {
+            @include btn-primary;
+        }
+
+        .cancel-btn {
+            background: var(--gray-100);
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+
+            &:hover {
+                background: var(--gray-200);
+            }
+        }
+    }
+}
+
+// ─── Modal ────────────────────────────────
+@mixin modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(6px);
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+}
+
+@mixin modal-content {
+    background: var(--white);
+    padding: 0;
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 500px;
+    box-shadow: var(--shadow-xl);
+    animation: fadeInScale 0.25s ease-out;
+    overflow: hidden;
+}
+
+@mixin modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.1rem 1.5rem;
+    background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 100%);
+
+    h3 {
+        margin: 0;
+        color: var(--white);
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+    .close-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 0.3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius-sm);
+        transition: all var(--transition);
+
+        &:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+        }
+    }
+}
+
+@mixin modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.5rem;
+
+    label {
+        font-size: 0.85rem;
+        color: var(--gray-600);
+        margin-bottom: -0.5rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    input,
+    select {
+        width: 100%;
+        padding: 0.65rem 0.85rem;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--radius-sm);
+        font-size: 0.95rem;
+        outline: none;
+        transition: all var(--transition-fast);
+        background: var(--white);
+
+        &:focus {
+            border-color: var(--gold);
+            box-shadow: var(--shadow-gold);
+        }
+    }
+
+    button[type='submit'] {
+        margin-top: 0.5rem;
+        @include btn-primary;
+        padding: 0.7rem;
+        font-size: 1rem;
+    }
+}
+
+// ─── Section Header ───────────────────────
+@mixin section-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    background: var(--white);
+    padding: 0.85rem 1.25rem;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+
+    h2 {
+        text-align: center;
+        color: var(--navy);
+        font-size: 1.3rem;
+        font-weight: 700;
+    }
+}
+
+// ─── Edit Button Icon ─────────────────────
+@mixin edit-button-icon {
+    width: 1.7rem;
+    height: 1.7rem;
+    cursor: pointer;
+    background-color: transparent;
+    padding: 0.2rem;
+    border-radius: var(--radius-sm);
+    font-size: 1.35rem;
+    display: inline-block;
+    transition: all var(--transition);
+
+    &:hover {
+        color: var(--gold);
+        transform: scale(1.1);
+    }
+}
+
+// ─── Expand/Collapse ──────────────────────
+@mixin item-body-expandable {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    border-radius: var(--radius-sm);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+
+    &.expanded {
+        max-height: 5000px;
+        overflow-y: auto;
+    }
+}
+
+// ─── Animation ────────────────────────────
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.96) translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+// ─── Transfer Overrides ───────────────────
+@mixin transfer-overrides {
+    .test-transfer-row {
+        grid-template-columns: 40px repeat(5, 1fr) !important;
+    }
+
+    .tool-transfer-row {
+        grid-template-columns: 40px repeat(6, 1fr) !important;
+    }
+
+    .transfer-checkbox {
+        margin: 0 auto;
+        width: 1.1rem;
+        height: 1.1rem;
+        cursor: pointer;
+        accent-color: var(--navy);
+    }
+}
+
+// ─── Arrow Down Icon ──────────────────────
+.arrow-down {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    transition: transform var(--transition);
+    color: var(--navy);
+
+    &:hover {
+        color: var(--gold);
+    }
+}
+
+// ─── Mobile Card Layout ───────────────────
+@mixin mobile-card-layout {
+    @media (max-width: 768px) {
+        padding: 0;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+
+        &::before {
+            display: none;
+        }
+    }
+}
+
+@mixin mobile-row-as-card {
+    @media (max-width: 768px) {
+        .item-header .item-header-row,
+        .item-header-row {
+            display: none !important;
+        }
+
+        .item-body {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+
+            .item-row {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 1rem;
+                border-radius: var(--radius-md);
+                box-shadow: var(--shadow-sm);
+                background: var(--white);
+                border: 1px solid var(--gray-200);
+
+                span {
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: space-between;
+                    align-items: center;
+                    font-size: 0.88rem;
+                    text-align: right;
+                    padding: 0;
+                    width: 100%;
+                    font-weight: 500;
+                    gap: 1rem;
+
+                    &::before {
+                        content: attr(title);
+                        font-size: 0.7rem;
+                        color: var(--gray-500);
+                        font-weight: 700;
+                        margin: 0;
+                        text-transform: uppercase;
+                        text-align: left;
+                        letter-spacing: 0.3px;
+                    }
+
+                    &.link-cell {
+                        justify-content: flex-end;
+
+                        &::before {
+                            display: none;
+                        }
+                    }
+                }
+
+                .update-btn {
+                    align-self: flex-end;
+                    margin-top: 0.5rem;
+                }
+            }
+        }
+
+        .test-transfer-row,
+        .tool-transfer-row {
+            grid-template-columns: 1fr !important;
+
+            .transfer-checkbox {
+                align-self: flex-start;
+                margin: 0 0 0.5rem 0;
+            }
+        }
+
+        .item-header-title {
+            flex-direction: column;
+            gap: 0.5rem;
+            align-items: flex-start;
+            padding: 0.5rem !important;
+
+            h2 {
+                font-size: 1.15rem;
+            }
+        }
+    }
+}

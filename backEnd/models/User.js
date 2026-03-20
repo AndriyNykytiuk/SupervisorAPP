@@ -24,6 +24,10 @@ const User = sequelize.define('User', {
         type: DataTypes.INTEGER,
         allowNull: true, // nullable — GOD users may not belong to a brigade
     },
+    lastLogin: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
 })
 
 export default User

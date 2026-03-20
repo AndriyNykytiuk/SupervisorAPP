@@ -1,43 +1,68 @@
+// ──────────────────────────────────────────────
+//  Login — gradient bg + glassmorphism card
+// ──────────────────────────────────────────────
+
 .login-container {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: var(--bg-color);
-    padding: 1rem;
+    background-color: rgb(239, 240, 244);
+    padding: 1.5rem;
+    position: relative;
+
+    // Subtle pattern overlay
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 30% 20%, rgba(252, 215, 0, 0.06) 0%, transparent 50%),
+                    radial-gradient(circle at 70% 80%, rgba(252, 215, 0, 0.04) 0%, transparent 50%);
+    }
 
     form {
-        background: var(--navy);
-        padding: 1rem;
-        border-radius: 4px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        position: relative;
+        background: rgb(38, 69, 100);
+        backdrop-filter: blur(12px);
+        padding: 2.5rem 2rem;
+        border-radius: var(--radius-sm);
+        box-shadow: var(--shadow-lg);
         width: 100%;
-        max-width: 450px;
+        max-width: 420px;
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 1.25rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+
+        // Gold top accent
+        
 
         h2 {
             text-align: center;
-            color: var(--white);
+            color: var(--gold);
             font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
+            font-weight: 800;
+            margin-bottom: 0.25rem;
+            letter-spacing: -0.3px;
         }
 
         input {
             width: 100%;
             padding: 0.75rem 1rem;
             border: 1px solid var(--gray-300);
-            border-radius: 4px;
+            border-radius: var(--radius-sm);
             background: var(--white);
-            font-size: 1rem;
-            transition: all 0.2s;
+            font-size: 0.95rem;
+            transition: all var(--transition);
             outline: none;
+
+            &::placeholder {
+                color: var(--gray-400);
+            }
 
             &:focus {
                 border-color: var(--gold);
-                box-shadow: 0 0 0 2px rgba(252, 215, 0, 0.3);
+                box-shadow: var(--shadow-gold);
             }
         }
 
@@ -45,25 +70,41 @@
             width: 100%;
             padding: 0.75rem 1rem;
             background: var(--gold);
-            color: var(--black);
+            color:  var(--navy);
             border: none;
-            border-radius: 4px;
+            border-radius: var(--radius-sm);
             font-size: 1rem;
-            font-weight: 500;
+            font-weight: 700;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all var(--transition);
+            box-shadow: var(--shadow-sm);
+            letter-spacing: 0.3px;
 
             &:hover {
-                background: var(--gold-hover);
-                font-weight: 700;
+                box-shadow: var(--shadow-md);
+                transform: translateY(-1px);
+            }
+
+            &:active {
+                transform: translateY(0);
+            }
+
+            &:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+                transform: none;
             }
         }
 
         .error {
             color: var(--danger);
-            font-size: 0.875rem;
+            font-size: 0.85rem;
             text-align: center;
+            background: var(--fail-bg);
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--fail-border);
         }
     }
 }

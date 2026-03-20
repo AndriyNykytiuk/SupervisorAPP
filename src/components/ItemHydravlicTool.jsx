@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { MdUpdate, MdDelete } from "react-icons/md"
+import { fetchHydravlicToolsByBrigade, createHydravlicTool, updateHydravlicTool, deleteHydravlicTool } from '../api/services.js';
 import '../scss/itemhydravlictool.scss'
 
 const ItemHydravlicTool = ({ selectedBrigade }) => {
@@ -21,14 +22,8 @@ const ItemHydravlicTool = ({ selectedBrigade }) => {
     const fetchData = async () => {
         if (!selectedBrigade) return
         try {
-            const token = localStorage.getItem('token')
-            const res = await fetch(`/api/hydravlic-tools/brigade/${selectedBrigade}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            })
-            if (res.ok) {
-                const data = await res.json()
-                setElements(data)
-            }
+            const data = await fetchHydravlicToolsByBrigade(selectedBrigade);
+            setElements(data)
         } catch (err) {
             console.error('Failed to fetch Hydravlic Tools:', err)
         }
@@ -51,28 +46,18 @@ const ItemHydravlicTool = ({ selectedBrigade }) => {
         if (!formData.name.trim()) return
 
         try {
-            const token = localStorage.getItem('token')
-            const res = await fetch('/api/hydravlic-tools', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    name: formData.name,
-                    yaerOfPurchase: formData.yaerOfPurchase ? parseInt(formData.yaerOfPurchase, 10) : null,
-                    typeOfStern: formData.typeOfStern ? parseFloat(formData.typeOfStern) : null,
-                    placeOfStorage: formData.placeOfStorage,
-                    notes: formData.notes,
-                    brigadeId: selectedBrigade,
-                }),
-            })
+            await createHydravlicTool({
+                name: formData.name,
+                yaerOfPurchase: formData.yaerOfPurchase ? parseInt(formData.yaerOfPurchase, 10) : null,
+                typeOfStern: formData.typeOfStern ? parseFloat(formData.typeOfStern) : null,
+                placeOfStorage: formData.placeOfStorage,
+                notes: formData.notes,
+                brigadeId: selectedBrigade,
+            });
 
-            if (res.ok) {
-                setFormData(initialFormState)
-                setShowForm(false)
-                fetchData()
-            }
+            setFormData(initialFormState)
+            setShowForm(false)
+            fetchData()
         } catch (err) {
             console.error('Failed to create Hydravlic Tool:', err)
         }
@@ -81,26 +66,16 @@ const ItemHydravlicTool = ({ selectedBrigade }) => {
     const handleUpdateSubmit = async (e, id) => {
         e.preventDefault()
         try {
-            const token = localStorage.getItem('token')
-            const res = await fetch(`/api/hydravlic-tools/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    name: editFormData.name,
-                    yaerOfPurchase: editFormData.yaerOfPurchase ? parseInt(editFormData.yaerOfPurchase, 10) : null,
-                    typeOfStern: editFormData.typeOfStern ? parseFloat(editFormData.typeOfStern) : null,
-                    placeOfStorage: editFormData.placeOfStorage,
-                    notes: editFormData.notes,
-                }),
-            })
+            await updateHydravlicTool(id, {
+                name: editFormData.name,
+                yaerOfPurchase: editFormData.yaerOfPurchase ? parseInt(editFormData.yaerOfPurchase, 10) : null,
+                typeOfStern: editFormData.typeOfStern ? parseFloat(editFormData.typeOfStern) : null,
+                placeOfStorage: editFormData.placeOfStorage,
+                notes: editFormData.notes,
+            });
 
-            if (res.ok) {
-                setEditingItemId(null)
-                fetchData()
-            }
+            setEditingItemId(null)
+            fetchData()
         } catch (err) {
             console.error('Failed to update Hydravlic Tool:', err)
         }
@@ -109,14 +84,8 @@ const ItemHydravlicTool = ({ selectedBrigade }) => {
     const handleDelete = async (id) => {
         if (!window.confirm("Дійсно видалити цю мотопомпу?")) return;
         try {
-            const token = localStorage.getItem('token')
-            const res = await fetch(`/api/hydravlic-tools/${id}`, {
-                method: 'DELETE',
-                headers: { Authorization: `Bearer ${token}` }
-            })
-            if (res.ok) {
-                fetchData()
-            }
+            await deleteHydravlicTool(id);
+            fetchData()
         } catch (err) {
             console.error('Failed to delete Hydravlic Tool:', err)
         }

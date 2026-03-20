@@ -1,32 +1,16 @@
-import { useState } from 'react'
 import './App.scss'
+import { useAuth } from './context/AuthContext.jsx'
 import Login from './pages/Login.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 
 function App() {
-  const [user, setUser] = useState(null)
-  const [selectedBrigade, setSelectedBrigade] = useState(null)
-
-  const handleLogin = (userData) => {
-    setUser(userData)
-    // Default to user's own brigade
-    if (userData.brigadeId) {
-      setSelectedBrigade(userData.brigadeId)
-    }
-  }
+  const { user } = useAuth()
 
   if (!user) {
-    return <Login onLogin={handleLogin} />
+    return <Login />
   }
 
-  return (
-    <Dashboard
-      user={user}
-      selectedBrigade={selectedBrigade}
-      onBrigadeChange={setSelectedBrigade}
-      onLogout={() => { setUser(null); setSelectedBrigade(null) }}
-    />
-  )
+  return <Dashboard />
 }
 
 export default App

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { MdUpdate, MdDelete } from "react-icons/md"
+import { fetchSwimToolsByBrigade, createSwimTool, updateSwimTool, deleteSwimTool } from '../api/services.js';
 import '../scss/itemswimtool.scss'
 
 const ItemSwimTool = ({ selectedBrigade }) => {
@@ -24,14 +25,8 @@ const ItemSwimTool = ({ selectedBrigade }) => {
     const fetchData = async () => {
         if (!selectedBrigade) return
         try {
-            const token = localStorage.getItem('token')
-            const res = await fetch(`/api/swim-tools/brigade/${selectedBrigade}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            })
-            if (res.ok) {
-                const data = await res.json()
-                setElements(data)
-            }
+            const data = await fetchSwimToolsByBrigade(selectedBrigade);
+            setElements(data)
         } catch (err) {
             console.error('Failed to fetch Swim Tools:', err)
         }
@@ -53,31 +48,21 @@ const ItemSwimTool = ({ selectedBrigade }) => {
         e.preventDefault()
 
         try {
-            const token = localStorage.getItem('token')
-            const res = await fetch('/api/swim-tools', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    lifeBoat: formData.lifeBoat ? parseInt(formData.lifeBoat, 10) : 0,
-                    motorLifeBoat: formData.motorLifeBoat ? parseInt(formData.motorLifeBoat, 10) : 0,
-                    lifeBouy: formData.lifeBouy ? parseInt(formData.lifeBouy, 10) : 0,
-                    lifeRoup: formData.lifeRoup ? parseInt(formData.lifeRoup, 10) : 0,
-                    lifePath: formData.lifePath ? parseInt(formData.lifePath, 10) : 0,
-                    rescueSlad: formData.rescueSlad ? parseInt(formData.rescueSlad, 10) : 0,
-                    lifeJacket: formData.lifeJacket ? parseInt(formData.lifeJacket, 10) : 0,
-                    drySuits: formData.drySuits ? parseInt(formData.drySuits, 10) : 0,
-                    brigadeId: selectedBrigade,
-                }),
-            })
+            await createSwimTool({
+                lifeBoat: formData.lifeBoat ? parseInt(formData.lifeBoat, 10) : 0,
+                motorLifeBoat: formData.motorLifeBoat ? parseInt(formData.motorLifeBoat, 10) : 0,
+                lifeBouy: formData.lifeBouy ? parseInt(formData.lifeBouy, 10) : 0,
+                lifeRoup: formData.lifeRoup ? parseInt(formData.lifeRoup, 10) : 0,
+                lifePath: formData.lifePath ? parseInt(formData.lifePath, 10) : 0,
+                rescueSlad: formData.rescueSlad ? parseInt(formData.rescueSlad, 10) : 0,
+                lifeJacket: formData.lifeJacket ? parseInt(formData.lifeJacket, 10) : 0,
+                drySuits: formData.drySuits ? parseInt(formData.drySuits, 10) : 0,
+                brigadeId: selectedBrigade,
+            });
 
-            if (res.ok) {
-                setFormData(initialFormState)
-                setShowForm(false)
-                fetchData()
-            }
+            setFormData(initialFormState)
+            setShowForm(false)
+            fetchData()
         } catch (err) {
             console.error('Failed to create Swim Tool:', err)
         }
@@ -86,29 +71,19 @@ const ItemSwimTool = ({ selectedBrigade }) => {
     const handleUpdateSubmit = async (e, id) => {
         e.preventDefault()
         try {
-            const token = localStorage.getItem('token')
-            const res = await fetch(`/api/swim-tools/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    lifeBoat: editFormData.lifeBoat ? parseInt(editFormData.lifeBoat, 10) : 0,
-                    motorLifeBoat: editFormData.motorLifeBoat ? parseInt(editFormData.motorLifeBoat, 10) : 0,
-                    lifeBouy: editFormData.lifeBouy ? parseInt(editFormData.lifeBouy, 10) : 0,
-                    lifeRoup: editFormData.lifeRoup ? parseInt(editFormData.lifeRoup, 10) : 0,
-                    lifePath: editFormData.lifePath ? parseInt(editFormData.lifePath, 10) : 0,
-                    rescueSlad: editFormData.rescueSlad ? parseInt(editFormData.rescueSlad, 10) : 0,
-                    lifeJacket: editFormData.lifeJacket ? parseInt(editFormData.lifeJacket, 10) : 0,
-                    drySuits: editFormData.drySuits ? parseInt(editFormData.drySuits, 10) : 0,
-                }),
-            })
+            await updateSwimTool(id, {
+                lifeBoat: editFormData.lifeBoat ? parseInt(editFormData.lifeBoat, 10) : 0,
+                motorLifeBoat: editFormData.motorLifeBoat ? parseInt(editFormData.motorLifeBoat, 10) : 0,
+                lifeBouy: editFormData.lifeBouy ? parseInt(editFormData.lifeBouy, 10) : 0,
+                lifeRoup: editFormData.lifeRoup ? parseInt(editFormData.lifeRoup, 10) : 0,
+                lifePath: editFormData.lifePath ? parseInt(editFormData.lifePath, 10) : 0,
+                rescueSlad: editFormData.rescueSlad ? parseInt(editFormData.rescueSlad, 10) : 0,
+                lifeJacket: editFormData.lifeJacket ? parseInt(editFormData.lifeJacket, 10) : 0,
+                drySuits: editFormData.drySuits ? parseInt(editFormData.drySuits, 10) : 0,
+            });
 
-            if (res.ok) {
-                setEditingItemId(null)
-                fetchData()
-            }
+            setEditingItemId(null)
+            fetchData()
         } catch (err) {
             console.error('Failed to update Swim Tool:', err)
         }
@@ -117,14 +92,8 @@ const ItemSwimTool = ({ selectedBrigade }) => {
     const handleDelete = async (id) => {
         if (!window.confirm("Дійсно видалити цей запис?")) return;
         try {
-            const token = localStorage.getItem('token')
-            const res = await fetch(`/api/swim-tools/${id}`, {
-                method: 'DELETE',
-                headers: { Authorization: `Bearer ${token}` }
-            })
-            if (res.ok) {
-                fetchData()
-            }
+            await deleteSwimTool(id);
+            fetchData()
         } catch (err) {
             console.error('Failed to delete Swim Tool:', err)
         }

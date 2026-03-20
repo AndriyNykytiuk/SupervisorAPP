@@ -1,59 +1,73 @@
- .item-header-row {
-     display: grid;
-     grid-template-columns: repeat(4, 1fr);
-     justify-content: space-between;
-     align-items: center;
-     text-align: center;
-     padding: 0.3rem 0.6rem;
-     width: 100%;
-     font-size: 0.7rem;
-     font-weight: 600;
-     color: var(--gray-800);
+// ──────────────────────────────────────────────
+//  Close Tests / Upcoming Items — premium cards
+// ──────────────────────────────────────────────
 
- }
+.item-header-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    padding: 0.3rem 0.6rem;
+    width: 100%;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
 
- .header-title {
-     border-bottom: 1px solid var(--navy);
- }
+.header-title {
+    border-bottom: 2px solid var(--navy);
+    padding-bottom: 0.4rem;
+}
 
- .title-wrapp,
- .item-wrapp {
-     background-color: white;
-     border-radius: 8px;
-     padding: 1rem 2rem;
-     margin-bottom: 1rem;
- }
+.title-wrapp,
+.item-wrapp {
+    background-color: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+}
 
- .close-test-item {
-     display: grid;
-     grid-template-columns: repeat(4, 1fr);
-     justify-content: space-between;
-     align-items: center;
-     text-align: center;
-     padding: 1rem 2rem;
-     background-color: var(--gold);
-     margin-bottom: 1rem;
-     border-radius: 8px;
- }
+.close-test-item {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    padding: 0.85rem 1.5rem;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-hover) 100%);
+    color: var(--navy);
+    margin-bottom: 0.6rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: var(--shadow-xs);
+    transition: all var(--transition);
 
+    &:hover {
+        box-shadow: var(--shadow-sm);
+        transform: translateY(-1px);
+    }
+}
 
+.green-bg {
+    text-align: center;
+    color: var(--success);
+    font-weight: 600;
+}
 
- .green-bg {
+@media (max-width: 768px) {
+    .item-wrapp {
+        padding: 0.5rem;
+        overflow-x: auto;
+    }
 
-     text-align: center;
-     color: green;
-
- }
-
- @media (max-width: 768px) {
-     .item-wrapp {
-         padding: 0.5rem;
-         overflow-x: auto;
-     }
-
-     .item-header-row,
-     .close-test-item {
-         min-width: 600px;
-         /* Force horizontal scroll on mobile */
-     }
- }
+    .item-header-row,
+    .close-test-item {
+        min-width: 600px;
+    }
+}

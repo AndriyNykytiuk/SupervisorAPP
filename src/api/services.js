@@ -1,0 +1,245 @@
+import api from './axios';
+
+// ── Auth ─────────────────────────────────────────────
+export const loginUser = async (name, password) => {
+    const { data } = await api.post('/auth/login', { name, password });
+    return data; // { token, user }
+};
+
+export const fetchBrigadeLastLogin = async (brigadeId) => {
+    const { data } = await api.get(`/auth/brigade-last-login/${brigadeId}`);
+    return data; // { lastLogin, userName }
+};
+
+// ── Detachments ──────────────────────────────────────
+export const fetchDetachments = async () => {
+    const { data } = await api.get('/detachments');
+    return data;
+};
+
+// ── Test Items ───────────────────────────────────────
+export const fetchTestItemsByBrigade = async (brigadeId) => {
+    const { data } = await api.get(`/test-items/brigade/${brigadeId}`);
+    return data;
+};
+
+export const createTestItem = async (payload) => {
+    const { data } = await api.post('/test-items', payload);
+    return data;
+};
+
+export const updateTestItem = async (id, payload) => {
+    const { data } = await api.put(`/test-items/${id}`, payload);
+    return data;
+};
+
+export const fetchUpcomingTestItems = async () => {
+    const { data } = await api.get('/test-items/upcoming');
+    return data;
+};
+
+export const fetchWastedTestItems = async () => {
+    const { data } = await api.get('/test-items/wasted');
+    return data;
+};
+
+// ── Test Links ───────────────────────────────────────
+export const fetchTestLinksByBrigade = async (brigadeId) => {
+    const { data } = await api.get(`/test-links/brigade/${brigadeId}`);
+    return data;
+};
+
+export const updateTestLinks = async (brigadeId, payload) => {
+    const { data } = await api.put(`/test-links/brigade/${brigadeId}`, payload);
+    return data;
+};
+
+// ── Tool Items ───────────────────────────────────────
+export const fetchToolItemsByBrigade = async (brigadeId) => {
+    const { data } = await api.get(`/tool-items/brigade/${brigadeId}`);
+    return data;
+};
+
+export const createToolItem = async (payload) => {
+    const { data } = await api.post('/tool-items', payload);
+    return data;
+};
+
+export const updateToolItem = async (id, payload) => {
+    const { data } = await api.put(`/tool-items/${id}`, payload);
+    return data;
+};
+
+// ── Electric Stations ────────────────────────────────
+export const fetchElectricStationsByBrigade = async (brigadeId) => {
+    const { data } = await api.get(`/electric-stations/brigade/${brigadeId}`);
+    return data;
+};
+
+export const createElectricStation = async (payload) => {
+    const { data } = await api.post('/electric-stations', payload);
+    return data;
+};
+
+export const updateElectricStation = async (id, payload) => {
+    const { data } = await api.put(`/electric-stations/${id}`, payload);
+    return data;
+};
+
+export const deleteElectricStation = async (id) => {
+    const { data } = await api.delete(`/electric-stations/${id}`);
+    return data;
+};
+
+// ── Water Pumps ──────────────────────────────────────
+export const fetchWaterPumpsByBrigade = async (brigadeId) => {
+    const { data } = await api.get(`/water-pumps/brigade/${brigadeId}`);
+    return data;
+};
+
+export const deleteWaterPump = async (id) => {
+    const { data } = await api.delete(`/water-pumps/${id}`);
+    return data;
+};
+
+export const createWaterPump = async (payload) => {
+    const { data } = await api.post('/water-pumps', payload);
+    return data;
+};
+
+export const updateWaterPump = async (id, payload) => {
+    const { data } = await api.put(`/water-pumps/${id}`, payload);
+    return data;
+};
+
+// ── Hydravlic Tools ──────────────────────────────────
+export const fetchHydravlicToolsByBrigade = async (brigadeId) => {
+    const { data } = await api.get(`/hydravlic-tools/brigade/${brigadeId}`);
+    return data;
+};
+
+export const deleteHydravlicTool = async (id) => {
+    const { data } = await api.delete(`/hydravlic-tools/${id}`);
+    return data;
+};
+
+export const createHydravlicTool = async (payload) => {
+    const { data } = await api.post('/hydravlic-tools', payload);
+    return data;
+};
+
+export const updateHydravlicTool = async (id, payload) => {
+    const { data } = await api.put(`/hydravlic-tools/${id}`, payload);
+    return data;
+};
+
+// ── Swim Tools ───────────────────────────────────────
+export const fetchSwimToolsByBrigade = async (brigadeId) => {
+    const { data } = await api.get(`/swim-tools/brigade/${brigadeId}`);
+    return data;
+};
+
+export const deleteSwimTool = async (id) => {
+    const { data } = await api.delete(`/swim-tools/${id}`);
+    return data;
+};
+
+export const createSwimTool = async (payload) => {
+    const { data } = await api.post('/swim-tools', payload);
+    return data;
+};
+
+export const updateSwimTool = async (id, payload) => {
+    const { data } = await api.put(`/swim-tools/${id}`, payload);
+    return data;
+};
+
+// ── Foam Agents ──────────────────────────────────────
+export const fetchFoamAgentByBrigade = async (brigadeId) => {
+    const { data } = await api.get(`/foam-agents/brigade/${brigadeId}`);
+    return data;
+};
+
+export const createFoamAgent = async (payload) => {
+    const { data } = await api.post('/foam-agents', payload);
+    return data;
+};
+
+export const updateFoamAgent = async (id, payload) => {
+    const { data } = await api.put(`/foam-agents/${id}`, payload);
+    return data;
+};
+
+// ── Powder ───────────────────────────────────────────
+export const fetchPowderByBrigade = async (brigadeId) => {
+    const { data } = await api.get(`/powder/brigade/${brigadeId}`);
+    return data;
+};
+
+export const createPowder = async (payload) => {
+    const { data } = await api.post('/powder', payload);
+    return data;
+};
+
+export const updatePowder = async (id, payload) => {
+    const { data } = await api.put(`/powder/${id}`, payload);
+    return data;
+};
+
+// ── Transfer ─────────────────────────────────────────
+export const fetchTransferDataByBrigade = async (brigadeId) => {
+    const { data } = await api.get(`/transfer/brigade/${brigadeId}`);
+    return data;
+};
+
+export const fetchTransferBrigades = async () => {
+    const { data } = await api.get('/transfer/brigades');
+    return data;
+};
+
+export const transferItems = async (payload) => {
+    const { data } = await api.put('/transfer', payload);
+    return data;
+};
+
+// ── Extinguisher Document Links ──────────────────────
+export const fetchProtocolsByBrigade = async (brigadeId) => {
+    const { data } = await api.get(`/extenguis-document-links/brigade/${brigadeId}`);
+    return data;
+};
+
+export const createProtocol = async (payload) => {
+    const { data } = await api.post('/extenguis-document-links', payload);
+    return data;
+};
+
+export const updateProtocol = async (id, payload) => {
+    const { data } = await api.put(`/extenguis-document-links/${id}`, payload);
+    return data;
+};
+
+export const deleteProtocol = async (id) => {
+    const { data } = await api.delete(`/extenguis-document-links/${id}`);
+    return data;
+};
+
+// ── Usage Liquids Log ────────────────────────────────
+export const fetchUsedLiquidsByBrigade = async (brigadeId) => {
+    const { data } = await api.get(`/usage-liquids-log/brigade/${brigadeId}`);
+    return data;
+};
+
+export const createUsedLiquid = async (payload) => {
+    const { data } = await api.post('/usage-liquids-log', payload);
+    return data;
+};
+
+export const updateUsedLiquid = async (id, payload) => {
+    const { data } = await api.put(`/usage-liquids-log/${id}`, payload);
+    return data;
+};
+
+export const deleteUsedLiquid = async (id) => {
+    const { data } = await api.delete(`/usage-liquids-log/${id}`);
+    return data;
+};

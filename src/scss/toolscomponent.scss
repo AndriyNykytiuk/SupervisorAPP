@@ -1,18 +1,26 @@
-h2 {
-    text-align: center;
-    color: var(--navy);
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-}
+// ──────────────────────────────────────────────
+//  Tools Component — h2 + header
+// ──────────────────────────────────────────────
 
 .toolscomponent-header {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 1rem;
-    background-color: var(--white);
-    padding: 1rem;
-    border-radius: 4px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.25rem;
+    background: var(--white);
+    padding: 0.85rem 1.25rem;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+
+    transition: box-shadow var(--transition);
+
+    &:hover { box-shadow: var(--shadow-md); }
+
+    h2 {
+        text-align: center;
+        color: var(--navy);
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin: 0;
+    }
 }

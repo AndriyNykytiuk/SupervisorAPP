@@ -1,4 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
+import { fetchToolItemsByBrigade } from '../api/services.js';
+import useApi from '../hooks/useApi.js';
+import LoadingSpinner from '../components/ui/LoadingSpinner.jsx';
+import ErrorMessage from '../components/ui/ErrorMessage.jsx';
 import ItemTool from '../components/ItemTool.jsx'
 import ItemElectricTool from '../components/ItemElectricTool.jsx'
 import ItemWaterPump from '../components/ItemWaterPump.jsx'
@@ -7,29 +11,23 @@ import ItemSwimTool from '../components/ItemSwimTool.jsx'
 import '../scss/toolscomponent.scss'
 
 const Toolscomponent = ({ selectedBrigade }) => {
-    const [toolLists, setToolLists] = useState([])
-
-    const fetchData = async () => {
-        if (!selectedBrigade) return
-        try {
-            const token = localStorage.getItem('token')
-            const res = await fetch(`/api/tool-items/brigade/${selectedBrigade}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            })
-            const data = await res.json()
-            setToolLists(data)
-        } catch (err) {
-            console.error('Failed to fetch tool items:', err)
-        }
-    }
-
-    useEffect(() => {
-        fetchData()
-    }, [selectedBrigade])
+    const {
+        data: toolLists,
+        loading,
+        error,
+        refetch
+    } = useApi(
+        () => fetchToolItemsByBrigade(selectedBrigade),
+        [selectedBrigade],
+        { skip: !selectedBrigade }
+    );
 
     if (!selectedBrigade) {
         return <p>Оберіть частину бо так і будемо дивитися один на одного</p>
     }
+
+    if (loading) return <LoadingSpinner />;
+    if (error) return <ErrorMessage message={error} onRetry={refetch} />;
 
     return (
         <div>
@@ -42,8 +40,8 @@ const Toolscomponent = ({ selectedBrigade }) => {
             {/* Окремий блок для засобів порятунку на воді */}
             <ItemSwimTool selectedBrigade={selectedBrigade} />
 
-            {toolLists.map((list) => (
-                <ItemTool key={list.id} toolList={list} selectedBrigade={selectedBrigade} onItemCreated={fetchData} />
+            {(toolLists || []).map((list) => (
+                <ItemTool key={list.id} toolList={list} selectedBrigade={selectedBrigade} onItemCreated={refetch} />
             ))}
 
 

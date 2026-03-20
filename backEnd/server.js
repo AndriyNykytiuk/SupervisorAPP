@@ -1,13 +1,11 @@
-import * as dotenv from 'dotenv'
+
 import path from 'path'
 import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-// If server.js is in /Users/.../newBack/backEnd, then __dirname is that folder. 
-// We want the .env file in /Users/.../newBack/.env, which is exactly one level up from __dirname.
-// Let's use path.resolve to be extremely explicit.
-dotenv.config({ path: path.resolve(__dirname, '../.env') })
+
+
 
 import express from 'express'
 import sequelize, { testConnection } from './config/db.js'
@@ -97,7 +95,8 @@ async function start() {
     await sequelize.sync()
 
     // Explicitly alter TestItem and ToolItem to add the new columns
-    const { TestItem, ToolItem, ElectricStations, WaterPumps, HydravlicTool, SwimTools, FoamAgent, Powder } = await import('./models/index.js')
+    const { User, TestItem, ToolItem, ElectricStations, WaterPumps, HydravlicTool, SwimTools, FoamAgent, Powder } = await import('./models/index.js')
+    await User.sync({ alter: true })
     // await TestItem.sync({ alter: true })
     // await ToolItem.sync({ alter: true })
     await ElectricStations.sync({ alter: true })

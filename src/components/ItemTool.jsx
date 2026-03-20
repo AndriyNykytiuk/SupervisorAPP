@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { MdUpdate } from "react-icons/md"
+import { createToolItem, updateToolItem } from '../api/services.js';
 import '../scss/itemtool.scss'
 
 const ItemTool = ({ toolList, selectedBrigade, onItemCreated }) => {
@@ -32,30 +33,20 @@ const ItemTool = ({ toolList, selectedBrigade, onItemCreated }) => {
         if (!formData.name.trim()) return
 
         try {
-            const token = localStorage.getItem('token')
-            const res = await fetch('/api/tool-items', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    name: formData.name,
-                    yearOfPurchase: formData.yearOfPurchase ? parseInt(formData.yearOfPurchase, 10) : null,
-                    powerfull: formData.powerfull ? parseInt(formData.powerfull, 10) : null,
-                    storagePlace: formData.storagePlace,
-                    quantity: formData.quantity ? parseInt(formData.quantity, 10) : 0,
-                    notes: formData.notes,
-                    toolListId: toolList.id,
-                    brigadeId: selectedBrigade,
-                }),
-            })
+            const res = await createToolItem({
+                name: formData.name,
+                yearOfPurchase: formData.yearOfPurchase ? parseInt(formData.yearOfPurchase, 10) : null,
+                powerfull: formData.powerfull ? parseInt(formData.powerfull, 10) : null,
+                storagePlace: formData.storagePlace,
+                quantity: formData.quantity ? parseInt(formData.quantity, 10) : 0,
+                notes: formData.notes,
+                toolListId: toolList.id,
+                brigadeId: selectedBrigade,
+            });
 
-            if (res.ok) {
-                setFormData(initialFormState)
-                setShowForm(false)
-                onItemCreated()
-            }
+            setFormData(initialFormState)
+            setShowForm(false)
+            onItemCreated()
         } catch (err) {
             console.error('Failed to create tool item:', err)
         }
@@ -64,27 +55,17 @@ const ItemTool = ({ toolList, selectedBrigade, onItemCreated }) => {
     const handleUpdateSubmit = async (e, id) => {
         e.preventDefault()
         try {
-            const token = localStorage.getItem('token')
-            const res = await fetch(`/api/tool-items/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    name: editFormData.name,
-                    yearOfPurchase: editFormData.yearOfPurchase ? parseInt(editFormData.yearOfPurchase, 10) : null,
-                    powerfull: editFormData.powerfull ? parseInt(editFormData.powerfull, 10) : null,
-                    storagePlace: editFormData.storagePlace,
-                    quantity: editFormData.quantity ? parseInt(editFormData.quantity, 10) : 0,
-                    notes: editFormData.notes,
-                }),
-            })
+            await updateToolItem(id, {
+                name: editFormData.name,
+                yearOfPurchase: editFormData.yearOfPurchase ? parseInt(editFormData.yearOfPurchase, 10) : null,
+                powerfull: editFormData.powerfull ? parseInt(editFormData.powerfull, 10) : null,
+                storagePlace: editFormData.storagePlace,
+                quantity: editFormData.quantity ? parseInt(editFormData.quantity, 10) : 0,
+                notes: editFormData.notes,
+            });
 
-            if (res.ok) {
-                setEditingItemId(null)
-                onItemCreated()
-            }
+            setEditingItemId(null)
+            onItemCreated()
         } catch (err) {
             console.error('Failed to update tool item:', err)
         }

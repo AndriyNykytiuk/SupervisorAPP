@@ -8,7 +8,8 @@
     "variable": [
         {
             "key": "baseUrl",
-            "value": "http://localhost:3000"
+            "value": "http://localhost:3000",
+            "description": "Set to http://localhost:3000 for local dev OR https://supervisorapp.onrender.com for production"
         },
         {
             "key": "token",

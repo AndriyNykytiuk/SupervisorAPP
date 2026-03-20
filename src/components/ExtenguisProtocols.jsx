@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { IoMdAddCircleOutline } from "react-icons/io";
 import { MdClose } from "react-icons/md";
 import { AiOutlineDelete } from "react-icons/ai";
+import { fetchProtocolsByBrigade, createProtocol, deleteProtocol } from '../api/services.js';
 import '../scss/foamcomponent.scss';
 
 const ExtenguisProtocols = ({ selectedBrigade }) => {
@@ -18,14 +19,8 @@ const ExtenguisProtocols = ({ selectedBrigade }) => {
     const fetchProtocols = async () => {
         if (!selectedBrigade) return;
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`/api/extenguis-document-links/brigade/${selectedBrigade}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            if (res.ok) {
-                const items = await res.json();
-                setProtocols(items);
-            }
+            const items = await fetchProtocolsByBrigade(selectedBrigade);
+            setProtocols(items);
         } catch (err) {
             console.error('Failed to fetch protocols:', err);
         }
@@ -54,19 +49,10 @@ const ExtenguisProtocols = ({ selectedBrigade }) => {
         }
         setIsSaving(true);
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch('/api/extenguis-document-links', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ documentName: newProtocol.name, documentLink: newProtocol.link, brigadeId: selectedBrigade }),
-            });
-            if (res.ok) {
-                await fetchProtocols();
-                handleCloseModal();
-                showNotification('Протокол успішно додано!', 'success');
-            } else {
-                showNotification('Помилка при додаванні протоколу', 'error');
-            }
+            await createProtocol({ documentName: newProtocol.name, documentLink: newProtocol.link, brigadeId: selectedBrigade });
+            await fetchProtocols();
+            handleCloseModal();
+            showNotification('Протокол успішно додано!', 'success');
         } catch (error) {
             console.error('Помилка при додаванні протоколу:', error);
             showNotification('Помилка при додаванні протоколу', 'error');
@@ -78,16 +64,8 @@ const ExtenguisProtocols = ({ selectedBrigade }) => {
     const handleDeleteProtocol = async (id) => {
         if (!confirm('Ви впевнені, що хочете видалити цей протокол?')) return;
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`/api/extenguis-document-links/${id}`, {
-                method: 'DELETE',
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            if (res.ok) {
-                await fetchProtocols();
-            } else {
-                showNotification('Помилка при видаленні протоколу', 'error');
-            }
+            await deleteProtocol(id);
+            await fetchProtocols();
         } catch (error) {
             console.error('Помилка при видаленні:', error);
             showNotification('Помилка при видаленні протоколу', 'error');

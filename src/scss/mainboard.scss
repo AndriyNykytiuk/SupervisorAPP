@@ -1,15 +1,33 @@
+// ──────────────────────────────────────────────
+//  Mainboard — premium content area
+// ──────────────────────────────────────────────
+
 .mainbar {
     flex: 1;
-    padding: 1rem;
-    background-color: var(--bg-color);
+    padding: 1.25rem;
+    background-color: transparent;
     overflow-y: auto;
 
     h2 {
         color: var(--navy);
-        font-size: 1.5rem;
+        font-size: 1.4rem;
         font-weight: 700;
         margin-bottom: 1.5rem;
         text-align: center;
+        position: relative;
+        padding-bottom: 0.6rem;
+
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+
+            border-radius: 2px;
+        }
     }
 
     h3 {
@@ -20,7 +38,8 @@
     }
 
     p {
-        color: var(--gray-800);
-        font-size: 1rem;
+        color: var(--gray-700);
+        font-size: 0.95rem;
+        line-height: 1.6;
     }
 }

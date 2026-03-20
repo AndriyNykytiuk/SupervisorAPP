@@ -1,59 +1,31 @@
- .item-header-row {
-     display: grid;
-     grid-template-columns: repeat(4, 1fr);
-     justify-content: space-between;
-     align-items: center;
-     text-align: center;
-     padding: 0.3rem 0.6rem;
-     width: 100%;
-     font-size: 0.7rem;
-     font-weight: 600;
-     color: var(--gray-800);
+// ──────────────────────────────────────────────
+//  Wasted Test Items — danger accent cards
+// ──────────────────────────────────────────────
 
- }
+.waste-test-item {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    padding: 0.85rem 1.5rem;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: var(--white);
+    margin-bottom: 0.6rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: var(--shadow-xs);
+    transition: all var(--transition);
 
- .header-title {
-     border-bottom: 1px solid var(--navy);
- }
+    &:hover {
+        box-shadow: var(--shadow-sm);
+        transform: translateY(-1px);
+    }
+}
 
- .title-wrapp,
- .item-wrapp {
-     background-color: white;
-     border-radius: 8px;
-     padding: 1rem 2rem;
-     margin-bottom: 1rem;
- }
-
-
-
- .waste-test-item {
-     display: grid;
-     grid-template-columns: repeat(4, 1fr);
-     justify-content: space-between;
-     align-items: center;
-     text-align: center;
-     padding: 1rem 2rem;
-     background-color: rgb(213, 62, 0);
-     margin-bottom: 1rem;
-     border-radius: 8px;
- }
-
- .green-bg {
-
-     text-align: center;
-     color: green;
-
- }
-
- @media (max-width: 768px) {
-     .item-wrapp {
-         padding: 0.5rem;
-         overflow-x: auto;
-     }
-
-     .item-header-row,
-     .waste-test-item {
-         min-width: 600px;
-         /* Force horizontal scroll on mobile */
-     }
- }
+@media (max-width: 768px) {
+    .waste-test-item {
+        min-width: 600px;
+    }
+}

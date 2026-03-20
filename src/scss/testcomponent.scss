@@ -1,17 +1,41 @@
-.testcomponent-header{
+// ──────────────────────────────────────────────
+//  Test Component Header
+// ──────────────────────────────────────────────
+
+.testcomponent-header {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
-    margin-bottom: 1rem;
-    border: 1px solid var(--navy);
-    border-radius: 8px;
-    .btn-box{
+    margin-bottom: 1.25rem;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    background: var(--white);
+    box-shadow: var(--shadow-sm);
+
+    transition: box-shadow var(--transition);
+
+    &:hover { box-shadow: var(--shadow-md); }
+
+    .btn-box {
         display: flex;
-        padding: 1rem 2rem;
+        padding: 0.85rem 1.5rem;
         width: 100%;
         justify-content: space-between;
     }
-    
+}
+
+@media screen and (max-width: 768px) {
+
+    .testcomponent-header {
+        .btn-box {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+      .edit-button {
+        display: none;
+      }
+    }
 }

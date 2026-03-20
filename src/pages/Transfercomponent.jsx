@@ -1,4 +1,10 @@
 import React, { useState, useEffect } from 'react'
+import {
+    fetchTransferDataByBrigade,
+    fetchTransferBrigades,
+    transferItems
+} from '../api/services.js';
+import LoadingSpinner from '../components/ui/LoadingSpinner.jsx';
 import '../scss/transfercomponent.scss'
 
 const Transfercomponent = ({ selectedBrigade }) => {
@@ -15,15 +21,13 @@ const Transfercomponent = ({ selectedBrigade }) => {
     const [toBrigadeId, setToBrigadeId] = useState('')
     const [brigades, setBrigades] = useState([])
     const [message, setMessage] = useState('')
+    const [loading, setLoading] = useState(false)
 
     const fetchData = async () => {
         if (!selectedBrigade) return
+        setLoading(true)
         try {
-            const token = localStorage.getItem('token')
-            const res = await fetch(`/api/transfer/brigade/${selectedBrigade}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            })
-            const data = await res.json()
+            const data = await fetchTransferDataByBrigade(selectedBrigade);
             setTestLists(data.testLists || [])
             setToolLists(data.toolLists || [])
             setElectricStations(data.electricStations || [])
@@ -36,18 +40,16 @@ const Transfercomponent = ({ selectedBrigade }) => {
             setSwimToolTransfers({})
         } catch (err) {
             console.error('Failed to fetch transfer data:', err)
+        } finally {
+            setLoading(false)
         }
     }
 
     // Fetch brigades for target selector
     useEffect(() => {
-        const fetchBrigades = async () => {
+        const loadBrigades = async () => {
             try {
-                const token = localStorage.getItem('token')
-                const res = await fetch('/api/transfer/brigades', {
-                    headers: { Authorization: `Bearer ${token}` },
-                })
-                const data = await res.json()
+                const data = await fetchTransferBrigades();
                 const allBrigades = []
                 data.forEach((det) => {
                     det.Brigades?.forEach((brig) => {
@@ -59,7 +61,7 @@ const Transfercomponent = ({ selectedBrigade }) => {
                 console.error('Failed to fetch brigades:', err)
             }
         }
-        fetchBrigades()
+        loadBrigades()
     }, [])
 
     useEffect(() => {
@@ -119,40 +121,27 @@ const Transfercomponent = ({ selectedBrigade }) => {
         }
 
         try {
-            const token = localStorage.getItem('token')
-            const res = await fetch('/api/transfer', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    testItemIds: selectedTestItems,
-                    toolItemIds: selectedToolItems,
-                    electricStationIds: selectedElectricStations,
-                    hydravlicToolIds: selectedHydravlicTools,
-                    swimToolTransfers: transferArray,
-                    toBrigadeId: Number(toBrigadeId),
-                }),
-            })
+            const data = await transferItems({
+                testItemIds: selectedTestItems,
+                toolItemIds: selectedToolItems,
+                electricStationIds: selectedElectricStations,
+                hydravlicToolIds: selectedHydravlicTools,
+                swimToolTransfers: transferArray,
+                toBrigadeId: Number(toBrigadeId),
+            });
 
-            if (res.ok) {
-                const data = await res.json()
-                const count = (data.testItems?.length || 0) + (data.toolItems?.length || 0) + (data.electricStations?.length || 0) + (data.hydravlicTools?.length || 0) + (data.swimTools?.length || 0)
-                setMessage(`✅ Передано ${count} об'єктів/категорій`)
-                setSelectedTestItems([])
-                setSelectedToolItems([])
-                setSelectedElectricStations([])
-                setSelectedHydravlicTools([])
-                setSwimToolTransfers({})
-                setToBrigadeId('')
-                fetchData()
-            } else {
-                const err = await res.json()
-                setMessage(`❌ ${err.error}`)
-            }
+            const count = (data.testItems?.length || 0) + (data.toolItems?.length || 0) + (data.electricStations?.length || 0) + (data.hydravlicTools?.length || 0) + (data.swimTools?.length || 0)
+            setMessage(`✅ Передано ${count} об'єктів/категорій`)
+            setSelectedTestItems([])
+            setSelectedToolItems([])
+            setSelectedElectricStations([])
+            setSelectedHydravlicTools([])
+            setSwimToolTransfers({})
+            setToBrigadeId('')
+            fetchData()
         } catch (err) {
-            setMessage('❌ Помилка з\'єднання')
+            const errorMsg = err?.response?.data?.error || "Помилка з'єднання";
+            setMessage(`❌ ${errorMsg}`)
         }
     }
 
@@ -164,6 +153,8 @@ const Transfercomponent = ({ selectedBrigade }) => {
     if (!selectedBrigade) {
         return <p>Обрати частину </p>
     }
+
+    if (loading) return <LoadingSpinner />;
 
     return (
         <div>

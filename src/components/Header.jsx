@@ -1,82 +1,108 @@
-import React, { useState, useEffect } from 'react'
-import { GiHamburgerMenu } from 'react-icons/gi'
-import '../scss/header.scss'
-import logopict from '../img/DSNSlogo.svg'
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext.jsx';
+import { fetchDetachments, fetchBrigadeLastLogin } from '../api/services.js';
+import useApi from '../hooks/useApi.js';
+import { GiHamburgerMenu } from 'react-icons/gi';
+import { IoLogOutOutline, IoCalendarOutline } from 'react-icons/io5';
+import { HiOutlineBuildingOffice2 } from 'react-icons/hi2';
+import '../scss/header.scss';
+import logopict from '../img/DSNSlogo.svg';
 
-const Header = ({ user, selectedBrigade, onBrigadeChange, onLogout, toggleSidebar }) => {
-    const [detachments, setDetachments] = useState([])
-    const showDropdown = user?.role === 'GOD' || user?.role === 'SEMI-GOD'
+const Header = ({ toggleSidebar }) => {
+    const { user, selectedBrigade, setBrigade, logout } = useAuth();
+    const showDropdown = user?.role === 'GOD' || user?.role === 'SEMI-GOD';
+
+    const { data: detachments } = useApi(
+        () => fetchDetachments(),
+        [showDropdown],
+        { skip: !showDropdown }
+    );
+
+    // Fetch lastLogin for the selected brigade (GOD/SEMI-GOD only)
+    const [lastLogin, setLastLogin] = useState(null);
 
     useEffect(() => {
-        if (!showDropdown) return
-
-        const fetchDetachments = async () => {
-            try {
-                const token = localStorage.getItem('token')
-                const res = await fetch('/api/detachments', {
-                    headers: { Authorization: `Bearer ${token}` },
-                })
-                const data = await res.json()
-                setDetachments(data)
-            } catch (err) {
-                console.error('Failed to fetch detachments:', err)
-            }
+        if (!showDropdown || !selectedBrigade) {
+            setLastLogin(null);
+            return;
         }
-        fetchDetachments()
-    }, [showDropdown])
+
+        fetchBrigadeLastLogin(selectedBrigade)
+            .then((data) => setLastLogin(data.lastLogin))
+            .catch(() => setLastLogin(null));
+    }, [selectedBrigade, showDropdown]);
 
     return (
-        <>
-            <header className='header-container'>
-                <div>
-                    <h2>
-                        Наглядова справа
-                    </h2>
-                </div>
-                <div className="header">
-                    <div className="droplist">
-                        <div className="hamburger-container-header">
-                            <button className="hamburger-btn" onClick={toggleSidebar}>
-                                <GiHamburgerMenu size={28} />
-                            </button>
+        <header className='header'>
+            {/* ─── Top Bar ─── */}
+            <div className='header__top'>
+                <div className='header__top-inner'>
+                    <div className='header__brand'>
+                        <button className='header__hamburger' onClick={toggleSidebar} aria-label="Toggle sidebar">
+                            <GiHamburgerMenu />
+                        </button>
+                        <img className='header__logo' src={logopict} alt="ДСНС Logo" />
+                        <div className='header__brand-text'>
+                            <h1 className='header__title'>Наглядова справа</h1>
+                            <p className='header__subtitle'>ГУ ДСНС України у Рівненській області</p>
                         </div>
-                        <div className='logopict'>
-                            <img src={logopict} alt="logo" />
-                        </div>
+                    </div>
+
+                    <div className='header__actions'>
                         {showDropdown ? (
-                            <select
-                                value={selectedBrigade || ''}
-                                onChange={(e) => onBrigadeChange(Number(e.target.value))}
-                            >
-                                <option value="">Оберіть бригаду</option>
-                                {detachments.map((det) => (
-                                    <optgroup key={det.id} label={det.name}>
-                                        {det.Brigades?.map((brig) => (
-                                            <option key={brig.id} value={brig.id}>
-                                                {brig.name}
-                                            </option>
+                            <>
+                                <div className='header__selector'>
+                                    <HiOutlineBuildingOffice2 className='header__selector-icon' />
+                                    <select
+                                        className='header__select'
+                                        value={selectedBrigade || ''}
+                                        onChange={(e) => setBrigade(Number(e.target.value))}
+                                    >
+                                        <option value="">Обрати частину</option>
+                                        {(detachments || []).map((det) => (
+                                            <optgroup key={det.id} label={det.name}>
+                                                {det.Brigades?.map((brig) => (
+                                                    <option key={brig.id} value={brig.id}>
+                                                        {brig.name}
+                                                    </option>
+                                                ))}
+                                            </optgroup>
                                         ))}
-                                    </optgroup>
-                                ))}
-                            </select>
-                        ) : (
-                            <span>{user?.brigadeName || 'Моя бригада'}</span>
-                        )}
-                        <div className='logotitle'>
-                            <p>ГУ ДСНС України у Рівненській області</p>
-                        </div>
-                    </div>
-                    <div className="header-right">
+                                    </select>
+                                </div>
 
-                        <div className="logout">
-                            <button onClick={onLogout}>Вийти</button>
+                                {lastLogin && (
+                                    <div className='header__date-badge'>
+                                        <IoCalendarOutline />
+                                        <span>Оновлено: {new Date(lastLogin).toLocaleDateString('uk-UA')}</span>
+                                    </div>
+                                )}
+                            </>
+                        ) : (
+                            <div className='header__brigade-badge'>
+                                <HiOutlineBuildingOffice2 />
+                                <span>{user?.brigadeName || 'Моя частина'}</span>
+                            </div>
+                        )}
+
+                        <div className='header__user-info'>
+                            <div className='header__avatar'>
+                                {user?.name?.[0]?.toUpperCase() || 'U'}
+                            </div>
+                            <span className='header__username'>{user?.name || 'User'}</span>
                         </div>
+
+                        <button className='header__logout' onClick={logout} title="Вийти">
+                            <IoLogOutOutline />
+                            <span>Вийти</span>
+                        </button>
                     </div>
                 </div>
+            </div>
 
-            </header>
-
-        </>
+            {/* ─── Accent Gradient Line ─── */}
+            <div className='header__accent'></div>
+        </header>
     )
 }
 

@@ -1,45 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { fetchUpcomingTestItems, fetchWastedTestItems } from '../api/services.js';
+import useApi from '../hooks/useApi.js';
+import LoadingSpinner from '../components/ui/LoadingSpinner.jsx';
+import ErrorMessage from '../components/ui/ErrorMessage.jsx';
 import ClosesTestitem from '../components/ClosesTestitem'
 import Wastedtestitem from '../components/Wastedtestitem';
 import '../scss/closestestitem.scss'
 
 const CloseTestesComponent = () => {
-    const [upcomingItems, setUpcomingItems] = useState([]);
-    const [wastedItems, setWastedItems] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const {
+        data: upcomingItems,
+        loading: loadingUpcoming,
+        error: errorUpcoming,
+        refetch: refetchUpcoming
+    } = useApi(() => fetchUpcomingTestItems(), []);
 
-    useEffect(() => {
-        const fetchUpcoming = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const resUpcoming = await fetch('/api/test-items/upcoming', {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                const resWasted = await fetch('/api/test-items/wasted', {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+    const {
+        data: wastedItems,
+        loading: loadingWasted,
+        error: errorWasted,
+        refetch: refetchWasted
+    } = useApi(() => fetchWastedTestItems(), []);
 
-                if (resUpcoming.ok && resWasted.ok) {
-                    const dataUpcoming = await resUpcoming.json();
-                    const dataWasted = await resWasted.json();
-                    setUpcomingItems(dataUpcoming);
-                    setWastedItems(dataWasted);
-                }
-            } catch (err) {
-                console.error('Failed to fetch test items:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchUpcoming();
-    }, []);
+    const loading = loadingUpcoming || loadingWasted;
+    const error = errorUpcoming || errorWasted;
+
+    if (loading) return <LoadingSpinner />;
+    if (error) return <ErrorMessage message={error} onRetry={() => { refetchUpcoming(); refetchWasted(); }} />;
 
     return (
         <div>
             <div className='title-wrapp'>
-                {loading ? (
-                    <p>Завантаження...</p>
-                ) : wastedItems.length > 0 ? (
+                {(wastedItems || []).length > 0 ? (
                     <div className='item-wrapp'>
                         <div>
                             <h3>Обладнання, яке не випробували</h3>
@@ -61,11 +53,7 @@ const CloseTestesComponent = () => {
 
 
             <div className='item-wrapp'>
-
-
-                {loading ? (
-                    <p>Завантаження...</p>
-                ) : upcomingItems.length > 0 ? (
+                {(upcomingItems || []).length > 0 ? (
                     <>
                     <div className='header-title'>
                          <h2> Найближчі випробування </h2>
@@ -84,13 +72,8 @@ const CloseTestesComponent = () => {
                     <p style={{ textAlign: 'center', padding: '1rem', color: 'green' }}>На найближчі 10 днів випробувань не заплановано.</p>
                 )}
             </div>
-
-
-
-
         </div>
     );
 };
 
 export default CloseTestesComponent;
-
