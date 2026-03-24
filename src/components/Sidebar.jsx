@@ -27,6 +27,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                     <NavLink to="/genericDatas" onClick={() => isOpen && toggleSidebar()}>Загальні дані</NavLink>
                 )}
                 <NavLink to="/literature" onClick={() => isOpen && toggleSidebar()}>CFBT.UA</NavLink>
+                <NavLink to="/archives" onClick={() => isOpen && toggleSidebar()}>Списане майно</NavLink>
             </div>
 
             <button className="sidebar-logout" onClick={logout} title="Вийти">

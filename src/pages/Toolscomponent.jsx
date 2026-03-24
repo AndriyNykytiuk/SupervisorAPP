@@ -38,7 +38,6 @@ const Toolscomponent = ({ selectedBrigade }) => {
             <ItemElectricTool selectedBrigade={selectedBrigade} />
             <ItemWaterPump selectedBrigade={selectedBrigade} />
             <ItemHydravlicTool selectedBrigade={selectedBrigade} />
-            {/* Окремий блок для засобів порятунку на воді */}
             <ItemSwimTool selectedBrigade={selectedBrigade} />
             <BackPackExtenguisher selectedBrigade={selectedBrigade} />
 

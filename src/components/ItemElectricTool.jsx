@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { MdUpdate, MdDelete } from "react-icons/md"
-import { fetchElectricStationsByBrigade, createElectricStation, updateElectricStation, deleteElectricStation } from '../api/services.js';
+import { fetchElectricStationsByBrigade, createElectricStation, updateElectricStation, deleteElectricStation, archiveEquipmentItem } from '../api/services.js';
+import ArchiveModal from './ArchiveModal.jsx'
 import '../scss/itemelectrictool.scss'
 
 const ItemElectricTool = ({ selectedBrigade }) => {
@@ -18,6 +19,9 @@ const ItemElectricTool = ({ selectedBrigade }) => {
 
     const [formData, setFormData] = useState(initialFormState)
     const [editFormData, setEditFormData] = useState({})
+    
+    // ── Archive state ──
+    const [itemToArchive, setItemToArchive] = useState(null)
 
     const fetchData = async () => {
         if (!selectedBrigade) return
@@ -107,6 +111,29 @@ const ItemElectricTool = ({ selectedBrigade }) => {
         setEditFormData({})
     }
 
+    // ── Archive handlers ──
+    const handleOpenArchive = (item) => {
+        setItemToArchive(item)
+    }
+
+    const handleConfirmArchive = async (archiveData) => {
+        if (!itemToArchive) return
+        try {
+            await archiveEquipmentItem({
+                equipmentType: 'ElectricStations',
+                originalId: itemToArchive.id,
+                ...archiveData
+            })
+            fetchData()
+            if (editingItemId === itemToArchive.id) {
+                handleCancelEdit()
+            }
+        } catch (error) {
+            console.error('Failed to archive Electric Station:', error)
+            throw error 
+        }
+    }
+
     if (!selectedBrigade) return null;
 
     return (
@@ -185,6 +212,14 @@ const ItemElectricTool = ({ selectedBrigade }) => {
                                     <div className='edit-actions'>
                                         <button type='submit' className='save-btn'>Зберегти</button>
                                         <button type='button' className='cancel-btn' onClick={handleCancelEdit}>відмінити</button>
+                                        <button 
+                                            type='button' 
+                                            className='archive-btn' 
+                                            onClick={() => handleOpenArchive(item)}
+                                            style={{ backgroundColor: '#ef4444', color: 'white', padding: '0.5rem 1rem', borderRadius: '4px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
+                                        >
+                                            Списати
+                                        </button>
                                     </div>
                                 </form>
                             ) : (
@@ -208,6 +243,13 @@ const ItemElectricTool = ({ selectedBrigade }) => {
                     <p style={{ padding: '1rem', color: 'var(--gray-600)' }}>Частина поки не має таких генераторів</p>
                 )}
             </div>
+            
+            <ArchiveModal 
+                isOpen={!!itemToArchive}
+                itemName={itemToArchive?.name}
+                onClose={() => setItemToArchive(null)}
+                onConfirm={handleConfirmArchive}
+            />
         </div>
     )
 }

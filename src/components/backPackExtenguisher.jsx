@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { MdUpdate, MdDelete } from "react-icons/md"
-import { fetchBackPackExtenguishersByBrigade, createBackPackExtenguisher, updateBackPackExtenguisher, deleteBackPackExtenguisher } from '../api/services.js'
+import { fetchBackPackExtenguishersByBrigade, createBackPackExtenguisher, updateBackPackExtenguisher, deleteBackPackExtenguisher, archiveEquipmentItem } from '../api/services.js'
+import ArchiveModal from './ArchiveModal.jsx'
 import '../scss/backpackextenguisher.scss'
 
 const BackPackExtenguisher = ({ selectedBrigade }) => {
@@ -18,6 +19,9 @@ const BackPackExtenguisher = ({ selectedBrigade }) => {
 
     const [formData, setFormData] = useState(initialFormState)
     const [editFormData, setEditFormData] = useState({})
+    
+    // ── Archive state ──
+    const [itemToArchive, setItemToArchive] = useState(null)
 
     const fetchData = async () => {
         if (!selectedBrigade) return
@@ -104,6 +108,30 @@ const BackPackExtenguisher = ({ selectedBrigade }) => {
         setEditFormData({})
     }
 
+    // ── Archive handlers ──
+    const handleOpenArchive = (item) => {
+        setItemToArchive(item)
+    }
+
+    const handleConfirmArchive = async (archiveData) => {
+        if (!itemToArchive) return
+        try {
+            await archiveEquipmentItem({
+                // Ensure equipmentType matches backend ModelMap mapping
+                equipmentType: 'backPackExtenguisher', 
+                originalId: itemToArchive.id,
+                ...archiveData
+            })
+            fetchData()
+            if (editingItemId === itemToArchive.id) {
+                handleCancelEdit()
+            }
+        } catch (error) {
+            console.error('Failed to archive Backpack Extinguisher:', error)
+            throw error 
+        }
+    }
+
     if (!selectedBrigade) return null;
 
     return (
@@ -176,6 +204,14 @@ const BackPackExtenguisher = ({ selectedBrigade }) => {
                                     <div className='edit-actions'>
                                         <button type='submit' className='save-btn'>Зберегти</button>
                                         <button type='button' className='cancel-btn' onClick={handleCancelEdit}>відмінити</button>
+                                        <button 
+                                            type='button' 
+                                            className='archive-btn' 
+                                            onClick={() => handleOpenArchive(item)}
+                                            style={{ backgroundColor: '#ef4444', color: 'white', padding: '0.5rem 1rem', borderRadius: '4px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
+                                        >
+                                            Списати
+                                        </button>
                                     </div>
                                 </form>
                             ) : (
@@ -201,6 +237,13 @@ const BackPackExtenguisher = ({ selectedBrigade }) => {
                     <p style={{ padding: '1rem', color: 'var(--gray-600)' }}>Частина поки немає ранцевих вогнегасників</p>
                 )}
             </div>
+            
+            <ArchiveModal 
+                isOpen={!!itemToArchive}
+                itemName={itemToArchive?.name}
+                onClose={() => setItemToArchive(null)}
+                onConfirm={handleConfirmArchive}
+            />
         </div>
     )
 }

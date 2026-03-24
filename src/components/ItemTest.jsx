@@ -2,7 +2,8 @@ import React, { useState } from 'react'
 import { MdUpdate } from "react-icons/md";
 import { FaArrowDownWideShort } from "react-icons/fa6";
 import { MdCheckBox, MdCheckBoxOutlineBlank } from "react-icons/md";
-import { createTestItem, updateTestItem, bulkUpdateTestItems } from '../api/services.js';
+import { createTestItem, updateTestItem, bulkUpdateTestItems, archiveEquipmentItem } from '../api/services.js';
+import ArchiveModal from './ArchiveModal.jsx'
 import '../scss/itemtest.scss'
 
 const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
@@ -34,6 +35,9 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
         linkName: '',
         link: ''
     })
+    
+    // ── Archive state ──
+    const [itemToArchive, setItemToArchive] = useState(null)
     const [isBulkSaving, setIsBulkSaving] = useState(false)
 
     const handleCreate = async (e) => {
@@ -206,6 +210,38 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
         return new Date(dateString).toLocaleDateString('uk-UA')
     }
 
+    // ── Archive handlers ──
+    const handleOpenArchive = (item) => {
+        setItemToArchive(item)
+    }
+
+    const handleConfirmArchive = async (archiveData) => {
+        if (!itemToArchive) return
+        try {
+            await archiveEquipmentItem({
+                equipmentType: 'TestItem',
+                originalId: itemToArchive.id,
+                ...archiveData
+            })
+            
+            // Refresh the list after successful archiving
+            onItemCreated()
+            
+            // Re-fetch all data to make sure badges/counts update correctly
+            if (testList.id) {
+                // If there's an overarching fetch to trigger (not explicitly exposed here, but onItemCreated works locally for the brigade)
+            }
+            
+            // Close edit mode if applicable
+            if (editingItemId === itemToArchive.id) {
+                handleCancelEdit()
+            }
+        } catch (error) {
+            console.error('Failed to archive TestItem:', error)
+            throw error // Throw so the modal can handle it
+        }
+    }
+
     return (
         <div className='item-wrapper'>
             <div className='item-header'>
@@ -348,6 +384,14 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
                                     <div className='edit-actions'>
                                         <button type='submit' className='save-btn'>Зберегти</button>
                                         <button type='button' className='cancel-btn' onClick={handleCancelEdit}>відмінити</button>
+                                        <button 
+                                            type='button' 
+                                            className='archive-btn' 
+                                            onClick={() => handleOpenArchive(item)}
+                                            style={{ backgroundColor: '#ef4444', color: 'white', padding: '0.5rem 1rem', borderRadius: '4px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
+                                        >
+                                            Списати
+                                        </button>
                                     </div>
                                 </form>
                             ) : (
@@ -381,6 +425,14 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
                     <p>Частина поки не має такого обладнання</p>
                 )}
             </div>
+            
+            {/* Archive Modal */}
+            <ArchiveModal 
+                isOpen={!!itemToArchive}
+                itemName={itemToArchive?.name}
+                onClose={() => setItemToArchive(null)}
+                onConfirm={handleConfirmArchive}
+            />
         </div>
             
     )

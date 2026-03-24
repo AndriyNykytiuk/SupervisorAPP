@@ -30,6 +30,7 @@ import extenguisDocumentLinkRouter from './routes/extenguisDocumentlink.js'
 import usageLiquidsLogRouter from './routes/usageLiquidsLog.js'
 import backPackExtenguisherRouter from './routes/backPackExtenguisher.js'
 import genericDatasRouter from './routes/genericDatas.js'
+import equipmentArchiveRouter from './routes/equipmentArchive.js'
 
 
 const app = express()
@@ -70,6 +71,7 @@ app.use('/api/extenguis-document-links', authenticate, extenguisDocumentLinkRout
 app.use('/api/usage-liquids-log', authenticate, usageLiquidsLogRouter)
 app.use('/api/backpack-extenguishers', authenticate, backPackExtenguisherRouter)
 app.use('/api/generic-datas', authenticate, genericDatasRouter)
+app.use('/api/archives', authenticate, equipmentArchiveRouter)
 
 // ── Catch-all: serve index.html for any other route (React routing) ─────
 const indexPath = path.resolve(__dirname, '../dist/index.html')
@@ -119,6 +121,9 @@ async function start() {
 
     const { backPackExtenguisher } = await import('./models/index.js')
     await backPackExtenguisher.sync({ alter: true })
+
+    const { EquipmentArchive } = await import('./models/index.js')
+    await EquipmentArchive.sync({ alter: true })
 
     console.log('📦 Tables synced')
 

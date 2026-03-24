@@ -275,3 +275,14 @@ export const fetchGenericDatas = async () => {
     const { data } = await api.get('/generic-datas');
     return data;
 };
+
+// ── Archives ─────────────────────────────────────────
+export const archiveEquipmentItem = async (payload) => {
+    const { data } = await api.post('/archives', payload);
+    return data;
+};
+
+export const fetchArchivedEquipment = async () => {
+    const { data } = await api.get('/archives');
+    return data;
+};

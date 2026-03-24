@@ -15,6 +15,7 @@ import Powder from './Powder.js'
 import ExtenguisDocumentLink from './extenguisDocumentLink.js'
 import UsageLiquidsLog from './usageLiquidsLog.js'
 import backPackExtenguisher from './backPackExtenguisher.js'
+import EquipmentArchive from './EquipmentArchive.js'
 
 // ── Associations ───────────────────────────────
 // One Detachment has many Brigades
@@ -81,5 +82,9 @@ UsageLiquidsLog.belongsTo(Brigade, { foreignKey: 'brigadeId' })
 Brigade.hasMany(backPackExtenguisher, { foreignKey: 'brigadeId' })
 backPackExtenguisher.belongsTo(Brigade, { foreignKey: 'brigadeId' })
 
-export { User, Detachment, Brigade, testList, TestItem, TestLinks, toolList, ToolItem, ElectricStations, WaterPumps, HydravlicTool, SwimTools, FoamAgent, Powder, ExtenguisDocumentLink, UsageLiquidsLog, backPackExtenguisher }
+// One Brigade has many EquipmentArchives
+Brigade.hasMany(EquipmentArchive, { foreignKey: 'brigadeId' })
+EquipmentArchive.belongsTo(Brigade, { foreignKey: 'brigadeId' })
+
+export { User, Detachment, Brigade, testList, TestItem, TestLinks, toolList, ToolItem, ElectricStations, WaterPumps, HydravlicTool, SwimTools, FoamAgent, Powder, ExtenguisDocumentLink, UsageLiquidsLog, backPackExtenguisher, EquipmentArchive }
 
