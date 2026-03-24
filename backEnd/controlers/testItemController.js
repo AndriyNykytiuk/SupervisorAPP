@@ -357,3 +357,59 @@ export const transfer = async (req, res, next) => {
         next(err)
     }
 }
+
+// PUT /api/test-items/bulk-update — update multiple items with the same data
+export const bulkUpdate = async (req, res, next) => {
+    try {
+        const { itemIds, data } = req.body
+
+        if (!itemIds || !Array.isArray(itemIds) || itemIds.length === 0) {
+            return res.status(400).json({ error: 'itemIds is required (array of numbers)' })
+        }
+        if (!data || typeof data !== 'object') {
+            return res.status(400).json({ error: 'data object is required' })
+        }
+
+        // Only allow specific fields to be updated
+        const allowedFields = ['testDate', 'result', 'nextTestDate', 'linkName', 'link']
+        const updatePayload = {}
+        for (const field of allowedFields) {
+            if (data[field] !== undefined) {
+                updatePayload[field] = data[field]
+            }
+        }
+
+        if (Object.keys(updatePayload).length === 0) {
+            return res.status(400).json({ error: 'No valid fields to update' })
+        }
+
+        // GOD: can update any
+        if (!req.scope) {
+            await TestItem.update(updatePayload, { where: { id: itemIds } })
+            const updated = await TestItem.findAll({ where: { id: itemIds }, include: [testList, Brigade] })
+            return res.json(updated)
+        }
+
+        // SEMI-GOD: read-only
+        if (req.scope.detachmentId && !req.scope.brigadeId) {
+            return res.status(403).json({ error: 'Forbidden: SEMI-GOD is read-only' })
+        }
+
+        // RW: can update only their brigade's items
+        if (req.scope.brigadeId) {
+            const items = await TestItem.findAll({ where: { id: itemIds } })
+            const allOwned = items.every(item => item.brigadeId === req.scope.brigadeId)
+            if (!allOwned) {
+                return res.status(403).json({ error: 'Forbidden: some items do not belong to your brigade' })
+            }
+
+            await TestItem.update(updatePayload, { where: { id: itemIds } })
+            const updated = await TestItem.findAll({ where: { id: itemIds }, include: [testList, Brigade] })
+            return res.json(updated)
+        }
+
+        return res.status(403).json({ error: 'Forbidden: insufficient permissions' })
+    } catch (err) {
+        next(err)
+    }
+}

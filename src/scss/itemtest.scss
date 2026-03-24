@@ -97,11 +97,107 @@
 
 @include mobile-row-as-card;
 
+// ── Bulk update UI ─────────────────────────
+.item-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.bulk-select-btn {
+    cursor: pointer;
+    color: var(--navy);
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--gray-300);
+    background: var(--white);
+    transition: all var(--transition);
+
+    &:hover {
+        background: rgba(252, 215, 0, 0.1);
+        border-color: var(--gold);
+    }
+
+    &.active {
+        background: rgba(239, 68, 68, 0.08);
+        border-color: rgba(239, 68, 68, 0.3);
+        color: #dc2626;
+    }
+}
+
+.bulk-actions-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+    margin-bottom: 0.5rem;
+    background: rgba(252, 215, 0, 0.06);
+    border: 1px solid rgba(252, 215, 0, 0.2);
+    border-radius: var(--radius-md);
+
+    .bulk-select-all {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--navy);
+
+        svg { font-size: 1.25rem; }
+    }
+
+    .bulk-count {
+        font-size: 0.85rem;
+        color: var(--gray-600);
+        font-weight: 500;
+    }
+
+    .bulk-update-btn {
+        margin-left: auto;
+        padding: 0.4rem 1rem;
+        background: var(--navy);
+        color: var(--white);
+        border: none;
+        border-radius: var(--radius-sm);
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all var(--transition);
+
+        &:hover {
+            background: var(--gold);
+            color: var(--navy);
+        }
+    }
+}
+
+.bulk-checkbox {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 1.3rem;
+    color: var(--gray-400);
+    transition: color var(--transition);
+    flex-shrink: 0;
+
+    &:hover { color: var(--navy); }
+
+    .checked { color: var(--navy); }
+}
+
 @media (max-width: 768px) {
     .item-header-title{
         padding: 0;
     }
     .add-btn {
         display: none;
+    }
+    .bulk-actions-bar {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 0.5rem;
     }
 }

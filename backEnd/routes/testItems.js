@@ -16,6 +16,7 @@ router.get('/:id', scopeByRole, ctrl.getById)
 // POST/PUT/DELETE — GOD + RW (SEMI-GOD blocked inside controller)
 router.post('/', authorize('GOD', 'RW'), scopeByRole, ctrl.create)
 router.put('/transfer', authorize('GOD', 'RW'), ctrl.transfer)
+router.put('/bulk-update', authorize('GOD', 'RW'), scopeByRole, ctrl.bulkUpdate)
 router.put('/:id', authorize('GOD', 'RW'), scopeByRole, ctrl.update)
 router.delete('/:id', authorize('GOD', 'RW'), scopeByRole, ctrl.remove)
 

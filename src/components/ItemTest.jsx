@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { MdUpdate } from "react-icons/md";
 import { FaArrowDownWideShort } from "react-icons/fa6";
-import { createTestItem, updateTestItem } from '../api/services.js';
+import { MdCheckBox, MdCheckBoxOutlineBlank } from "react-icons/md";
+import { createTestItem, updateTestItem, bulkUpdateTestItems } from '../api/services.js';
 import '../scss/itemtest.scss'
 
 const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
@@ -21,6 +22,19 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
 
     const [editingItemId, setEditingItemId] = useState(null)
     const [editFormData, setEditFormData] = useState({})
+
+    // Bulk update state
+    const [isSelecting, setIsSelecting] = useState(false)
+    const [selectedIds, setSelectedIds] = useState([])
+    const [showBulkModal, setShowBulkModal] = useState(false)
+    const [bulkFormData, setBulkFormData] = useState({
+        testDate: '',
+        result: 'pass',
+        nextTestDate: '',
+        linkName: '',
+        link: ''
+    })
+    const [isBulkSaving, setIsBulkSaving] = useState(false)
 
     const handleCreate = async (e) => {
         e.preventDefault()
@@ -131,6 +145,62 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
         setEditFormData({})
     }
 
+    // ── Bulk update handlers ──
+    const toggleSelectMode = () => {
+        if (isSelecting) {
+            setSelectedIds([])
+        }
+        setIsSelecting(!isSelecting)
+    }
+
+    const toggleItemSelection = (id) => {
+        setSelectedIds(prev =>
+            prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+        )
+    }
+
+    const selectAll = () => {
+        const allIds = (testList.TestItems || []).map(item => item.id)
+        if (selectedIds.length === allIds.length) {
+            setSelectedIds([])
+        } else {
+            setSelectedIds(allIds)
+        }
+    }
+
+    const handleBulkChange = (e) => {
+        setBulkFormData({ ...bulkFormData, [e.target.name]: e.target.value })
+    }
+
+    const handleBulkSubmit = async (e) => {
+        e.preventDefault()
+        if (selectedIds.length === 0) return
+
+        setIsBulkSaving(true)
+        try {
+            await bulkUpdateTestItems({
+                itemIds: selectedIds,
+                data: {
+                    testDate: bulkFormData.testDate || null,
+                    result: bulkFormData.result,
+                    nextTestDate: bulkFormData.nextTestDate || null,
+                    linkName: bulkFormData.linkName || null,
+                    link: bulkFormData.link || null,
+                }
+            })
+
+            setShowBulkModal(false)
+            setIsSelecting(false)
+            setSelectedIds([])
+            setBulkFormData({ testDate: '', result: 'pass', nextTestDate: '', linkName: '', link: '' })
+            onItemCreated()
+        } catch (err) {
+            console.error('Failed to bulk update:', err)
+        } finally {
+            setIsBulkSaving(false)
+        }
+    }
+
     const formatDate = (dateString) => {
         if (!dateString) return '—'
         return new Date(dateString).toLocaleDateString('uk-UA')
@@ -145,9 +215,16 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
                         <FaArrowDownWideShort className='arrow-down' onClick={() => setIsExpanded(!isExpanded)}/>
                     </div>
 
-                    <h3 className='add-btn' onClick={() => setShowForm(!showForm)}>
-                        {showForm ? '✕' : '+ додати'}
-                    </h3>
+                    <div className='item-header-actions'>
+                        {isExpanded && testList.TestItems?.length > 0 && (
+                            <h3 className={`bulk-select-btn ${isSelecting ? 'active' : ''}`} onClick={toggleSelectMode}>
+                                {isSelecting ? '✕ Скасувати' : '☑ Обрати'}
+                            </h3>
+                        )}
+                        <h3 className='add-btn' onClick={() => setShowForm(!showForm)}>
+                            {showForm ? '✕' : '+ додати'}
+                        </h3>
+                    </div>
                 </div>
                 {isExpanded && testList.TestItems?.length > 0 && (
                     <div className='item-header-row'>
@@ -196,6 +273,56 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
                 </div>
             )}
 
+            {/* Bulk actions bar */}
+            {isSelecting && isExpanded && (
+                <div className='bulk-actions-bar'>
+                    <label className='bulk-select-all' onClick={selectAll}>
+                        {selectedIds.length === (testList.TestItems?.length || 0)
+                            ? <MdCheckBox />
+                            : <MdCheckBoxOutlineBlank />}
+                        <span>Обрати всі</span>
+                    </label>
+                    <span className='bulk-count'>Обрано: {selectedIds.length}</span>
+                    {selectedIds.length > 0 && (
+                        <button className='bulk-update-btn' onClick={() => setShowBulkModal(true)}>
+                            Оновити обрані ({selectedIds.length})
+                        </button>
+                    )}
+                </div>
+            )}
+
+            {/* Bulk update modal */}
+            {showBulkModal && (
+                <div className='modal-overlay' onClick={() => setShowBulkModal(false)}>
+                    <div className='modal-content' onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>Масове оновлення ({selectedIds.length} елементів)</h3>
+                            <button className="close-btn" onClick={() => setShowBulkModal(false)}>✕</button>
+                        </div>
+                        <form className='add-form' onSubmit={handleBulkSubmit}>
+                            <label>Дата випробування:</label>
+                            <input type='date' name='testDate' value={bulkFormData.testDate} onChange={handleBulkChange} />
+
+                            <label>Результат:</label>
+                            <select name='result' value={bulkFormData.result} onChange={handleBulkChange}>
+                                <option value="pass">Придатний</option>
+                                <option value="fail">Непридатний</option>
+                            </select>
+
+                            <label>Наступне випробування:</label>
+                            <input type='date' name='nextTestDate' value={bulkFormData.nextTestDate} onChange={handleBulkChange} />
+
+                            <input type='text' name='linkName' placeholder='Назва документу' value={bulkFormData.linkName} onChange={handleBulkChange} />
+                            <input type='url' name='link' placeholder='Посилання на документ' value={bulkFormData.link} onChange={handleBulkChange} />
+
+                            <button type='submit' disabled={isBulkSaving}>
+                                {isBulkSaving ? 'Збереження...' : `Оновити ${selectedIds.length} елементів`}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             <div className={`item-body ${isExpanded ? 'expanded' : ''}`}>
                 {testList.TestItems?.length > 0 ? (
                     testList.TestItems.map((item) => (
@@ -223,6 +350,13 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
                                 </form>
                             ) : (
                                 <div className={`item-row ${item.result === 'pass' ? 'item-pass' : item.result === 'fail' ? 'item-fail' : ''}`}>
+                                    {isSelecting && (
+                                        <span className='bulk-checkbox' onClick={() => toggleItemSelection(item.id)}>
+                                            {selectedIds.includes(item.id)
+                                                ? <MdCheckBox className='checked' />
+                                                : <MdCheckBoxOutlineBlank />}
+                                        </span>
+                                    )}
                                     <span style={{ flex: '0.5' }} title="Інвентарний номер">{item.inventoryNumber || '—'}</span>
                                     <span style={{ flex: '1.5' }} title="Назва">{item.name}</span>
 
@@ -232,9 +366,11 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
                                     <span className="link-cell" style={{ flex: '0.5' }}>
                                         {item.link ? <a href={item.link} target="_blank" rel="noreferrer" style={{ color: 'var(--navy)', textDecoration: 'underline' }}>{item.linkName || 'Акт'}</a> : '—'}
                                     </span>
-                                    <button className='update-btn' onClick={() => handleEditClick(item)}>
-                                        <MdUpdate />
-                                    </button>
+                                    {!isSelecting && (
+                                        <button className='update-btn' onClick={() => handleEditClick(item)}>
+                                            <MdUpdate />
+                                        </button>
+                                    )}
                                 </div>
                             )}
                         </div>

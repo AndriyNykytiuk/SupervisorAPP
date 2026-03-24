@@ -33,6 +33,11 @@ export const updateTestItem = async (id, payload) => {
     return data;
 };
 
+export const bulkUpdateTestItems = async (payload) => {
+    const { data } = await api.put('/test-items/bulk-update', payload);
+    return data;
+};
+
 export const fetchUpcomingTestItems = async () => {
     const { data } = await api.get('/test-items/upcoming');
     return data;
