@@ -210,9 +210,9 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
         <div className='item-wrapper'>
             <div className='item-header'>
                 <div className='item-header-title'>
-                    <div className='item-header-title-add' >
+                    <div className='item-header-title-add' onClick={() => setIsExpanded(!isExpanded)} style={{ cursor: 'pointer', flex: 1, userSelect: 'none' }}>
                         <h2>{testList.name} - {testList.TestItems?.length} шт.</h2>
-                        <FaArrowDownWideShort className='arrow-down' onClick={() => setIsExpanded(!isExpanded)}/>
+                        <FaArrowDownWideShort className='arrow-down' />
                     </div>
 
                     <div className='item-header-actions'>
@@ -221,9 +221,11 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
                                 {isSelecting ? '✕ Скасувати' : '☑ Обрати'}
                             </h3>
                         )}
-                        <h3 className='add-btn' onClick={() => setShowForm(!showForm)}>
-                            {showForm ? '✕' : '+ додати'}
-                        </h3>
+                        {isExpanded && (
+                            <h3 className='add-btn' onClick={() => setShowForm(!showForm)}>
+                                {showForm ? '✕' : '+ додати'}
+                            </h3>
+                        )}
                     </div>
                 </div>
                 {isExpanded && testList.TestItems?.length > 0 && (
@@ -380,6 +382,7 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
                 )}
             </div>
         </div>
+            
     )
 }
 
