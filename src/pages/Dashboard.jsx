@@ -13,6 +13,7 @@ import ExtenguisLiquidsComponent from './ExtenguisLiquidsComponent.jsx'
 import GenericDatas from './GenericDatas.jsx'
 import Literature from './Literature.jsx'
 import ArchivePage from './ArchivePage.jsx'
+import Home from './Home.jsx'
 
 const Dashboard = () => {
     const { selectedBrigade } = useAuth()
@@ -36,6 +37,7 @@ const Dashboard = () => {
 
                 <Routes>
                     <Route element={<Mainbar />}>
+                        <Route index element={<Home />} />
                         <Route path="/nextTestes" element={<CloseTestesComponent selectedBrigade={selectedBrigade} />} />
                         <Route path="/tests" element={<Testcomponent selectedBrigade={selectedBrigade} />} />
                         <Route path="/transfer" element={<Transfercomponent selectedBrigade={selectedBrigade} />} />

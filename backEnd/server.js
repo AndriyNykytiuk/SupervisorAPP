@@ -101,31 +101,24 @@ async function start() {
     // Disable global alter to avoid ER_TOO_MANY_KEYS on Detachments bug
     await sequelize.sync()
 
-    // Explicitly alter TestItem and ToolItem to add the new columns
-    const { User, TestItem, ToolItem, ElectricStations, WaterPumps, HydravlicTool, SwimTools, FoamAgent, Powder } = await import('./models/index.js')
-    await User.sync({ alter: true })
-    // await TestItem.sync({ alter: true })
-    // await ToolItem.sync({ alter: true })
-    await ElectricStations.sync({ alter: true })
-    await WaterPumps.sync({ alter: true })
-    await HydravlicTool.sync({ alter: true })
-    await SwimTools.sync({ alter: true })
-    await FoamAgent.sync({ alter: true })
-    await Powder.sync({ alter: true })
-
-    const { ExtenguisDocumentLink } = await import('./models/index.js')
-    await ExtenguisDocumentLink.sync({ alter: true })
-
-    const { UsageLiquidsLog } = await import('./models/index.js')
-    await UsageLiquidsLog.sync({ alter: true })
-
-    const { backPackExtenguisher } = await import('./models/index.js')
-    await backPackExtenguisher.sync({ alter: true })
-
-    const { EquipmentArchive } = await import('./models/index.js')
-    await EquipmentArchive.sync({ alter: true })
-
-    console.log('📦 Tables synced')
+    if (process.env.NODE_ENV !== 'production') {
+        // Explicitly alter TestItem and ToolItem to add the new columns
+        const { User, TestItem, ToolItem, ElectricStations, WaterPumps, HydravlicTool, SwimTools, FoamAgent, Powder, ExtenguisDocumentLink, UsageLiquidsLog, backPackExtenguisher, EquipmentArchive } = await import('./models/index.js')
+        await User.sync({ alter: true })
+        await ElectricStations.sync({ alter: true })
+        await WaterPumps.sync({ alter: true })
+        await HydravlicTool.sync({ alter: true })
+        await SwimTools.sync({ alter: true })
+        await FoamAgent.sync({ alter: true })
+        await Powder.sync({ alter: true })
+        await ExtenguisDocumentLink.sync({ alter: true })
+        await UsageLiquidsLog.sync({ alter: true })
+        await backPackExtenguisher.sync({ alter: true })
+        await EquipmentArchive.sync({ alter: true })
+        console.log('📦 Tables altered for development environment')
+    } else {
+        console.log('📦 Tables verified for production (no alter)')
+    }
 
     app.listen(PORT, () => {
         console.log(`🚀 Server running at http://localhost:${PORT}`)

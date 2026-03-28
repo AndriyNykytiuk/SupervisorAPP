@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { MdUpdate, MdDelete } from "react-icons/md"
 import { fetchWaterPumpsByBrigade, createWaterPump, updateWaterPump, deleteWaterPump, archiveEquipmentItem } from '../api/services.js';
+import { toast } from 'react-toastify';
 import ArchiveModal from './ArchiveModal.jsx'
 import '../scss/itemwaterpump.scss'
 
@@ -61,8 +62,10 @@ const ItemWaterPump = ({ selectedBrigade }) => {
 
             setFormData(initialFormState)
             setShowForm(false)
+            toast.success('Мотопомпу успішно додано!');
             fetchData()
         } catch (err) {
+            toast.error(err.response?.data?.error || 'Помилка при збереженні')
             console.error('Failed to create Water Pump:', err)
         }
     }
@@ -79,8 +82,10 @@ const ItemWaterPump = ({ selectedBrigade }) => {
             });
 
             setEditingItemId(null)
+            toast.success('Дані успішно оновлено!');
             fetchData()
         } catch (err) {
+            toast.error(err.response?.data?.error || 'Помилка при оновленні')
             console.error('Failed to update Water Pump:', err)
         }
     }
@@ -89,8 +94,10 @@ const ItemWaterPump = ({ selectedBrigade }) => {
         if (!window.confirm("Дійсно видалити цю мотопомпу?")) return;
         try {
             await deleteWaterPump(id);
+            toast.success('Запис успішно видалено!');
             fetchData()
         } catch (err) {
+            toast.error(err.response?.data?.error || 'Помилка при видаленні')
             console.error('Failed to delete Water Pump:', err)
         }
     }

@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { AiOutlineEdit } from "react-icons/ai";
 import { MdSaveAlt, MdClose } from "react-icons/md";
+import { toast } from 'react-toastify';
 import '../scss/foamcomponent.scss';
 
 const FoamComponent = ({ foamData, onSave }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const [modal, setModal] = useState({ open: false, message: '', type: 'success' });
-
-    const showModal = (message, type = 'success') => setModal({ open: true, message, type });
-    const closeModal = () => setModal({ open: false, message: '', type: 'success' });
 
     const [data, setData] = useState({
         carsPassedTests: 0,
@@ -59,13 +56,13 @@ const FoamComponent = ({ foamData, onSave }) => {
             const ok = await onSave(payload);
             if (ok) {
                 setIsEditing(false);
-                showModal('Дані успішно збережено!', 'success');
+                toast.success('Дані успішно збережено!');
             } else {
-                showModal('Помилка при збереженні', 'error');
+                toast.error('Помилка при збереженні');
             }
         } catch (error) {
             console.error('Помилка при збереженні:', error);
-            showModal('Помилка при збереженні даних', 'error');
+            toast.error('Помилка при збереженні даних');
         } finally {
             setIsSaving(false);
         }
@@ -172,27 +169,6 @@ const FoamComponent = ({ foamData, onSave }) => {
                     </div>
                 </div>
             </div>
-
-            {/* Модальне вікно */}
-            {modal.open && (
-                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '1rem' }}>
-                    <div style={{ backgroundColor: '#fff', borderRadius: '0.5rem', padding: '1.5rem', maxWidth: '24rem', width: '100%', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: `2px solid ${modal.type === 'error' ? '#dc2626' : 'var(--gold)'}`, paddingBottom: '0.5rem' }}>
-                            <h3 style={{ fontSize: '1.125rem', fontWeight: 'bold', margin: 0, color: modal.type === 'error' ? '#dc2626' : 'var(--navy)' }}>
-                                {modal.type === 'error' ? '⚠️ Увага' : '✅ Успіх'}
-                            </h3>
-                            <MdClose onClick={closeModal} style={{ fontSize: '1.5rem', cursor: 'pointer', color: '#4b5563' }} />
-                        </div>
-                        <p style={{ color: '#374151', lineHeight: 1.5, margin: '0 0 1.25rem 0' }}>{modal.message}</p>
-                        <button onClick={closeModal} style={{ width: '100%', padding: '0.5rem 1rem', borderRadius: '0.25rem', fontWeight: 600, color: '#fff', cursor: 'pointer', border: 'none', backgroundColor: modal.type === 'error' ? '#dc2626' : 'var(--navy)', transition: 'opacity 0.2s' }}
-                            onMouseEnter={(e) => e.target.style.opacity = '0.85'}
-                            onMouseLeave={(e) => e.target.style.opacity = '1'}
-                        >
-                            Закрити
-                        </button>
-                    </div>
-                </div>
-            )}
         </div>
     )
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { MdUpdate, MdDelete } from "react-icons/md"
 import { fetchBackPackExtenguishersByBrigade, createBackPackExtenguisher, updateBackPackExtenguisher, deleteBackPackExtenguisher, archiveEquipmentItem } from '../api/services.js'
+import { toast } from 'react-toastify';
 import ArchiveModal from './ArchiveModal.jsx'
 import '../scss/backpackextenguisher.scss'
 
@@ -60,8 +61,10 @@ const BackPackExtenguisher = ({ selectedBrigade }) => {
 
             setFormData(initialFormState)
             setShowForm(false)
+            toast.success('Вогнегасник успішно додано!');
             fetchData()
         } catch (err) {
+            toast.error(err.response?.data?.error || 'Помилка при збереженні')
             console.error('Failed to create backpack extinguisher:', err)
         }
     }
@@ -77,8 +80,10 @@ const BackPackExtenguisher = ({ selectedBrigade }) => {
             })
 
             setEditingItemId(null)
+            toast.success('Дані успішно оновлено!');
             fetchData()
         } catch (err) {
+            toast.error(err.response?.data?.error || 'Помилка при оновленні')
             console.error('Failed to update backpack extinguisher:', err)
         }
     }
@@ -87,8 +92,10 @@ const BackPackExtenguisher = ({ selectedBrigade }) => {
         if (!window.confirm("Дійсно видалити цей запис?")) return;
         try {
             await deleteBackPackExtenguisher(id)
+            toast.success('Запис успішно видалено!');
             fetchData()
         } catch (err) {
+            toast.error(err.response?.data?.error || 'Помилка при видаленні')
             console.error('Failed to delete backpack extinguisher:', err)
         }
     }

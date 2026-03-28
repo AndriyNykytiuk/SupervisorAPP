@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { MdUpdate, MdDelete } from "react-icons/md"
 import { fetchHydravlicToolsByBrigade, createHydravlicTool, updateHydravlicTool, deleteHydravlicTool, archiveEquipmentItem } from '../api/services.js';
+import { toast } from 'react-toastify';
 import ArchiveModal from './ArchiveModal.jsx'
 import '../scss/itemhydravlictool.scss'
 
@@ -61,8 +62,11 @@ const ItemHydravlicTool = ({ selectedBrigade }) => {
 
             setFormData(initialFormState)
             setShowForm(false)
+            toast.success('Інструмент успішно додано!');
             fetchData()
         } catch (err) {
+            const errorMsg = err.response?.data?.error || err.message || 'Помилка';
+            toast.error(`Не вдалося додати інструмент: ${errorMsg}`);
             console.error('Failed to create Hydravlic Tool:', err)
         }
     }
@@ -79,8 +83,11 @@ const ItemHydravlicTool = ({ selectedBrigade }) => {
             });
 
             setEditingItemId(null)
+            toast.success('Дані успішно оновлено!');
             fetchData()
         } catch (err) {
+            const errorMsg = err.response?.data?.error || err.message || 'Помилка';
+            toast.error(`Не вдалося оновити дані: ${errorMsg}`);
             console.error('Failed to update Hydravlic Tool:', err)
         }
     }
@@ -89,8 +96,11 @@ const ItemHydravlicTool = ({ selectedBrigade }) => {
         if (!window.confirm("Дійсно видалити цю мотопомпу?")) return;
         try {
             await deleteHydravlicTool(id);
+            toast.success('Інструмент видалено');
             fetchData()
         } catch (err) {
+            const errorMsg = err.response?.data?.error || err.message || 'Помилка';
+            toast.error(`Не вдалося видалити: ${errorMsg}`);
             console.error('Failed to delete Hydravlic Tool:', err)
         }
     }

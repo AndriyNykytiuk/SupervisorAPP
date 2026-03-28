@@ -2,8 +2,8 @@ import api from './axios';
 
 // ── Auth ─────────────────────────────────────────────
 export const loginUser = async (name, password) => {
-    const { data } = await api.post('/auth/login', { name, password });
-    return data; // { token, user }
+    const response = await api.post('/auth/login', { name, password });
+    return response; // returns full response to get headers
 };
 
 export const fetchBrigadeLastLogin = async (brigadeId) => {

@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 
 // ── State shape ──────────────────────────────────────
+const savedUser = JSON.parse(localStorage.getItem('user') || 'null');
 const initialState = {
-    user: null,
-    selectedBrigade: null,
+    user: savedUser,
+    selectedBrigade: savedUser ? savedUser.brigadeId : null,
 };
 
 // ── Reducer ──────────────────────────────────────────
@@ -16,7 +17,7 @@ function authReducer(state, action) {
                 selectedBrigade: action.payload.brigadeId || null,
             };
         case 'LOGOUT':
-            return { ...initialState };
+            return { user: null, selectedBrigade: null };
         case 'SET_BRIGADE':
             return { ...state, selectedBrigade: action.payload };
         default:

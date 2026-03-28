@@ -32,16 +32,16 @@ const Header = ({ toggleSidebar }) => {
             return;
         }
 
-        fetchBrigadeLastLogin(selectedBrigade)
-            .then((data) => {
-                setLastLogin(data.lastLogin);
-                setRwUserName(data.userName);
-            })
-            .catch(() => {
-                setLastLogin(null);
-                setRwUserName(null);
-            });
-    }, [selectedBrigade, showDropdown]);
+            fetchBrigadeLastLogin(selectedBrigade)
+                .then((data) => {
+                    setLastLogin(data.lastLogin);
+                    setRwUserName(data.userName);
+                })
+                .catch(() => {
+                    setLastLogin(null);
+                    setRwUserName(null);
+                });
+        }, [selectedBrigade, showDropdown]);
 
     return (
         <header className='header'>
@@ -87,10 +87,9 @@ const Header = ({ toggleSidebar }) => {
                                             <div className="header__date-info">
                                                 <IoCalendarOutline />
                                                 <span>Оновлено: {new Date(lastLogin).toLocaleDateString('uk-UA')}</span>
+                                                {rwUserName && <span className="header__rw-user" style={{marginLeft: '0.5rem', fontWeight: 600, color: 'var(--gold)'}}>({rwUserName})</span>}
                                             </div>
-                                            {rwUserName && (
-                                                <span className="header__date-user">{rwUserName}</span>
-                                            )}
+                                        
                                         </div>
                                     )}
                                 </>

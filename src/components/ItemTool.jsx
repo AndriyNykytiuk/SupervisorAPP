@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { MdUpdate } from "react-icons/md"
 import { createToolItem, updateToolItem, archiveEquipmentItem } from '../api/services.js';
+import { toast } from 'react-toastify';
 import ArchiveModal from './ArchiveModal.jsx'
 import '../scss/itemtool.scss'
 
@@ -50,8 +51,10 @@ const ItemTool = ({ toolList, selectedBrigade, onItemCreated }) => {
 
             setFormData(initialFormState)
             setShowForm(false)
+            toast.success('Обладнання успішно додано!');
             onItemCreated()
         } catch (err) {
+            toast.error(err.response?.data?.error || 'Помилка при збереженні')
             console.error('Failed to create tool item:', err)
         }
     }
@@ -69,8 +72,10 @@ const ItemTool = ({ toolList, selectedBrigade, onItemCreated }) => {
             });
 
             setEditingItemId(null)
+            toast.success('Дані успішно оновлено!');
             onItemCreated()
         } catch (err) {
+            toast.error(err.response?.data?.error || 'Помилка при оновленні')
             console.error('Failed to update tool item:', err)
         }
     }
@@ -125,7 +130,6 @@ const ItemTool = ({ toolList, selectedBrigade, onItemCreated }) => {
                 <div className='item-header-title'>
                     <div className='item-header-title-add'>
                         <h2>{toolList.name} - {toolList.ToolItems?.length} шт.</h2>
-                        <span onClick={() => setIsExpanded(!isExpanded)} style={{ transition: 'transform 0.2s', transform: isExpanded ? 'rotate(45deg)' : 'rotate(0deg)' }}>+</span>
                     </div>
                     <h3 className='add-btn' onClick={() => setShowForm(!showForm)}>
                         {showForm ? '✕' : '+ додати'}

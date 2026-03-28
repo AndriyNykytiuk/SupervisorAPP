@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { toast } from 'react-toastify';
 
 /**
  * Generic data-fetching hook.
@@ -22,7 +23,9 @@ export default function useApi(apiFn, deps = [], { skip = false } = {}) {
             const result = await apiFn();
             setData(result);
         } catch (err) {
-            setError(err?.response?.data?.error || err.message || 'Unknown error');
+            const errorMsg = err?.response?.data?.error || err.message || 'Unknown error';
+            setError(errorMsg);
+            toast.error(`Помилка: ${errorMsg}`);
         } finally {
             setLoading(false);
         }

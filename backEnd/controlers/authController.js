@@ -100,3 +100,47 @@ export const getBrigadeLastLogin = async (req, res, next) => {
         next(err)
     }
 }
+
+// GET /api/auth/all-brigades-activity
+// Returns all brigades (scoped) and their latest RW user login
+export const getAllBrigadesActivity = async (req, res, next) => {
+    try {
+        const whereClause = {}
+        if (req.scope?.detachmentId && !req.scope?.brigadeId) {
+            whereClause.detachmentId = req.scope.detachmentId
+        } else if (req.scope?.brigadeId) {
+            return res.status(403).json({ error: 'Forbidden' })
+        }
+
+        const brigades = await Brigade.findAll({
+            where: whereClause,
+            include: [
+                { model: Detachment, attributes: ['name'] },
+                { model: User, where: { role: 'RW' }, required: false, attributes: ['name', 'lastLogin'] }
+            ],
+            order: [[Detachment, 'name', 'ASC'], ['name', 'ASC']]
+        })
+
+        const result = brigades.map(b => {
+             let latestUser = null
+             if (b.Users && b.Users.length > 0) {
+                 latestUser = b.Users.reduce((latest, user) => {
+                     if (!latest || !latest.lastLogin) return user
+                     if (!user.lastLogin) return latest
+                     return new Date(user.lastLogin) > new Date(latest.lastLogin) ? user : latest
+                 }, null)
+             }
+             return {
+                 id: b.id,
+                 name: b.name,
+                 detachmentName: b.Detachment?.name,
+                 rwUserName: latestUser ? latestUser.name : null,
+                 lastLogin: latestUser ? latestUser.lastLogin : null
+             }
+        })
+
+        res.json(result)
+    } catch (err) {
+        next(err)
+    }
+}

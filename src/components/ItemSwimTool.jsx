@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { MdUpdate, MdDelete } from "react-icons/md"
 import { fetchSwimToolsByBrigade, createSwimTool, updateSwimTool, deleteSwimTool, archiveEquipmentItem } from '../api/services.js';
+import { toast } from 'react-toastify';
 import ArchiveModal from './ArchiveModal.jsx'
 import '../scss/itemswimtool.scss'
 
@@ -66,8 +67,10 @@ const ItemSwimTool = ({ selectedBrigade }) => {
 
             setFormData(initialFormState)
             setShowForm(false)
+            toast.success('Обладнання успішно додано!');
             fetchData()
         } catch (err) {
+            toast.error(err.response?.data?.error || 'Помилка при збереженні')
             console.error('Failed to create Swim Tool:', err)
         }
     }
@@ -87,8 +90,10 @@ const ItemSwimTool = ({ selectedBrigade }) => {
             });
 
             setEditingItemId(null)
+            toast.success('Дані успішно оновлено!');
             fetchData()
         } catch (err) {
+            toast.error(err.response?.data?.error || 'Помилка при оновленні')
             console.error('Failed to update Swim Tool:', err)
         }
     }
@@ -97,8 +102,10 @@ const ItemSwimTool = ({ selectedBrigade }) => {
         if (!window.confirm("Дійсно видалити цей запис?")) return;
         try {
             await deleteSwimTool(id);
+            toast.success('Запис успішно видалено!');
             fetchData()
         } catch (err) {
+            toast.error(err.response?.data?.error || 'Помилка при видаленні')
             console.error('Failed to delete Swim Tool:', err)
         }
     }

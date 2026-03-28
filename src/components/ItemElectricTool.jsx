@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { MdUpdate, MdDelete } from "react-icons/md"
 import { fetchElectricStationsByBrigade, createElectricStation, updateElectricStation, deleteElectricStation, archiveEquipmentItem } from '../api/services.js';
+import { toast } from 'react-toastify';
 import ArchiveModal from './ArchiveModal.jsx'
 import '../scss/itemelectrictool.scss'
 
@@ -61,8 +62,10 @@ const ItemElectricTool = ({ selectedBrigade }) => {
 
             setFormData(initialFormState)
             setShowForm(false)
+            toast.success('Генератор/станцію успішно додано!');
             fetchData()
         } catch (err) {
+            toast.error(err.response?.data?.error || 'Помилка при збереженні')
             console.error('Failed to create Electric Station:', err)
         }
     }
@@ -79,8 +82,10 @@ const ItemElectricTool = ({ selectedBrigade }) => {
             });
 
             setEditingItemId(null)
+            toast.success('Дані успішно оновлено!');
             fetchData()
         } catch (err) {
+            toast.error(err.response?.data?.error || 'Помилка при оновленні')
             console.error('Failed to update Electric Station:', err)
         }
     }
@@ -89,8 +94,10 @@ const ItemElectricTool = ({ selectedBrigade }) => {
         if (!window.confirm("Дійсно видалити цей генератор/станцію?")) return;
         try {
             await deleteElectricStation(id);
+            toast.success('Запис успішно видалено!');
             fetchData()
         } catch (err) {
+            toast.error(err.response?.data?.error || 'Помилка при видаленні')
             console.error('Failed to delete Electric Station:', err)
         }
     }
