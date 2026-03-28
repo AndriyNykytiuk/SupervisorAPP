@@ -87,7 +87,7 @@ const Header = ({ toggleSidebar }) => {
                                             <div className="header__date-info">
                                                 <IoCalendarOutline />
                                                 <span>Оновлено: {new Date(lastLogin).toLocaleDateString('uk-UA')}</span>
-                                                {rwUserName && <span className="header__rw-user" style={{marginLeft: '0.5rem', fontWeight: 600, color: 'var(--gold)'}}>({rwUserName})</span>}
+
                                             </div>
                                         
                                         </div>
