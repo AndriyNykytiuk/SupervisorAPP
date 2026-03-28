@@ -53,8 +53,8 @@ const ItemHydravlicTool = ({ selectedBrigade }) => {
             await createHydravlicTool({
                 name: formData.name,
                 yaerOfPurchase: formData.yaerOfPurchase ? parseInt(formData.yaerOfPurchase, 10) : null,
-                typeOfStern: formData.typeOfStern ? parseFloat(formData.typeOfStern) : null,
-                placeOfStorage: formData.placeOfStorage,
+                typeOfStern: formData.typeOfStern || null,
+                placeOfStorage: formData.placeOfStorage || null,
                 notes: formData.notes,
                 brigadeId: selectedBrigade,
             });
@@ -73,8 +73,8 @@ const ItemHydravlicTool = ({ selectedBrigade }) => {
             await updateHydravlicTool(id, {
                 name: editFormData.name,
                 yaerOfPurchase: editFormData.yaerOfPurchase ? parseInt(editFormData.yaerOfPurchase, 10) : null,
-                typeOfStern: editFormData.typeOfStern ? parseFloat(editFormData.typeOfStern) : null,
-                placeOfStorage: editFormData.placeOfStorage,
+                typeOfStern: editFormData.typeOfStern || null,
+                placeOfStorage: editFormData.placeOfStorage || null,
                 notes: editFormData.notes,
             });
 

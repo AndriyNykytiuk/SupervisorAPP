@@ -87,6 +87,7 @@ export const getBrigadeLastLogin = async (req, res, next) => {
 
         const rwUser = await User.findOne({
             where: { brigadeId, role: 'RW' },
+            order: [['lastLogin', 'DESC']],
             attributes: ['lastLogin', 'name'],
         })
 

@@ -22,8 +22,9 @@ const Header = ({ toggleSidebar }) => {
         { skip: !showDropdown }
     );
 
-    // Fetch lastLogin for the selected brigade (GOD/SEMI-GOD only)
+    // Fetch lastLogin and userName for the selected brigade (GOD/SEMI-GOD only)
     const [lastLogin, setLastLogin] = useState(null);
+    const [rwUserName, setRwUserName] = useState(null);
 
     useEffect(() => {
         if (!showDropdown || !selectedBrigade) {
@@ -32,8 +33,14 @@ const Header = ({ toggleSidebar }) => {
         }
 
         fetchBrigadeLastLogin(selectedBrigade)
-            .then((data) => setLastLogin(data.lastLogin))
-            .catch(() => setLastLogin(null));
+            .then((data) => {
+                setLastLogin(data.lastLogin);
+                setRwUserName(data.userName);
+            })
+            .catch(() => {
+                setLastLogin(null);
+                setRwUserName(null);
+            });
     }, [selectedBrigade, showDropdown]);
 
     return (
@@ -77,8 +84,13 @@ const Header = ({ toggleSidebar }) => {
 
                                     {lastLogin && (
                                         <div className='header__date-badge'>
-                                            <IoCalendarOutline />
-                                            <span>Оновлено: {new Date(lastLogin).toLocaleDateString('uk-UA')}</span>
+                                            <div className="header__date-info">
+                                                <IoCalendarOutline />
+                                                <span>Оновлено: {new Date(lastLogin).toLocaleDateString('uk-UA')}</span>
+                                            </div>
+                                            {rwUserName && (
+                                                <span className="header__date-user">{rwUserName}</span>
+                                            )}
                                         </div>
                                     )}
                                 </>
