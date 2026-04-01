@@ -1,14 +1,13 @@
-advanced update for test items.
+advanced update for archive component (wastedtestitems.jsx)
 
 general view: 
-I need fetures that can help update datas in testItem in next way.
-I need have opportunity choose few items only for testlist where this items. then click button-> apper window like create item-> input new data and after click on save btn save all datas for every testItem.
+I need component whicj take oportunity show wasteditems list and new component which will show which item from ones brigade was transfered to another brigade and when?.
 
 way to implement:
-create new suplement btn for choose items.
-after click this btn on front end must appear chek-box for every item in testlist
-backend-- after click on btn choose items create new array.
-in this array push all items which Ihave choosed. 
-
-front end apper new window where I put new testdate result and nexttestdate pole for documentname and document link.
-then after click on save btn write for every chosed element puted datas.
+name title "Архів"
+two buttons "списане майно ", "передане майно"
+clik on "списане майно " show table with wasteditems list
+clik on "передане майно " show table with transferreditems list (create component create route an render it in new component)
+add filter by date range for both tables
+add filter by brigade name for both tables
+add transferreditems list in genericdatas.jsx

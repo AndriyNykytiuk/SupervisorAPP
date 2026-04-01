@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import ArchiveModal from './ArchiveModal.jsx'
 import '../scss/itemswimtool.scss'
 
-const ItemSwimTool = ({ selectedBrigade }) => {
+const ItemSwimTool = ({ selectedBrigade, searchQuery = '' }) => {
     const [elements, setElements] = useState([])
     const [showForm, setShowForm] = useState(false)
     const [editingItemId, setEditingItemId] = useState(null)
@@ -153,6 +153,10 @@ const ItemSwimTool = ({ selectedBrigade }) => {
     }
 
     if (!selectedBrigade) return null;
+
+    // Hide component if search query doesn't match list name
+    const listNameMatch = !searchQuery || 'Засоби порятунку на воді'.toLowerCase().includes(searchQuery.toLowerCase());
+    if (searchQuery && !listNameMatch) return null;
 
     return (
         <div className='item-swimtool-wrapper'>

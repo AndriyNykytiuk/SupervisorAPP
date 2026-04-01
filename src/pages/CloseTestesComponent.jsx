@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { fetchUpcomingTestItems, fetchWastedTestItems } from '../api/services.js';
 import useApi from '../hooks/useApi.js';
 import LoadingSpinner from '../components/ui/LoadingSpinner.jsx';
@@ -6,6 +6,7 @@ import ErrorMessage from '../components/ui/ErrorMessage.jsx';
 import ClosesTestitem from '../components/ClosesTestitem'
 import Wastedtestitem from '../components/Wastedtestitem';
 import '../scss/closestestitem.scss'
+import SearchBar from '../components/ui/SearchBar.jsx'
 
 const CloseTestesComponent = () => {
     const {
@@ -24,14 +25,14 @@ const CloseTestesComponent = () => {
 
     const loading = loadingUpcoming || loadingWasted;
     const error = errorUpcoming || errorWasted;
+    const [searchQuery, setSearchQuery] = useState('');
 
     if (loading) return <LoadingSpinner />;
     if (error) return <ErrorMessage message={error} onRetry={() => { refetchUpcoming(); refetchWasted(); }} />;
-
     return (
         <div>
             <div className='title-wrapp'>
-                {(wastedItems || []).length > 0 ? (
+                {(wastedItems || []).filter(i => i.name?.toLowerCase().includes(searchQuery.toLowerCase())).length > 0 ? (
                     <div className='item-wrapp'>
                         <div>
                             <h3>Обладнання, яке не випробували</h3>
@@ -42,7 +43,7 @@ const CloseTestesComponent = () => {
                             <span>дата до коли треба випробувати</span>
                             <span>приналежність</span>
                         </div>
-                        {wastedItems.map(item => (
+                        {(wastedItems || []).filter(i => i.name?.toLowerCase().includes(searchQuery.toLowerCase())).map(item => (
                             <Wastedtestitem key={item.id} item={item} />
                         ))}
                     </div>
@@ -64,7 +65,7 @@ const CloseTestesComponent = () => {
                             <span>дата до коли треба випробувати</span>
                             <span>приналежність</span>
                         </div>
-                        {upcomingItems.map(item => (
+                        {(upcomingItems || []).filter(i => i.name?.toLowerCase().includes(searchQuery.toLowerCase())).map(item => (
                             <ClosesTestitem key={item.id} item={item} />
                         ))}
                     </>

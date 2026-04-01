@@ -13,4 +13,7 @@ router.get('/brigade/:brigadeId', ctrl.getAllByBrigade)
 // PUT — transfer test items + tool items to another brigade
 router.put('/', authorize('GOD', 'SEMI-GOD', 'RW'), ctrl.transferItems)
 
+// GET — transfer history logs
+router.get('/logs', ctrl.getTransferLogs)
+
 export default router

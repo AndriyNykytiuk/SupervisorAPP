@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import ArchiveModal from './ArchiveModal.jsx'
 import '../scss/itemhydravlictool.scss'
 
-const ItemHydravlicTool = ({ selectedBrigade }) => {
+const ItemHydravlicTool = ({ selectedBrigade, searchQuery = '' }) => {
     const [elements, setElements] = useState([])
     const [showForm, setShowForm] = useState(false)
     const [editingItemId, setEditingItemId] = useState(null)
@@ -20,7 +20,7 @@ const ItemHydravlicTool = ({ selectedBrigade }) => {
 
     const [formData, setFormData] = useState(initialFormState)
     const [editFormData, setEditFormData] = useState({})
-    
+
     // ── Archive state ──
     const [itemToArchive, setItemToArchive] = useState(null)
 
@@ -140,11 +140,16 @@ const ItemHydravlicTool = ({ selectedBrigade }) => {
             }
         } catch (error) {
             console.error('Failed to archive Hydravlic Tool:', error)
-            throw error 
+            throw error
         }
     }
 
     if (!selectedBrigade) return null;
+
+    // Hide component if search query doesn't match list name or any item name
+    const listNameMatch = !searchQuery || 'Гідравлічний інструмент'.toLowerCase().includes(searchQuery.toLowerCase());
+    const hasMatchingItems = elements?.some(i => i.name?.toLowerCase().includes(searchQuery.toLowerCase()));
+    if (searchQuery && !listNameMatch && !hasMatchingItems) return null;
 
     return (
         <div className='item-hydravlic-tool-wrapper'>
@@ -204,7 +209,7 @@ const ItemHydravlicTool = ({ selectedBrigade }) => {
 
             <div className='item-body'>
                 {elements?.length > 0 ? (
-                    elements.map((item) => (
+                    elements.filter(i => listNameMatch || i.name?.toLowerCase().includes(searchQuery.toLowerCase())).map((item) => (
                         <div key={item.id} className='item-row-container'>
                             {editingItemId === item.id ? (
                                 <form className='edit-form' onSubmit={(e) => handleUpdateSubmit(e, item.id)}>
@@ -224,9 +229,9 @@ const ItemHydravlicTool = ({ selectedBrigade }) => {
                                     <div className='edit-actions'>
                                         <button type='submit' className='save-btn'>Зберегти</button>
                                         <button type='button' className='cancel-btn' onClick={handleCancelEdit}>відмінити</button>
-                                        <button 
-                                            type='button' 
-                                            className='archive-btn' 
+                                        <button
+                                            type='button'
+                                            className='archive-btn'
                                             onClick={() => handleOpenArchive(item)}
                                             style={{ backgroundColor: '#ef4444', color: 'white', padding: '0.5rem 1rem', borderRadius: '4px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
                                         >
@@ -255,8 +260,8 @@ const ItemHydravlicTool = ({ selectedBrigade }) => {
                     <p style={{ padding: '1rem', color: 'var(--gray-600)' }}>Частина поки не має таких інструментів</p>
                 )}
             </div>
-            
-            <ArchiveModal 
+
+            <ArchiveModal
                 isOpen={!!itemToArchive}
                 itemName={itemToArchive?.name}
                 onClose={() => setItemToArchive(null)}

@@ -40,12 +40,11 @@
 
 @media (max-width: 768px) {
     .gd-item-wrapp {
-        padding: 0.5rem;
-        overflow-x: auto;
+        padding: 0.85rem;
     }
 
     .gd-item-header-row {
-        min-width: 600px;
+        display: none;
     }
 }
 

@@ -286,3 +286,9 @@ export const fetchArchivedEquipment = async () => {
     const { data } = await api.get('/archives');
     return data;
 };
+
+// ── Transfer Logs ────────────────────────────────────
+export const fetchTransferLogs = async (params = {}) => {
+    const { data } = await api.get('/transfer/logs', { params });
+    return data;
+};

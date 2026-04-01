@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import ArchiveModal from './ArchiveModal.jsx'
 import '../scss/itemtool.scss'
 
-const ItemTool = ({ toolList, selectedBrigade, onItemCreated }) => {
+const ItemTool = ({ toolList, selectedBrigade, onItemCreated, searchQuery = '' }) => {
     const [showForm, setShowForm] = useState(false)
     const [isExpanded, setIsExpanded] = useState(false)
     const [editingItemId, setEditingItemId] = useState(null)
@@ -21,7 +21,7 @@ const ItemTool = ({ toolList, selectedBrigade, onItemCreated }) => {
 
     const [formData, setFormData] = useState(initialFormState)
     const [editFormData, setEditFormData] = useState({})
-    
+
     // ── Archive state ──
     const [itemToArchive, setItemToArchive] = useState(null)
 
@@ -110,17 +110,17 @@ const ItemTool = ({ toolList, selectedBrigade, onItemCreated }) => {
                 originalId: itemToArchive.id,
                 ...archiveData
             })
-            
+
             // Оновити список
             onItemCreated()
-            
+
             // Якщо був відкритий режим редагування - закрити його
             if (editingItemId === itemToArchive.id) {
                 handleCancelEdit()
             }
         } catch (error) {
             console.error('Failed to archive ToolItem:', error)
-            throw error 
+            throw error
         }
     }
 
@@ -169,7 +169,7 @@ const ItemTool = ({ toolList, selectedBrigade, onItemCreated }) => {
 
             <div className={`item-body ${isExpanded ? 'expanded' : ''}`}>
                 {toolList.ToolItems?.length > 0 ? (
-                    toolList.ToolItems.map((item) => (
+                    toolList.ToolItems.filter(i => !searchQuery || toolList.name?.toLowerCase().includes(searchQuery.toLowerCase()) || i.name?.toLowerCase().includes(searchQuery.toLowerCase())).map((item) => (
                         <div key={item.id} className='item-row-container'>
                             {editingItemId === item.id ? (
                                 <form className='edit-form' onSubmit={(e) => handleUpdateSubmit(e, item.id)}>
@@ -181,9 +181,9 @@ const ItemTool = ({ toolList, selectedBrigade, onItemCreated }) => {
                                     <div className='edit-actions'>
                                         <button type='submit' className='save-btn'>Зберегти</button>
                                         <button type='button' className='cancel-btn' onClick={handleCancelEdit}>відмінити</button>
-                                        <button 
-                                            type='button' 
-                                            className='archive-btn' 
+                                        <button
+                                            type='button'
+                                            className='archive-btn'
                                             onClick={() => handleOpenArchive(item)}
                                             style={{ backgroundColor: '#ef4444', color: 'white', padding: '0.5rem 1rem', borderRadius: '4px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
                                         >
@@ -210,9 +210,9 @@ const ItemTool = ({ toolList, selectedBrigade, onItemCreated }) => {
                     <p>Частина поки не має такого обладнання</p>
                 )}
             </div>
-            
+
             {/* Archive Modal */}
-            <ArchiveModal 
+            <ArchiveModal
                 isOpen={!!itemToArchive}
                 itemName={itemToArchive?.name}
                 onClose={() => setItemToArchive(null)}

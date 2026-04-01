@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import ArchiveModal from './ArchiveModal.jsx'
 import '../scss/backpackextenguisher.scss'
 
-const BackPackExtenguisher = ({ selectedBrigade }) => {
+const BackPackExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
     const [elements, setElements] = useState([])
     const [showForm, setShowForm] = useState(false)
     const [editingItemId, setEditingItemId] = useState(null)
@@ -141,6 +141,11 @@ const BackPackExtenguisher = ({ selectedBrigade }) => {
 
     if (!selectedBrigade) return null;
 
+    // Hide component if search query doesn't match list name or any item name
+    const listNameMatch = !searchQuery || 'Ранцеві вогнегасники'.toLowerCase().includes(searchQuery.toLowerCase());
+    const hasMatchingItems = elements?.some(i => i.name?.toLowerCase().includes(searchQuery.toLowerCase()));
+    if (searchQuery && !listNameMatch && !hasMatchingItems) return null;
+
     return (
         <div className='item-backpackextenguisher-wrapper'>
             <div className='item-header'>
@@ -194,7 +199,7 @@ const BackPackExtenguisher = ({ selectedBrigade }) => {
 
             <div className='item-body'>
                 {elements?.length > 0 ? (
-                    elements.map((item) => (
+                    elements.filter(i => listNameMatch || i.name?.toLowerCase().includes(searchQuery.toLowerCase())).map((item) => (
                         <div key={item.id} className='item-row-container'>
                             {editingItemId === item.id ? (
                                 <form className='edit-form' onSubmit={(e) => handleUpdateSubmit(e, item.id)}>

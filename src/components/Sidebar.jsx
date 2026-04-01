@@ -18,9 +18,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             </div>
 
             <div className='sidebar-links'>
-                {user?.role === 'GOD' && (
-                    <NavLink to='/' onClick={() => isOpen && toggleSidebar()}>Оновлення даних</NavLink>
-                )}
+            
                 <NavLink to='/nextTestes' onClick={() => isOpen && toggleSidebar()}>Найближчі випробування</NavLink>
                 <NavLink to="/tests" onClick={() => isOpen && toggleSidebar()}>Випробування</NavLink>
                 <NavLink to="/tools" onClick={() => isOpen && toggleSidebar()}>Відомості ПТО та АРО</NavLink>

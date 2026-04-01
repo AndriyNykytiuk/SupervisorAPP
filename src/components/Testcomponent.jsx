@@ -6,11 +6,13 @@ import ErrorMessage from './ui/ErrorMessage.jsx';
 import ItemTest from './ItemTest';
 import Testorderschedulelinks from './Testorderschedulelinks';
 import { MdOutlinePublishedWithChanges } from "react-icons/md";
+import SearchBar from './ui/SearchBar.jsx';
 import '../scss/testcomponent.scss'
 
 const Testcomponent = ({ selectedBrigade }) => {
     const [showLinksModal, setShowLinksModal] = useState(false)
     const [linksFormData, setLinksFormData] = useState({ linkSchedule: '', linkOrder: '' })
+    const [searchQuery, setSearchQuery] = useState('')
 
     const {
         data: testLists,
@@ -70,6 +72,8 @@ const Testcomponent = ({ selectedBrigade }) => {
                 </div>
             </div>
 
+            <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Пошук за назвою списку випробувань..." />
+
             {showLinksModal && (
                 <div className='modal-overlay' onClick={() => setShowLinksModal(false)}>
                     <div className='modal-content' onClick={(e) => e.stopPropagation()}>
@@ -100,8 +104,12 @@ const Testcomponent = ({ selectedBrigade }) => {
                 </div>
             )}
 
-            {(testLists || []).map((list) => (
-                <ItemTest key={list.id} testList={list} selectedBrigade={selectedBrigade} onItemCreated={refetch} />
+            {(testLists || []).filter(list =>
+                !searchQuery ||
+                list.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                list.TestItems?.some(i => i.name?.toLowerCase().includes(searchQuery.toLowerCase()))
+            ).map((list) => (
+                <ItemTest key={list.id} testList={list} selectedBrigade={selectedBrigade} onItemCreated={refetch} searchQuery={searchQuery} />
             ))}
         </div>
     );

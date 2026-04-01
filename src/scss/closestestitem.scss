@@ -66,13 +66,41 @@
 
 @media (max-width: 768px) {
     .item-wrapp {
-        padding: 0.5rem;
-        overflow-x: auto;
+        padding: 0.85rem;
     }
 
-    .item-header-row,
+    .item-header-row {
+        display: none;
+    }
+
     .close-test-item {
-        display: grid;
-        grid-template-columns: repeat(1fr);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 1rem;
+        text-align: right;
+        border-radius: var(--radius-lg);
+
+        > div {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            &::before {
+                font-size: 0.75rem;
+                color: rgba(29, 53, 87, 0.75); // Navy transparent for gold bg
+                font-weight: 700;
+                text-transform: uppercase;
+                margin-right: 1rem;
+                text-align: left;
+            }
+
+            &:nth-child(1)::before { content: "Обладнання:"; }
+            &:nth-child(2)::before { content: "Інв. номер:"; }
+            &:nth-child(3)::before { content: "Встигнути до:"; }
+            &:nth-child(4)::before { content: "Підрозділ:"; }
+        }
     }
 }

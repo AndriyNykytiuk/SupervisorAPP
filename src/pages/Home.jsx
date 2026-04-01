@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import api from '../api/axios.js';
 import { formatDistanceToNow, isValid } from 'date-fns';
 import { uk } from 'date-fns/locale';
+import LoginActivityChart from '../components/LoginActivityChart.jsx';
 import '../scss/home.scss';
 
 const Home = () => {
@@ -75,6 +76,8 @@ const Home = () => {
             {loading ? (
                 <div className="loading-spinner">Завантаження даних...</div>
             ) : (
+                <>
+                <LoginActivityChart brigadesData={brigadesData} />
                 <div className="activity-table-wrapper">
                     <table className="activity-table">
                         <thead>
@@ -124,6 +127,7 @@ const Home = () => {
                         </tbody>
                     </table>
                 </div>
+                </>
             )}
         </div>
     );

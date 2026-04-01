@@ -89,7 +89,6 @@ const Header = ({ toggleSidebar }) => {
                                                 <span>Оновлено: {new Date(lastLogin).toLocaleDateString('uk-UA')}</span>
 
                                             </div>
-                                        
                                         </div>
                                     )}
                                 </>

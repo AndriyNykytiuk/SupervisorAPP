@@ -5,6 +5,7 @@ import {
     transferItems
 } from '../api/services.js';
 import LoadingSpinner from '../components/ui/LoadingSpinner.jsx';
+import SearchBar from '../components/ui/SearchBar.jsx';
 import '../scss/transfercomponent.scss'
 
 const Transfercomponent = ({ selectedBrigade }) => {
@@ -22,6 +23,7 @@ const Transfercomponent = ({ selectedBrigade }) => {
     const [brigades, setBrigades] = useState([])
     const [message, setMessage] = useState('')
     const [loading, setLoading] = useState(false)
+    const [searchQuery, setSearchQuery] = useState('')
 
     const fetchData = async () => {
         if (!selectedBrigade) return
@@ -161,6 +163,7 @@ const Transfercomponent = ({ selectedBrigade }) => {
             <div className='transfercomponent-header'>
                 <h2>Передача майна</h2>
             </div>
+            <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Пошук за назвою..." />
 
 
             <div className='transfer-wrapper'>
@@ -183,7 +186,11 @@ const Transfercomponent = ({ selectedBrigade }) => {
                 {message && <p>{message}</p>}
             </div>
 
-            {testLists.map((list) => (
+            {testLists.filter(list => 
+                !searchQuery || 
+                list.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                list.TestItems?.some(i => i.name?.toLowerCase().includes(searchQuery.toLowerCase()))
+            ).map((list) => (
                 <div key={`test-${list.id}`} className='transfer-wrapper'>
                     <div className='item-header-title'>
                         <h2>{list.name}</h2>
@@ -200,7 +207,11 @@ const Transfercomponent = ({ selectedBrigade }) => {
                     )}
                     <div className='item-body'>
                         {list.TestItems?.length > 0 ? (
-                            list.TestItems.map((item) => (
+                            list.TestItems.filter(i => 
+                                !searchQuery || 
+                                list.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                i.name?.toLowerCase().includes(searchQuery.toLowerCase())
+                            ).map((item) => (
                                 <div key={item.id} className={`item-row test-transfer-row ${item.result === 'pass' ? 'item-pass' : item.result === 'fail' ? 'item-fail' : ''}`}>
                                     <input
                                         type='checkbox'
@@ -222,7 +233,11 @@ const Transfercomponent = ({ selectedBrigade }) => {
                 </div>
             ))}
 
-            {toolLists.map((list) => (
+            {toolLists.filter(list => 
+                !searchQuery || 
+                list.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                list.ToolItems?.some(i => i.name?.toLowerCase().includes(searchQuery.toLowerCase()))
+            ).map((list) => (
                 <div key={`tool-${list.id}`} className='transfer-wrapper'>
                     <div className='item-header-title'>
                         <h2>{list.name}</h2>
@@ -240,7 +255,11 @@ const Transfercomponent = ({ selectedBrigade }) => {
                     )}
                     <div className='item-body'>
                         {list.ToolItems?.length > 0 ? (
-                            list.ToolItems.map((item) => (
+                            list.ToolItems.filter(i => 
+                                !searchQuery || 
+                                list.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                i.name?.toLowerCase().includes(searchQuery.toLowerCase())
+                            ).map((item) => (
                                 <div key={item.id} className='item-row tool-transfer-row'>
                                     <input
                                         type='checkbox'
@@ -263,7 +282,11 @@ const Transfercomponent = ({ selectedBrigade }) => {
                 </div>
             ))}
 
-            {electricStations.length > 0 && (
+            {electricStations.length > 0 && 
+                (!searchQuery || 
+                 'Електростанції/Генератори'.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                 electricStations.some(i => i.name?.toLowerCase().includes(searchQuery.toLowerCase()))
+                ) && (
                 <div className='transfer-wrapper'>
                     <div className='item-header-title'>
                         <h2>Електростанції/Генератори</h2>
@@ -277,7 +300,11 @@ const Transfercomponent = ({ selectedBrigade }) => {
                         <span>примітки</span>
                     </div>
                     <div className='item-body'>
-                        {electricStations.map((item) => (
+                        {electricStations.filter(i => 
+                            !searchQuery || 
+                            'Електростанції/Генератори'.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                            i.name?.toLowerCase().includes(searchQuery.toLowerCase())
+                        ).map((item) => (
                             <div key={item.id} className='item-row electric-station-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.5fr 0.5fr 0.8fr 1.5fr 1.5fr' }}>
                                 <input
                                     type='checkbox'
@@ -296,7 +323,11 @@ const Transfercomponent = ({ selectedBrigade }) => {
                 </div>
             )}
 
-            {hydravlicTools.length > 0 && (
+            {hydravlicTools.length > 0 && 
+                (!searchQuery || 
+                 'Гідравлічний та електричний інструмент'.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                 hydravlicTools.some(i => i.name?.toLowerCase().includes(searchQuery.toLowerCase()))
+                ) && (
                 <div className='transfer-wrapper'>
                     <div className='item-header-title'>
                         <h2>Гідравлічний та електричний інструмент</h2>
@@ -310,7 +341,11 @@ const Transfercomponent = ({ selectedBrigade }) => {
                         <span>примітки</span>
                     </div>
                     <div className='item-body'>
-                        {hydravlicTools.map((item) => (
+                        {hydravlicTools.filter(i => 
+                            !searchQuery || 
+                            'Гідравлічний та електричний інструмент'.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                            i.name?.toLowerCase().includes(searchQuery.toLowerCase())
+                        ).map((item) => (
                             <div key={item.id} className='item-row hydravlic-tool-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.5fr 0.5fr 0.8fr 1.5fr 1.5fr' }}>
                                 <input
                                     type='checkbox'
@@ -329,7 +364,8 @@ const Transfercomponent = ({ selectedBrigade }) => {
                 </div>
             )}
 
-            {swimTools.length > 0 && (
+            {swimTools.length > 0 && 
+                (!searchQuery || 'Засоби порятунку на воді'.toLowerCase().includes(searchQuery.toLowerCase())) && (
                 <div className='transfer-wrapper'>
                     <div className='item-header-title'>
                         <h2>Засоби порятунку на воді (введіть кількість для передачі)</h2>

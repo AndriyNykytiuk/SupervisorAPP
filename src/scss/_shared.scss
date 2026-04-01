@@ -186,6 +186,10 @@
         color: var(--gold) !important;
         background: var(--gold-muted) !important;
     }
+
+    @media (max-width: 768px) {
+        display: none !important;
+    }
 }
 
 @mixin btn-delete {
@@ -536,8 +540,7 @@
                 }
 
                 .update-btn {
-                    align-self: flex-end;
-                    margin-top: 0.5rem;
+                    display: none !important;
                 }
             }
         }
@@ -562,5 +565,12 @@
                 font-size: 0.8rem;
             }
         }
+    }
+}
+
+// ─── Global Mobile Overrides ───────────────────
+@media (max-width: 768px) {
+    .action-buttons-wrap {
+        display: none !important;
     }
 }

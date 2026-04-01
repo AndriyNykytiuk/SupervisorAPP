@@ -6,7 +6,7 @@ import { createTestItem, updateTestItem, bulkUpdateTestItems, archiveEquipmentIt
 import ArchiveModal from './ArchiveModal.jsx'
 import '../scss/itemtest.scss'
 
-const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
+const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }) => {
     const [showForm, setShowForm] = useState(false)
     const [isExpanded, setIsExpanded] = useState(false)
 
@@ -35,7 +35,7 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
         linkName: '',
         link: ''
     })
-    
+
     // ── Archive state ──
     const [itemToArchive, setItemToArchive] = useState(null)
     const [isBulkSaving, setIsBulkSaving] = useState(false)
@@ -223,15 +223,15 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
                 originalId: itemToArchive.id,
                 ...archiveData
             })
-            
+
             // Refresh the list after successful archiving
             onItemCreated()
-            
+
             // Re-fetch all data to make sure badges/counts update correctly
             if (testList.id) {
                 // If there's an overarching fetch to trigger (not explicitly exposed here, but onItemCreated works locally for the brigade)
             }
-            
+
             // Close edit mode if applicable
             if (editingItemId === itemToArchive.id) {
                 handleCancelEdit()
@@ -363,7 +363,7 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
 
             <div className={`item-body ${isExpanded ? 'expanded' : ''}`}>
                 {testList.TestItems?.length > 0 ? (
-                    testList.TestItems.map((item) => (
+                    testList.TestItems.filter(i => !searchQuery || testList.name?.toLowerCase().includes(searchQuery.toLowerCase()) || i.name?.toLowerCase().includes(searchQuery.toLowerCase())).map((item) => (
                         <div key={item.id} className='item-row-container'>
                             {editingItemId === item.id ? (
                                 <form className='edit-form' onSubmit={(e) => handleUpdateSubmit(e, item.id)}>
@@ -384,9 +384,9 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
                                     <div className='edit-actions'>
                                         <button type='submit' className='save-btn'>Зберегти</button>
                                         <button type='button' className='cancel-btn' onClick={handleCancelEdit}>відмінити</button>
-                                        <button 
-                                            type='button' 
-                                            className='archive-btn' 
+                                        <button
+                                            type='button'
+                                            className='archive-btn'
                                             onClick={() => handleOpenArchive(item)}
                                             style={{ backgroundColor: '#ef4444', color: 'white', padding: '0.5rem 1rem', borderRadius: '4px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
                                         >
@@ -425,16 +425,16 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated }) => {
                     <p>Частина поки не має такого обладнання</p>
                 )}
             </div>
-            
+
             {/* Archive Modal */}
-            <ArchiveModal 
+            <ArchiveModal
                 isOpen={!!itemToArchive}
                 itemName={itemToArchive?.name}
                 onClose={() => setItemToArchive(null)}
                 onConfirm={handleConfirmArchive}
             />
         </div>
-            
+
     )
 }
 
