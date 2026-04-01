@@ -164,8 +164,7 @@ const ArchivePage = () => {
                         <table className="archive-table">
                             <thead>
                                 <tr>
-                                    <th>Назва</th>
-                                    <th>Тип</th>
+                                    <th>Назва</th>                         
                                     <th>Звідки</th>
                                     <th>Куди</th>
                                     <th>Кількість</th>
@@ -175,8 +174,7 @@ const ArchivePage = () => {
                             <tbody>
                                 {transfers.map(log => (
                                     <tr key={log.id}>
-                                        <td><strong>{log.itemName}</strong></td>
-                                        <td>{log.equipmentType}</td>
+                                        <td><strong>{log.itemName}</strong></td>    
                                         <td>{log.FromBrigade?.name || `ID: ${log.fromBrigadeId}`}</td>
                                         <td>{log.ToBrigade?.name || `ID: ${log.toBrigadeId}`}</td>
                                         <td>{log.quantity}</td>

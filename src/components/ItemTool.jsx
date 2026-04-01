@@ -18,7 +18,9 @@ const ItemTool = ({ toolList, selectedBrigade, onItemCreated, searchQuery = '' }
         quantity: 0,
         notes: ''
     }
-
+    const onclikExpand = () => {
+        setIsExpanded(prev => !prev)
+    }
     const [formData, setFormData] = useState(initialFormState)
     const [editFormData, setEditFormData] = useState({})
 
@@ -126,12 +128,12 @@ const ItemTool = ({ toolList, selectedBrigade, onItemCreated, searchQuery = '' }
 
     return (
         <div className='item-tool-wrapper'>
-            <div className='item-header'>
+            <div className='item-header' onClick={() => setIsExpanded(!isExpanded)} style={{ cursor: 'pointer' }}>
                 <div className='item-header-title'>
                     <div className='item-header-title-add'>
                         <h2>{toolList.name} - {toolList.ToolItems?.length} шт.</h2>
                     </div>
-                    <h3 className='add-btn' onClick={() => setShowForm(!showForm)}>
+                    <h3 className='add-btn' onClick={(e) => { e.stopPropagation(); setShowForm(!showForm); }}>
                         {showForm ? '✕' : '+ додати'}
                     </h3>
                 </div>

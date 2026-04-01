@@ -244,21 +244,21 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
 
     return (
         <div className='item-wrapper'>
-            <div className='item-header'>
+            <div className='item-header' onClick={() => setIsExpanded(!isExpanded)} style={{ cursor: 'pointer' }}>
                 <div className='item-header-title'>
-                    <div className='item-header-title-add' onClick={() => setIsExpanded(!isExpanded)} style={{ cursor: 'pointer', flex: 1, userSelect: 'none' }}>
+                    <div className='item-header-title-add' style={{ flex: 1, userSelect: 'none' }}>
                         <h2>{testList.name} - {testList.TestItems?.length} шт.</h2>
                         <FaArrowDownWideShort className='arrow-down' />
                     </div>
 
                     <div className='item-header-actions'>
                         {isExpanded && testList.TestItems?.length > 0 && (
-                            <h3 className={`bulk-select-btn ${isSelecting ? 'active' : ''}`} onClick={toggleSelectMode}>
+                            <h3 className={`bulk-select-btn ${isSelecting ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); toggleSelectMode(); }}>
                                 {isSelecting ? '✕ Скасувати' : '☑ Обрати'}
                             </h3>
                         )}
                         {isExpanded && (
-                            <h3 className='add-btn' onClick={() => setShowForm(!showForm)}>
+                            <h3 className='add-btn' onClick={(e) => { e.stopPropagation(); setShowForm(!showForm); }}>
                                 {showForm ? '✕' : '+ додати'}
                             </h3>
                         )}

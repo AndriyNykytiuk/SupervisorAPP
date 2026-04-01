@@ -1,4 +1,4 @@
-import { TestItem, testList, ToolItem, toolList, Brigade, Detachment, ElectricStations, HydravlicTool, SwimTools, TransferLog } from '../models/index.js'
+import { TestItem, testList, ToolItem, toolList, Brigade, Detachment, ElectricStations, WaterPumps, HydravlicTool, SwimTools, TransferLog } from '../models/index.js'
 import { Op } from 'sequelize'
 
 // GET /api/transfer/brigades — all detachments with brigades (no role restriction)
@@ -44,6 +44,11 @@ export const getAllByBrigade = async (req, res, next) => {
             where: { brigadeId }
         })
 
+        // Fetch Water Pumps
+        const waterPumps = await WaterPumps.findAll({
+            where: { brigadeId }
+        })
+
         // Fetch Swim Tools
         const swimTools = await SwimTools.findAll({
             where: { brigadeId }
@@ -54,6 +59,7 @@ export const getAllByBrigade = async (req, res, next) => {
             testLists,
             toolLists,
             electricStations,
+            waterPumps,
             hydravlicTools,
             swimTools,
         })
@@ -65,7 +71,7 @@ export const getAllByBrigade = async (req, res, next) => {
 // PUT /api/transfer — move test items + tool items to another brigade
 export const transferItems = async (req, res, next) => {
     try {
-        const { testItemIds, toolItemIds, electricStationIds, hydravlicToolIds, swimToolTransfers, toBrigadeId } = req.body
+        const { testItemIds, toolItemIds, electricStationIds, waterPumpIds, hydravlicToolIds, swimToolTransfers, toBrigadeId } = req.body
 
         if (!toBrigadeId) {
             return res.status(400).json({ error: 'toBrigadeId is required' })
@@ -134,6 +140,26 @@ export const transferItems = async (req, res, next) => {
             await ElectricStations.update({ brigadeId: toBrigadeId }, { where: { id: electricStationIds } })
             result.electricStations = await ElectricStations.findAll({
                 where: { id: electricStationIds },
+                include: [Brigade],
+            })
+        }
+
+        // Transfer water pumps
+        if (waterPumpIds && waterPumpIds.length > 0) {
+            const items = await WaterPumps.findAll({ where: { id: waterPumpIds }, include: [Brigade] })
+            for (const item of items) {
+                await TransferLog.create({
+                    itemName: item.name || `WaterPump #${item.id}`,
+                    equipmentType: 'WaterPumps',
+                    fromBrigadeId: item.brigadeId,
+                    toBrigadeId,
+                    quantity: 1,
+                    details: item.toJSON(),
+                })
+            }
+            await WaterPumps.update({ brigadeId: toBrigadeId }, { where: { id: waterPumpIds } })
+            result.waterPumps = await WaterPumps.findAll({
+                where: { id: waterPumpIds },
                 include: [Brigade],
             })
         }

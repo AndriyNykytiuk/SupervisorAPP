@@ -37,6 +37,12 @@
     border-bottom: 1px solid var(--gray-200);
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
+    cursor: pointer;
+    transition: background var(--transition-fast);
+
+    &:hover {
+        background: var(--gray-50);
+    }
 }
 
 @mixin item-header-title {

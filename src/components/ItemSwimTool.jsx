@@ -9,6 +9,8 @@ const ItemSwimTool = ({ selectedBrigade, searchQuery = '' }) => {
     const [elements, setElements] = useState([])
     const [showForm, setShowForm] = useState(false)
     const [editingItemId, setEditingItemId] = useState(null)
+    const [isExpanded, setIsExpanded] = useState(false)
+    const toggleExpand = () => setIsExpanded(prev => !prev)
 
     const initialFormState = {
         lifeBoat: '',
@@ -160,14 +162,14 @@ const ItemSwimTool = ({ selectedBrigade, searchQuery = '' }) => {
 
     return (
         <div className='item-swimtool-wrapper'>
-            <div className='item-header'>
+            <div className='item-header' onClick={toggleExpand} style={{ cursor: 'pointer' }}>
                 <div className='item-header-title'>
                     <h2>Засоби порятунку на воді</h2>
-                    <h3 className='add-btn' onClick={() => setShowForm(!showForm)}>
+                    <h3 className='add-btn' onClick={(e) => { e.stopPropagation(); setShowForm(!showForm); }}>
                         {showForm ? '✕' : '+ додати'}
                     </h3>
                 </div>
-                {elements?.length > 0 && (
+                {isExpanded && elements?.length > 0 && (
                     <div className='item-header-row swim-tool-row'>
                         <span title="Рятувальні човни">РЯТУВАЛЬНИЙ ЧОВЕН</span>
                         <span title="Моторні рятувальні човни">МОТОРНИЙ ЧОВЕН</span>
@@ -213,8 +215,8 @@ const ItemSwimTool = ({ selectedBrigade, searchQuery = '' }) => {
                 </div>
             )}
 
-            <div className='item-body'>
-                {elements?.length > 0 ? (
+            <div className={`item-body ${isExpanded ? 'expanded' : ''}`}>
+                {isExpanded && (elements?.length > 0 ? (
                     elements.map((item) => (
                         <div key={item.id} className='item-row-container'>
                             {editingItemId === item.id ? (
@@ -263,7 +265,7 @@ const ItemSwimTool = ({ selectedBrigade, searchQuery = '' }) => {
                     ))
                 ) : (
                     <p style={{ padding: '1rem', color: 'var(--gray-600)' }}>Частина поки не має записів про засоби порятунку на воді</p>
-                )}
+                ))}
             </div>
             
             <ArchiveModal 

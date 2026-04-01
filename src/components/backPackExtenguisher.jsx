@@ -9,6 +9,8 @@ const BackPackExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
     const [elements, setElements] = useState([])
     const [showForm, setShowForm] = useState(false)
     const [editingItemId, setEditingItemId] = useState(null)
+    const [isExpanded, setIsExpanded] = useState(false)
+    const toggleExpand = () => setIsExpanded(prev => !prev)
 
     const initialFormState = {
         name: '',
@@ -142,20 +144,22 @@ const BackPackExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
     if (!selectedBrigade) return null;
 
     // Hide component if search query doesn't match list name or any item name
-    const listNameMatch = !searchQuery || 'Ранцеві вогнегасники'.toLowerCase().includes(searchQuery.toLowerCase());
+    const listNameMatch = !searchQuery || 
+        'Ранцеві вогнегасники'.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (searchQuery.toLowerCase().startsWith('електр') && 'Ранцеві вогнегасники'.toLowerCase().includes('електро')); // Placeholder if needed
     const hasMatchingItems = elements?.some(i => i.name?.toLowerCase().includes(searchQuery.toLowerCase()));
     if (searchQuery && !listNameMatch && !hasMatchingItems) return null;
 
     return (
         <div className='item-backpackextenguisher-wrapper'>
-            <div className='item-header'>
+            <div className='item-header' onClick={toggleExpand} style={{ cursor: 'pointer' }}>
                 <div className='item-header-title'>
                     <h2>Ранцеві вогнегасники - {elements?.length || 0   }</h2>
-                    <h3 className='add-btn' onClick={() => setShowForm(!showForm)}>
+                    <h3 className='add-btn' onClick={(e) => { e.stopPropagation(); setShowForm(!showForm); }}>
                         {showForm ? '✕' : '+ додати'}
                     </h3>
                 </div>
-                {elements?.length > 0 && (
+                {isExpanded && elements?.length > 0 && (
                     <div className='item-header-row'>
                         <span title="Назва (Марка)">НАЗВА</span>
                         <span title="Об'єм води (л)">ОБ'ЄМ ВОДИ (л)</span>
@@ -197,8 +201,8 @@ const BackPackExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
                 </div>
             )}
 
-            <div className='item-body'>
-                {elements?.length > 0 ? (
+            <div className={`item-body ${isExpanded ? 'expanded' : ''}`}>
+                {isExpanded && (elements?.length > 0 ? (
                     elements.filter(i => listNameMatch || i.name?.toLowerCase().includes(searchQuery.toLowerCase())).map((item) => (
                         <div key={item.id} className='item-row-container'>
                             {editingItemId === item.id ? (
@@ -247,7 +251,7 @@ const BackPackExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
                     ))
                 ) : (
                     <p style={{ padding: '1rem', color: 'var(--gray-600)' }}>Частина поки немає ранцевих вогнегасників</p>
-                )}
+                ))}
             </div>
             
             <ArchiveModal 

@@ -5,6 +5,7 @@
 
     .item-header {
         @include item-header;
+        cursor: pointer;
         .item-header-title { @include item-header-title; }
         .item-header-row {
             @include item-header-row;

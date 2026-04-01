@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import html2pdf from 'html2pdf.js';
 import { fetchGenericDatas, fetchTransferLogs } from '../api/services.js';
+import { TfiPrinter } from "react-icons/tfi";
 import useApi from '../hooks/useApi.js';
 import LoadingSpinner from '../components/ui/LoadingSpinner.jsx';
 import ErrorMessage from '../components/ui/ErrorMessage.jsx';
@@ -33,9 +34,21 @@ const GenericDatas = () => {
             filename: 'Загальні_дані.pdf',
             image: { type: 'jpeg', quality: 0.95 },
             html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' },
+            pagebreak: {
+                mode: ['avoid-all', 'css', 'legacy'],
+                before: '.page-break-before', // клас для розриву перед елементом
+               
+                        
+            }
         };
-        html2pdf().set(opt).from(pageRef.current).save();
+        html2pdf()
+        .set(opt)
+        .from(pageRef.current)
+        .outputPdf('bloburl')
+        .then((url) => {
+            window.open(url, '_blank')
+        })
     };
 
     // Fetch recent transfer logs
@@ -108,33 +121,33 @@ const GenericDatas = () => {
     };
 
     return (
-        <div ref={pageRef} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <div  style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <div className='no-print' style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <button
+                    className='no-print'
                     onClick={exportToPdf}
                     style={{
-                        padding: '0.5rem 1.2rem',
+                        padding: '0.5rem 1rem',
                         background: 'var(--navy)',
                         color: 'white',
                         border: 'none',
                         borderRadius: '6px',
                         cursor: 'pointer',
                         fontWeight: 600,
-                        fontSize: '0.9rem',
+                        fontSize: '1.3rem',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '0.4rem'
                     }}
                 >
-                    📄 Завантажити PDF
+                    <TfiPrinter />
                 </button>
             </div>
             <LoginActivityChart />
-
-            {/* 1. Failed & Upcoming Tests */}
-            <div>
-                <div className='gd-title-wrapp'>
-                    {wasted.length > 0 ? (
+            <div ref={pageRef} >
+                <div>
+                    <div className='gd-title-wrapp'>
+                        {wasted.length > 0 ? (
                         <div className='gd-item-wrapp'>
                             <div><h3>Обладнання, яке не випробували {getScopeTitle()}</h3></div>
                             <div className='gd-item-header-row'>
@@ -175,7 +188,7 @@ const GenericDatas = () => {
             </div>
 
             {/* 2. Total Extinguish Liquids */}
-            <div className="gd-wrapper">
+            <div ref={pageRef} className="gd-wrapper">
                 <div className="gd-header" style={{ padding: '0 0 0.5rem 0' }}>
                     <h3 style={{ fontSize: '1.25rem', marginBottom: 0 }}>
                         Загальний запас вогнегасних речовин{' '}
@@ -301,6 +314,9 @@ const GenericDatas = () => {
                 </div>
             )}
                 */}
+
+            </div>
+            {/* 1. Failed & Upcoming Tests */}
         </div>
     );
 };
