@@ -158,9 +158,8 @@ const GeneralRequirements = ({ selectedBrigade }) => {
         }
     }
 
-    if (!selectedBrigade) {
-        return <p style={{ padding: '2rem', textAlign: 'center' }}>Оберіть частину для перегляду потреби</p>
-    }
+    const hasBrigade = !!selectedBrigade
+
 
     return (
         <div className="gr-page">
@@ -245,7 +244,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                     <span className="gr-item-name">{item.name}</span>
                                     <span>{need}</span>
                                     <span>
-                                        {(isRW || isGod) ? (
+                                        {hasBrigade && (isRW || isGod) ? (
                                             <input
                                                 type="number"
                                                 min="0"
@@ -253,12 +252,12 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                                 value={available || ''}
                                                 onChange={(e) => handleAvailChange(item.id, 'available', e.target.value)}
                                             />
-                                        ) : available}
+                                        ) : hasBrigade ? available : '—'}
                                     </span>
                                     <span className={shortage > 0 ? 'gr-shortage' : ''}>{shortage > 0 ? shortage : '—'}</span>
                                     <span>{reserveNeed}</span>
                                     <span>
-                                        {(isRW || isGod) ? (
+                                        {hasBrigade && (isRW || isGod) ? (
                                             <input
                                                 type="number"
                                                 min="0"
@@ -266,7 +265,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                                 value={reserveAvail || ''}
                                                 onChange={(e) => handleAvailChange(item.id, 'reserveAvailable', e.target.value)}
                                             />
-                                        ) : reserveAvail}
+                                        ) : hasBrigade ? reserveAvail : '—'}
                                     </span>
                                     <span className={reserveShortage > 0 ? 'gr-shortage' : ''}>{reserveShortage > 0 ? reserveShortage : '—'}</span>
                                     <span className={totalNeed > 0 ? 'gr-total-need' : ''}>{totalNeed > 0 ? totalNeed : '—'}</span>
@@ -287,7 +286,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                     </div>
 
                     {/* ── Vehicle count editor ── */}
-                    {(isRW || isGod) && selectedType && (
+                    {hasBrigade && (isRW || isGod) && selectedType && (
                         <div className="gr-vehicle-count">
                             <label>Кількість автомобілів цього типу в частині:</label>
                             <input
