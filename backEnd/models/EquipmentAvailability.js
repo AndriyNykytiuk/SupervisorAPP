@@ -33,6 +33,11 @@ const EquipmentAvailability = sequelize.define('EquipmentAvailability', {
         allowNull: false,
         defaultValue: 0,
     },
+    reserveAvailable: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+    },
 })
 
 export default EquipmentAvailability

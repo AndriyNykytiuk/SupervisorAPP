@@ -235,7 +235,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                             const need = item.norm * vehicleCount
                             const shortage = need - available
                             const reserveNeed = item.brigadeNorm
-                            const reserveAvail = avail ? Math.max(0, available - need) : 0
+                            const reserveAvail = avail?.reserveAvailable || 0
                             const reserveShortage = reserveNeed - reserveAvail
                             const totalNeed = Math.max(0, shortage) + Math.max(0, reserveShortage)
 
@@ -257,7 +257,17 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                     </span>
                                     <span className={shortage > 0 ? 'gr-shortage' : ''}>{shortage > 0 ? shortage : '—'}</span>
                                     <span>{reserveNeed}</span>
-                                    <span>{reserveAvail}</span>
+                                    <span>
+                                        {(isRW || isGod) ? (
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                className="gr-input"
+                                                value={reserveAvail || ''}
+                                                onChange={(e) => handleAvailChange(item.id, 'reserveAvailable', e.target.value)}
+                                            />
+                                        ) : reserveAvail}
+                                    </span>
                                     <span className={reserveShortage > 0 ? 'gr-shortage' : ''}>{reserveShortage > 0 ? reserveShortage : '—'}</span>
                                     <span className={totalNeed > 0 ? 'gr-total-need' : ''}>{totalNeed > 0 ? totalNeed : '—'}</span>
                                     {isGod && (

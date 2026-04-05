@@ -1,1088 +1,1446 @@
 {
-    "info": {
-        "_postman_id": "newback-api-collection",
-        "name": "NewBack API",
-        "description": "Full API collection for the NewBack project with role-based access control.\n\nRoles:\n• GOD — full access to everything\n• SEMI-GOD — read-only: own detachment + brigades + tests in own detachment\n• RW — read/write tests only for own brigade\n\nLogin-only API — users are pre-created via seed. Login with any user to auto-save the Bearer token. The response includes the user's role, brigade, and detachment automatically.",
-        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  "info": {
+    "_postman_id": "newback-api-collection",
+    "name": "NewBack API",
+    "description": "Full API collection for the NewBack project with role-based access control.\n\nRoles:\n• GOD — full access to everything\n• SEMI-GOD — read-only: own detachment + brigades + tests in own detachment\n• RW — read/write tests only for own brigade\n\nLogin-only API — users are pre-created via seed. Login with any user to auto-save the Bearer token. The response includes the user's role, brigade, and detachment automatically.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "description": "Set to http://localhost:3000 for local dev OR https://supervisorapp.onrender.com for production"
     },
-    "variable": [
-        {
-            "key": "baseUrl",
-            "value": "http://localhost:3000",
-            "description": "Set to http://localhost:3000 for local dev OR https://supervisorapp.onrender.com for production"
-        },
-        {
-            "key": "token",
-            "value": ""
-        }
-    ],
-    "auth": {
-        "type": "bearer",
-        "bearer": [
-            {
-                "key": "token",
-                "value": "{{token}}",
-                "type": "string"
-            }
-        ]
-    },
-    "item": [
-        {
-            "name": "Auth",
-            "item": [
-                {
-                    "name": "Login",
-                    "event": [
-                        {
-                            "listen": "test",
-                            "script": {
-                                "exec": [
-                                    "const res = pm.response.json();",
-                                    "if (res.token) {",
-                                    "    pm.collectionVariables.set('token', res.token);",
-                                    "    console.log('Token saved ✅');",
-                                    "    console.log('Role: ' + res.user.role);",
-                                    "    console.log('Brigade: ' + (res.user.brigadeName || 'none'));",
-                                    "    console.log('Detachment: ' + (res.user.detachmentName || 'none'));",
-                                    "}"
-                                ]
-                            }
-                        }
-                    ],
-                    "request": {
-                        "auth": {
-                            "type": "noauth"
-                        },
-                        "method": "POST",
-                        "url": "{{baseUrl}}/api/auth/login",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"name\": \"afryca\",\n  \"password\": \"qwerty\"\n}"
-                        }
-                    }
-                }
-            ]
-        },
-        {
-            "name": "Users",
-            "item": [
-                {
-                    "name": "Get All Users",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/users"
-                    }
-                },
-                {
-                    "name": "Get User by ID",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/users/1"
-                    }
-                },
-                {
-                    "name": "Create User (GOD only)",
-                    "request": {
-                        "method": "POST",
-                        "url": "{{baseUrl}}/api/users",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"name\": \"testuser\",\n  \"password\": \"123456\",\n  \"role\": \"RW\",\n  \"brigadeId\": 1\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Update User (GOD only)",
-                    "request": {
-                        "method": "PUT",
-                        "url": "{{baseUrl}}/api/users/1",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"name\": \"updatedName\",\n  \"role\": \"SEMI-GOD\",\n  \"brigadeId\": 2\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Delete User (GOD only)",
-                    "request": {
-                        "method": "DELETE",
-                        "url": "{{baseUrl}}/api/users/1"
-                    }
-                }
-            ]
-        },
-        {
-            "name": "Detachments",
-            "description": "GOD: full CRUD | SEMI-GOD: read own detachment only | RW: 403 blocked",
-            "item": [
-                {
-                    "name": "Get All Detachments (GOD: all, SEMI-GOD: own only)",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/detachments"
-                    }
-                },
-                {
-                    "name": "Get Detachment by ID (GOD: any, SEMI-GOD: own only)",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/detachments/1"
-                    }
-                },
-                {
-                    "name": "Create Detachment (GOD only)",
-                    "request": {
-                        "method": "POST",
-                        "url": "{{baseUrl}}/api/detachments",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"name\": \"Detachment Gamma\"\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Update Detachment (GOD only)",
-                    "request": {
-                        "method": "PUT",
-                        "url": "{{baseUrl}}/api/detachments/1",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"name\": \"Detachment Alpha Updated\"\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Delete Detachment (GOD only)",
-                    "request": {
-                        "method": "DELETE",
-                        "url": "{{baseUrl}}/api/detachments/1"
-                    }
-                }
-            ]
-        },
-        {
-            "name": "Brigades",
-            "description": "GOD: full CRUD | SEMI-GOD: read own detachment's brigades only | RW: 403 blocked",
-            "item": [
-                {
-                    "name": "Get All Brigades (GOD: all, SEMI-GOD: own detachment only)",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/brigades"
-                    }
-                },
-                {
-                    "name": "Get Brigade by ID (GOD: any, SEMI-GOD: own detachment only)",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/brigades/1"
-                    }
-                },
-                {
-                    "name": "Create Brigade (GOD only)",
-                    "request": {
-                        "method": "POST",
-                        "url": "{{baseUrl}}/api/brigades",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"name\": \"Brigade 4\",\n  \"detachmentId\": 1\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Update Brigade (GOD only)",
-                    "request": {
-                        "method": "PUT",
-                        "url": "{{baseUrl}}/api/brigades/1",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"name\": \"Brigade 1 Updated\"\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Delete Brigade (GOD only)",
-                    "request": {
-                        "method": "DELETE",
-                        "url": "{{baseUrl}}/api/brigades/1"
-                    }
-                }
-            ]
-        },
-        {
-            "name": "Test Lists",
-            "description": "Global test lists — everyone can read, only GOD can create/update/delete",
-            "item": [
-                {
-                    "name": "Get All Test Lists",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/test-lists"
-                    }
-                },
-                {
-                    "name": "Get Test List by ID",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/test-lists/1"
-                    }
-                },
-                {
-                    "name": "Create Test List (GOD only)",
-                    "request": {
-                        "method": "POST",
-                        "url": "{{baseUrl}}/api/test-lists",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"name\": \"New Test List\"\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Update Test List (GOD only)",
-                    "request": {
-                        "method": "PUT",
-                        "url": "{{baseUrl}}/api/test-lists/1",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"name\": \"Updated Name\"\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Delete Test List (GOD only)",
-                    "request": {
-                        "method": "DELETE",
-                        "url": "{{baseUrl}}/api/test-lists/1"
-                    }
-                }
-            ]
-        },
-        {
-            "name": "Test Items",
-            "description": "GOD: full CRUD | SEMI-GOD: read own detachment | RW: CRUD own brigade only. Items belong to a testList + brigade.",
-            "item": [
-                {
-                    "name": "Get All Test Items (scoped by role)",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/test-items"
-                    }
-                },
-                {
-                    "name": "Get Test Items by Brigade (grouped by TestList)",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/test-items/brigade/1",
-                        "description": "Returns all test lists with their test items filtered by brigade. Response: [ { testList, TestItems: [...] }, ... ]"
-                    }
-                },
-                {
-                    "name": "Get Test Items by Brigade + TestList",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/test-items/brigade/1/test-list/1"
-                    }
-                },
-                {
-                    "name": "Get Test Item by ID",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/test-items/1"
-                    }
-                },
-                {
-                    "name": "Create Test Item",
-                    "request": {
-                        "method": "POST",
-                        "url": "{{baseUrl}}/api/test-items",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"name\": \"Pressure Test\",\n  \"result\": \"pass\",\n  \"notes\": \"All values OK\",\n  \"testListId\": 1,\n  \"brigadeId\": 1\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Update Test Item (all fields)",
-                    "request": {
-                        "method": "PUT",
-                        "url": "{{baseUrl}}/api/test-items/1",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"name\": \"Updated Name\",\n  \"result\": \"fail\",\n  \"notes\": \"Updated notes\",\n  \"testListId\": 1,\n  \"brigadeId\": 1\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Transfer Test Items to Brigade",
-                    "request": {
-                        "method": "PUT",
-                        "url": "{{baseUrl}}/api/test-items/transfer",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"itemIds\": [2, 3],\n  \"toBrigadeId\": 2\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Delete Test Item",
-                    "request": {
-                        "method": "DELETE",
-                        "url": "{{baseUrl}}/api/test-items/1"
-                    }
-                }
-            ]
-        },
-        {
-            "name": "Test Links",
-            "description": "Links (schedule + order) per brigade. GET to read, PUT to create/update.",
-            "item": [
-                {
-                    "name": "Get Links for Brigade",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/test-links/brigade/1"
-                    }
-                },
-                {
-                    "name": "Update Links for Brigade",
-                    "request": {
-                        "method": "PUT",
-                        "url": "{{baseUrl}}/api/test-links/brigade/1",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"linkSchedule\": \"https://docs.google.com/schedule\",\n  \"linkOrder\": \"https://docs.google.com/order\"\n}"
-                        }
-                    }
-                }
-            ]
-        },
-        {
-            "name": "Tool Lists",
-            "description": "Global tool categories. GOD-only for CUD, all authenticated can read.",
-            "item": [
-                {
-                    "name": "Get All Tool Lists",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/tool-lists"
-                    }
-                },
-                {
-                    "name": "Get Tool List by ID",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/tool-lists/1"
-                    }
-                },
-                {
-                    "name": "Create Tool List (GOD)",
-                    "request": {
-                        "method": "POST",
-                        "url": "{{baseUrl}}/api/tool-lists",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"name\": \"Пожежні рукави\"\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Update Tool List (GOD)",
-                    "request": {
-                        "method": "PUT",
-                        "url": "{{baseUrl}}/api/tool-lists/1",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"name\": \"Updated Tool List\"\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Delete Tool List (GOD)",
-                    "request": {
-                        "method": "DELETE",
-                        "url": "{{baseUrl}}/api/tool-lists/1"
-                    }
-                }
-            ]
-        },
-        {
-            "name": "Tool Items",
-            "description": "Tool items scoped by brigade. GOD full access, SEMI-GOD read-only (own detachment), RW read/write own brigade.",
-            "item": [
-                {
-                    "name": "Get All Tool Items",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/tool-items"
-                    }
-                },
-                {
-                    "name": "Get Tool Items by Brigade (grouped)",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/tool-items/brigade/1"
-                    }
-                },
-                {
-                    "name": "Get Tool Items by Brigade + List",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/tool-items/brigade/1/tool-list/1"
-                    }
-                },
-                {
-                    "name": "Get Tool Item by ID",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/tool-items/1"
-                    }
-                },
-                {
-                    "name": "Create Tool Item",
-                    "request": {
-                        "method": "POST",
-                        "url": "{{baseUrl}}/api/tool-items",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"name\": \"Рукав 51мм\",\n  \"yearOfPurchase\": 2023,\n  \"powerfull\": 0,\n  \"storagePlace\": \"Склад\",\n  \"quantity\": 5,\n  \"notes\": \"Нові\",\n  \"toolListId\": 1,\n  \"brigadeId\": 1\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Update Tool Item (all fields)",
-                    "request": {
-                        "method": "PUT",
-                        "url": "{{baseUrl}}/api/tool-items/1",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"name\": \"Updated Name\",\n  \"yearOfPurchase\": 2024,\n  \"powerfull\": 10,\n  \"storagePlace\": \"Гараж\",\n  \"quantity\": 10,\n  \"notes\": \"Updated notes\",\n  \"toolListId\": 1,\n  \"brigadeId\": 1\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Transfer Tool Items to Brigade",
-                    "request": {
-                        "method": "PUT",
-                        "url": "{{baseUrl}}/api/tool-items/transfer",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"itemIds\": [1, 2],\n  \"toBrigadeId\": 2\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Delete Tool Item",
-                    "request": {
-                        "method": "DELETE",
-                        "url": "{{baseUrl}}/api/tool-items/1"
-                    }
-                }
-            ]
-        },
-        {
-            "name": "Electric Stations",
-            "description": "Electric stations per brigade. GOD/RW can create/update/delete.",
-            "item": [
-                {
-                    "name": "Get All Electric Stations",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/electric-stations"
-                    }
-                },
-                {
-                    "name": "Get Electric Stations by Brigade",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/electric-stations/brigade/1"
-                    }
-                },
-                {
-                    "name": "Get Electric Station by ID",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/electric-stations/1"
-                    }
-                },
-                {
-                    "name": "Create Electric Station",
-                    "request": {
-                        "method": "POST",
-                        "url": "{{baseUrl}}/api/electric-stations",
-                        "header": [{ "key": "Content-Type", "value": "application/json" }],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"brand\": \"Honda\",\n  \"model\": \"EU22i\",\n  \"power\": 2200,\n  \"brigadeId\": 1\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Update Electric Station",
-                    "request": {
-                        "method": "PUT",
-                        "url": "{{baseUrl}}/api/electric-stations/1",
-                        "header": [{ "key": "Content-Type", "value": "application/json" }],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"brand\": \"Honda Updated\",\n  \"power\": 3000\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Delete Electric Station",
-                    "request": {
-                        "method": "DELETE",
-                        "url": "{{baseUrl}}/api/electric-stations/1"
-                    }
-                }
-            ]
-        },
-        {
-            "name": "Water Pumps",
-            "description": "Water pumps per brigade. GOD/RW can create/update/delete.",
-            "item": [
-                {
-                    "name": "Get All Water Pumps",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/water-pumps"
-                    }
-                },
-                {
-                    "name": "Get Water Pumps by Brigade",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/water-pumps/brigade/1"
-                    }
-                },
-                {
-                    "name": "Get Water Pump by ID",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/water-pumps/1"
-                    }
-                },
-                {
-                    "name": "Create Water Pump",
-                    "request": {
-                        "method": "POST",
-                        "url": "{{baseUrl}}/api/water-pumps",
-                        "header": [{ "key": "Content-Type", "value": "application/json" }],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"brand\": \"Tohatsu\",\n  \"model\": \"V20D2\",\n  \"productivity\": 800,\n  \"brigadeId\": 1\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Update Water Pump",
-                    "request": {
-                        "method": "PUT",
-                        "url": "{{baseUrl}}/api/water-pumps/1",
-                        "header": [{ "key": "Content-Type", "value": "application/json" }],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"brand\": \"Tohatsu Updated\",\n  \"productivity\": 1000\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Delete Water Pump",
-                    "request": {
-                        "method": "DELETE",
-                        "url": "{{baseUrl}}/api/water-pumps/1"
-                    }
-                }
-            ]
-        },
-        {
-            "name": "Hydraulic Tools",
-            "description": "Hydraulic tools per brigade. GOD/RW can create/update/delete.",
-            "item": [
-                {
-                    "name": "Get All Hydraulic Tools",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/hydravlic-tools"
-                    }
-                },
-                {
-                    "name": "Get Hydraulic Tools by Brigade",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/hydravlic-tools/brigade/1"
-                    }
-                },
-                {
-                    "name": "Get Hydraulic Tool by ID",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/hydravlic-tools/1"
-                    }
-                },
-                {
-                    "name": "Create Hydraulic Tool",
-                    "request": {
-                        "method": "POST",
-                        "url": "{{baseUrl}}/api/hydravlic-tools",
-                        "header": [{ "key": "Content-Type", "value": "application/json" }],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"brand\": \"Holmatro\",\n  \"model\": \"SP4240\",\n  \"force\": 240,\n  \"brigadeId\": 1\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Update Hydraulic Tool",
-                    "request": {
-                        "method": "PUT",
-                        "url": "{{baseUrl}}/api/hydravlic-tools/1",
-                        "header": [{ "key": "Content-Type", "value": "application/json" }],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"brand\": \"Holmatro Updated\",\n  \"force\": 300\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Delete Hydraulic Tool",
-                    "request": {
-                        "method": "DELETE",
-                        "url": "{{baseUrl}}/api/hydravlic-tools/1"
-                    }
-                }
-            ]
-        },
-        {
-            "name": "Swim Tools",
-            "description": "Swim/rescue tools per brigade. GOD/RW can create/update/delete.",
-            "item": [
-                {
-                    "name": "Get All Swim Tools",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/swim-tools"
-                    }
-                },
-                {
-                    "name": "Get Swim Tools by Brigade",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/swim-tools/brigade/1"
-                    }
-                },
-                {
-                    "name": "Get Swim Tool by ID",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/swim-tools/1"
-                    }
-                },
-                {
-                    "name": "Create Swim Tool",
-                    "request": {
-                        "method": "POST",
-                        "url": "{{baseUrl}}/api/swim-tools",
-                        "header": [{ "key": "Content-Type", "value": "application/json" }],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"lifeBoat\": 2,\n  \"motorLifeBoat\": 1,\n  \"lifeBouy\": 5,\n  \"lifeRoup\": 3,\n  \"lifePath\": 2,\n  \"rescueSlad\": 1,\n  \"lifeJacket\": 10,\n  \"drySuits\": 4,\n  \"brigadeId\": 1\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Update Swim Tool",
-                    "request": {
-                        "method": "PUT",
-                        "url": "{{baseUrl}}/api/swim-tools/1",
-                        "header": [{ "key": "Content-Type", "value": "application/json" }],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"lifeBoat\": 3,\n  \"lifeJacket\": 15\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Delete Swim Tool",
-                    "request": {
-                        "method": "DELETE",
-                        "url": "{{baseUrl}}/api/swim-tools/1"
-                    }
-                }
-            ]
-        },
-        {
-            "name": "Foam Agents",
-            "description": "Foam agent quantities per brigade. GOD/RW can create/update/delete.",
-            "item": [
-                {
-                    "name": "Get All Foam Agents",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/foam-agents"
-                    }
-                },
-                {
-                    "name": "Get Foam Agents by Brigade",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/foam-agents/brigade/1"
-                    }
-                },
-                {
-                    "name": "Get Foam Agent by ID",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/foam-agents/1"
-                    }
-                },
-                {
-                    "name": "Create Foam Agent",
-                    "request": {
-                        "method": "POST",
-                        "url": "{{baseUrl}}/api/foam-agents",
-                        "header": [{ "key": "Content-Type", "value": "application/json" }],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"vehiclePassed\": 100,\n  \"vehicleNotPassed\": 20,\n  \"wherehousePassed\": 500,\n  \"wherehouseNotPassed\": 50,\n  \"cannisteroVolume\": 20,\n  \"barrelVolume\": 200,\n  \"ibcVolume\": 1000,\n  \"brigadeId\": 1\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Update Foam Agent",
-                    "request": {
-                        "method": "PUT",
-                        "url": "{{baseUrl}}/api/foam-agents/1",
-                        "header": [{ "key": "Content-Type", "value": "application/json" }],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"vehiclePassed\": 120,\n  \"wherehousePassed\": 600\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Delete Foam Agent",
-                    "request": {
-                        "method": "DELETE",
-                        "url": "{{baseUrl}}/api/foam-agents/1"
-                    }
-                }
-            ]
-        },
-        {
-            "name": "Powder",
-            "description": "Powder quantities per brigade. GOD/RW can create/update/delete.",
-            "item": [
-                {
-                    "name": "Get All Powder",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/powder"
-                    }
-                },
-                {
-                    "name": "Get Powder by Brigade",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/powder/brigade/1"
-                    }
-                },
-                {
-                    "name": "Get Powder by ID",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/powder/1"
-                    }
-                },
-                {
-                    "name": "Create Powder",
-                    "request": {
-                        "method": "POST",
-                        "url": "{{baseUrl}}/api/powder",
-                        "header": [{ "key": "Content-Type", "value": "application/json" }],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"vehiclePassed\": 50,\n  \"vehicleNotPassed\": 10,\n  \"wherehousePassed\": 200,\n  \"wherehouseNotPassed\": 30,\n  \"brigadeId\": 1\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Update Powder",
-                    "request": {
-                        "method": "PUT",
-                        "url": "{{baseUrl}}/api/powder/1",
-                        "header": [{ "key": "Content-Type", "value": "application/json" }],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"vehiclePassed\": 60,\n  \"wherehousePassed\": 250\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Delete Powder",
-                    "request": {
-                        "method": "DELETE",
-                        "url": "{{baseUrl}}/api/powder/1"
-                    }
-                }
-            ]
-        },
-        {
-            "name": "Extenguis Document Links",
-            "description": "Document links per brigade. GOD/RW can create/update/delete.",
-            "item": [
-                {
-                    "name": "Get All Document Links",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/extenguis-document-links"
-                    }
-                },
-                {
-                    "name": "Get Document Links by Brigade",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/extenguis-document-links/brigade/1"
-                    }
-                },
-                {
-                    "name": "Get Document Link by ID",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/extenguis-document-links/1"
-                    }
-                },
-                {
-                    "name": "Create Document Link",
-                    "request": {
-                        "method": "POST",
-                        "url": "{{baseUrl}}/api/extenguis-document-links",
-                        "header": [{ "key": "Content-Type", "value": "application/json" }],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"documentName\": \"Протокол перевірки\",\n  \"documentLink\": \"https://docs.google.com/example\",\n  \"brigadeId\": 1\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Update Document Link",
-                    "request": {
-                        "method": "PUT",
-                        "url": "{{baseUrl}}/api/extenguis-document-links/1",
-                        "header": [{ "key": "Content-Type", "value": "application/json" }],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"documentName\": \"Оновлений протокол\",\n  \"documentLink\": \"https://docs.google.com/updated\"\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Delete Document Link",
-                    "request": {
-                        "method": "DELETE",
-                        "url": "{{baseUrl}}/api/extenguis-document-links/1"
-                    }
-                }
-            ]
-        },
-        {
-            "name": "Usage Liquids Log",
-            "description": "Log of foam/powder usage events per brigade. GOD/RW can create/update/delete.",
-            "item": [
-                {
-                    "name": "Get All Usage Logs",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/usage-liquids-log"
-                    }
-                },
-                {
-                    "name": "Get Usage Logs by Brigade",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/usage-liquids-log/brigade/1"
-                    }
-                },
-                {
-                    "name": "Get Usage Log by ID",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/usage-liquids-log/1"
-                    }
-                },
-                {
-                    "name": "Create Usage Log",
-                    "request": {
-                        "method": "POST",
-                        "url": "{{baseUrl}}/api/usage-liquids-log",
-                        "header": [{ "key": "Content-Type", "value": "application/json" }],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"volume\": 100,\n  \"date\": \"2026-03-20\",\n  \"substance\": \"foam\",\n  \"eventType\": \"Пожежа\",\n  \"address\": \"вул. Шевченка 10\",\n  \"brigadeId\": 1\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Update Usage Log",
-                    "request": {
-                        "method": "PUT",
-                        "url": "{{baseUrl}}/api/usage-liquids-log/1",
-                        "header": [{ "key": "Content-Type", "value": "application/json" }],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"volume\": 150,\n  \"address\": \"вул. Франка 5\"\n}"
-                        }
-                    }
-                },
-                {
-                    "name": "Delete Usage Log",
-                    "request": {
-                        "method": "DELETE",
-                        "url": "{{baseUrl}}/api/usage-liquids-log/1"
-                    }
-                }
-            ]
-        },
-        {
-            "name": "Transfer",
-            "description": "Transfer test items and tool items between brigades.",
-            "item": [
-                {
-                    "name": "Get All Brigades (for selector)",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/transfer/brigades"
-                    }
-                },
-                {
-                    "name": "Get All Items by Brigade (test + tool)",
-                    "request": {
-                        "method": "GET",
-                        "url": "{{baseUrl}}/api/transfer/brigade/1"
-                    }
-                },
-                {
-                    "name": "Transfer Items to Brigade",
-                    "request": {
-                        "method": "PUT",
-                        "url": "{{baseUrl}}/api/transfer",
-                        "header": [{ "key": "Content-Type", "value": "application/json" }],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"testItemIds\": [1, 2],\n  \"toolItemIds\": [3, 4],\n  \"toBrigadeId\": 2\n}"
-                        }
-                    }
-                }
-            ]
-        }
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
     ]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "    pm.collectionVariables.set('token', res.token);",
+                  "    console.log('Token saved ✅');",
+                  "    console.log('Role: ' + res.user.role);",
+                  "    console.log('Brigade: ' + (res.user.brigadeName || 'none'));",
+                  "    console.log('Detachment: ' + (res.user.detachmentName || 'none'));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"afryca\",\n  \"password\": \"qwerty\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/users"
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/users/1"
+          }
+        },
+        {
+          "name": "Create User (GOD only)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/users",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"testuser\",\n  \"password\": \"123456\",\n  \"role\": \"RW\",\n  \"brigadeId\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Update User (GOD only)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/users/1",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"updatedName\",\n  \"role\": \"SEMI-GOD\",\n  \"brigadeId\": 2\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete User (GOD only)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/users/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Detachments",
+      "description": "GOD: full CRUD | SEMI-GOD: read own detachment only | RW: 403 blocked",
+      "item": [
+        {
+          "name": "Get All Detachments (GOD: all, SEMI-GOD: own only)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/detachments"
+          }
+        },
+        {
+          "name": "Get Detachment by ID (GOD: any, SEMI-GOD: own only)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/detachments/1"
+          }
+        },
+        {
+          "name": "Create Detachment (GOD only)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/detachments",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Detachment Gamma\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Detachment (GOD only)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/detachments/1",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Detachment Alpha Updated\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Detachment (GOD only)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/detachments/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Brigades",
+      "description": "GOD: full CRUD | SEMI-GOD: read own detachment's brigades only | RW: 403 blocked",
+      "item": [
+        {
+          "name": "Get All Brigades (GOD: all, SEMI-GOD: own detachment only)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/brigades"
+          }
+        },
+        {
+          "name": "Get Brigade by ID (GOD: any, SEMI-GOD: own detachment only)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/brigades/1"
+          }
+        },
+        {
+          "name": "Create Brigade (GOD only)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/brigades",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Brigade 4\",\n  \"detachmentId\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Brigade (GOD only)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/brigades/1",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Brigade 1 Updated\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Brigade (GOD only)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/brigades/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Test Lists",
+      "description": "Global test lists — everyone can read, only GOD can create/update/delete",
+      "item": [
+        {
+          "name": "Get All Test Lists",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/test-lists"
+          }
+        },
+        {
+          "name": "Get Test List by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/test-lists/1"
+          }
+        },
+        {
+          "name": "Create Test List (GOD only)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/test-lists",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Test List\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Test List (GOD only)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/test-lists/1",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Test List (GOD only)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/test-lists/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Test Items",
+      "description": "GOD: full CRUD | SEMI-GOD: read own detachment | RW: CRUD own brigade only. Items belong to a testList + brigade.",
+      "item": [
+        {
+          "name": "Get All Test Items (scoped by role)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/test-items"
+          }
+        },
+        {
+          "name": "Get Test Items by Brigade (grouped by TestList)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/test-items/brigade/1",
+            "description": "Returns all test lists with their test items filtered by brigade. Response: [ { testList, TestItems: [...] }, ... ]"
+          }
+        },
+        {
+          "name": "Get Test Items by Brigade + TestList",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/test-items/brigade/1/test-list/1"
+          }
+        },
+        {
+          "name": "Get Test Item by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/test-items/1"
+          }
+        },
+        {
+          "name": "Create Test Item",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/test-items",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pressure Test\",\n  \"result\": \"pass\",\n  \"notes\": \"All values OK\",\n  \"testListId\": 1,\n  \"brigadeId\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Test Item (all fields)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/test-items/1",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\",\n  \"result\": \"fail\",\n  \"notes\": \"Updated notes\",\n  \"testListId\": 1,\n  \"brigadeId\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Transfer Test Items to Brigade",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/test-items/transfer",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"itemIds\": [2, 3],\n  \"toBrigadeId\": 2\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Test Item",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/test-items/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Test Links",
+      "description": "Links (schedule + order) per brigade. GET to read, PUT to create/update.",
+      "item": [
+        {
+          "name": "Get Links for Brigade",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/test-links/brigade/1"
+          }
+        },
+        {
+          "name": "Update Links for Brigade",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/test-links/brigade/1",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"linkSchedule\": \"https://docs.google.com/schedule\",\n  \"linkOrder\": \"https://docs.google.com/order\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tool Lists",
+      "description": "Global tool categories. GOD-only for CUD, all authenticated can read.",
+      "item": [
+        {
+          "name": "Get All Tool Lists",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/tool-lists"
+          }
+        },
+        {
+          "name": "Get Tool List by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/tool-lists/1"
+          }
+        },
+        {
+          "name": "Create Tool List (GOD)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/tool-lists",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Пожежні рукави\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Tool List (GOD)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/tool-lists/1",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Tool List\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Tool List (GOD)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/tool-lists/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tool Items",
+      "description": "Tool items scoped by brigade. GOD full access, SEMI-GOD read-only (own detachment), RW read/write own brigade.",
+      "item": [
+        {
+          "name": "Get All Tool Items",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/tool-items"
+          }
+        },
+        {
+          "name": "Get Tool Items by Brigade (grouped)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/tool-items/brigade/1"
+          }
+        },
+        {
+          "name": "Get Tool Items by Brigade + List",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/tool-items/brigade/1/tool-list/1"
+          }
+        },
+        {
+          "name": "Get Tool Item by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/tool-items/1"
+          }
+        },
+        {
+          "name": "Create Tool Item",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/tool-items",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Рукав 51мм\",\n  \"yearOfPurchase\": 2023,\n  \"powerfull\": 0,\n  \"storagePlace\": \"Склад\",\n  \"quantity\": 5,\n  \"notes\": \"Нові\",\n  \"toolListId\": 1,\n  \"brigadeId\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Tool Item (all fields)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/tool-items/1",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\",\n  \"yearOfPurchase\": 2024,\n  \"powerfull\": 10,\n  \"storagePlace\": \"Гараж\",\n  \"quantity\": 10,\n  \"notes\": \"Updated notes\",\n  \"toolListId\": 1,\n  \"brigadeId\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Transfer Tool Items to Brigade",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/tool-items/transfer",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"itemIds\": [1, 2],\n  \"toBrigadeId\": 2\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Tool Item",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/tool-items/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Electric Stations",
+      "description": "Electric stations per brigade. GOD/RW can create/update/delete.",
+      "item": [
+        {
+          "name": "Get All Electric Stations",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/electric-stations"
+          }
+        },
+        {
+          "name": "Get Electric Stations by Brigade",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/electric-stations/brigade/1"
+          }
+        },
+        {
+          "name": "Get Electric Station by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/electric-stations/1"
+          }
+        },
+        {
+          "name": "Create Electric Station",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/electric-stations",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"brand\": \"Honda\",\n  \"model\": \"EU22i\",\n  \"power\": 2200,\n  \"brigadeId\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Electric Station",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/electric-stations/1",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"brand\": \"Honda Updated\",\n  \"power\": 3000\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Electric Station",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/electric-stations/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Water Pumps",
+      "description": "Water pumps per brigade. GOD/RW can create/update/delete.",
+      "item": [
+        {
+          "name": "Get All Water Pumps",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/water-pumps"
+          }
+        },
+        {
+          "name": "Get Water Pumps by Brigade",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/water-pumps/brigade/1"
+          }
+        },
+        {
+          "name": "Get Water Pump by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/water-pumps/1"
+          }
+        },
+        {
+          "name": "Create Water Pump",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/water-pumps",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"brand\": \"Tohatsu\",\n  \"model\": \"V20D2\",\n  \"productivity\": 800,\n  \"brigadeId\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Water Pump",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/water-pumps/1",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"brand\": \"Tohatsu Updated\",\n  \"productivity\": 1000\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Water Pump",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/water-pumps/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Hydraulic Tools",
+      "description": "Hydraulic tools per brigade. GOD/RW can create/update/delete.",
+      "item": [
+        {
+          "name": "Get All Hydraulic Tools",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/hydravlic-tools"
+          }
+        },
+        {
+          "name": "Get Hydraulic Tools by Brigade",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/hydravlic-tools/brigade/1"
+          }
+        },
+        {
+          "name": "Get Hydraulic Tool by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/hydravlic-tools/1"
+          }
+        },
+        {
+          "name": "Create Hydraulic Tool",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/hydravlic-tools",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"brand\": \"Holmatro\",\n  \"model\": \"SP4240\",\n  \"force\": 240,\n  \"brigadeId\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Hydraulic Tool",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/hydravlic-tools/1",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"brand\": \"Holmatro Updated\",\n  \"force\": 300\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Hydraulic Tool",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/hydravlic-tools/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Swim Tools",
+      "description": "Swim/rescue tools per brigade. GOD/RW can create/update/delete.",
+      "item": [
+        {
+          "name": "Get All Swim Tools",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/swim-tools"
+          }
+        },
+        {
+          "name": "Get Swim Tools by Brigade",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/swim-tools/brigade/1"
+          }
+        },
+        {
+          "name": "Get Swim Tool by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/swim-tools/1"
+          }
+        },
+        {
+          "name": "Create Swim Tool",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/swim-tools",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lifeBoat\": 2,\n  \"motorLifeBoat\": 1,\n  \"lifeBouy\": 5,\n  \"lifeRoup\": 3,\n  \"lifePath\": 2,\n  \"rescueSlad\": 1,\n  \"lifeJacket\": 10,\n  \"drySuits\": 4,\n  \"brigadeId\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Swim Tool",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/swim-tools/1",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lifeBoat\": 3,\n  \"lifeJacket\": 15\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Swim Tool",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/swim-tools/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Foam Agents",
+      "description": "Foam agent quantities per brigade. GOD/RW can create/update/delete.",
+      "item": [
+        {
+          "name": "Get All Foam Agents",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/foam-agents"
+          }
+        },
+        {
+          "name": "Get Foam Agents by Brigade",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/foam-agents/brigade/1"
+          }
+        },
+        {
+          "name": "Get Foam Agent by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/foam-agents/1"
+          }
+        },
+        {
+          "name": "Create Foam Agent",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/foam-agents",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vehiclePassed\": 100,\n  \"vehicleNotPassed\": 20,\n  \"wherehousePassed\": 500,\n  \"wherehouseNotPassed\": 50,\n  \"cannisteroVolume\": 20,\n  \"barrelVolume\": 200,\n  \"ibcVolume\": 1000,\n  \"brigadeId\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Foam Agent",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/foam-agents/1",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vehiclePassed\": 120,\n  \"wherehousePassed\": 600\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Foam Agent",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/foam-agents/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Powder",
+      "description": "Powder quantities per brigade. GOD/RW can create/update/delete.",
+      "item": [
+        {
+          "name": "Get All Powder",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/powder"
+          }
+        },
+        {
+          "name": "Get Powder by Brigade",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/powder/brigade/1"
+          }
+        },
+        {
+          "name": "Get Powder by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/powder/1"
+          }
+        },
+        {
+          "name": "Create Powder",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/powder",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vehiclePassed\": 50,\n  \"vehicleNotPassed\": 10,\n  \"wherehousePassed\": 200,\n  \"wherehouseNotPassed\": 30,\n  \"brigadeId\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Powder",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/powder/1",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vehiclePassed\": 60,\n  \"wherehousePassed\": 250\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Powder",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/powder/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Extenguis Document Links",
+      "description": "Document links per brigade. GOD/RW can create/update/delete.",
+      "item": [
+        {
+          "name": "Get All Document Links",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/extenguis-document-links"
+          }
+        },
+        {
+          "name": "Get Document Links by Brigade",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/extenguis-document-links/brigade/1"
+          }
+        },
+        {
+          "name": "Get Document Link by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/extenguis-document-links/1"
+          }
+        },
+        {
+          "name": "Create Document Link",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/extenguis-document-links",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"documentName\": \"Протокол перевірки\",\n  \"documentLink\": \"https://docs.google.com/example\",\n  \"brigadeId\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Document Link",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/extenguis-document-links/1",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"documentName\": \"Оновлений протокол\",\n  \"documentLink\": \"https://docs.google.com/updated\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Document Link",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/extenguis-document-links/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Usage Liquids Log",
+      "description": "Log of foam/powder usage events per brigade. GOD/RW can create/update/delete.",
+      "item": [
+        {
+          "name": "Get All Usage Logs",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/usage-liquids-log"
+          }
+        },
+        {
+          "name": "Get Usage Logs by Brigade",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/usage-liquids-log/brigade/1"
+          }
+        },
+        {
+          "name": "Get Usage Log by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/usage-liquids-log/1"
+          }
+        },
+        {
+          "name": "Create Usage Log",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/usage-liquids-log",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"volume\": 100,\n  \"date\": \"2026-03-20\",\n  \"substance\": \"foam\",\n  \"eventType\": \"Пожежа\",\n  \"address\": \"вул. Шевченка 10\",\n  \"brigadeId\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Usage Log",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/usage-liquids-log/1",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"volume\": 150,\n  \"address\": \"вул. Франка 5\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Usage Log",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/usage-liquids-log/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Transfer",
+      "description": "Transfer test items and tool items between brigades.",
+      "item": [
+        {
+          "name": "Get All Brigades (for selector)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/transfer/brigades"
+          }
+        },
+        {
+          "name": "Get All Items by Brigade (test + tool)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/transfer/brigade/1"
+          }
+        },
+        {
+          "name": "Transfer Items to Brigade",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/transfer",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"testItemIds\": [1, 2],\n  \"toolItemIds\": [3, 4],\n  \"toBrigadeId\": 2\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vehicle Types",
+      "item": [
+        {
+          "name": "Get All Vehicle Types",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/vehicle-types",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Vehicle Type (GOD)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/vehicle-types",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Автоцистерна\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Vehicle Type (GOD)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/vehicle-types/1",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Equipment Items",
+      "item": [
+        {
+          "name": "Get All Items (by vehicleTypeId)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/equipment-items?vehicleTypeId=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "equipment-items"
+              ],
+              "query": [
+                {
+                  "key": "vehicleTypeId",
+                  "value": "1"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Equipment Item (GOD)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/equipment-items",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Багатофункціональний інструмент рятувальника\",\n  \"norm\": 1,\n  \"brigadeNorm\": 2,\n  \"vehicleTypeId\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Equipment Item (GOD)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/equipment-items/1",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated name\",\n  \"norm\": 2\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Equipment Item (GOD)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/equipment-items/1",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Equipment Availability",
+      "item": [
+        {
+          "name": "Get Availability (by brigade + vehicleType)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/equipment-availability?brigadeId=1&vehicleTypeId=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "equipment-availability"
+              ],
+              "query": [
+                {
+                  "key": "brigadeId",
+                  "value": "1"
+                },
+                {
+                  "key": "vehicleTypeId",
+                  "value": "1"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Availability (RW/GOD)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/equipment-availability",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"equipmentItemId\": 1,\n  \"brigadeId\": 1,\n  \"vehicleCount\": 5,\n  \"available\": 3\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Availability (RW/GOD)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/equipment-availability/1",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vehicleCount\": 10,\n  \"available\": 7\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Availability (GOD)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/equipment-availability/1",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
 }
