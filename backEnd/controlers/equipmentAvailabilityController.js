@@ -23,24 +23,31 @@ export const getAll = async (req, res, next) => {
             where.brigadeId = brigades.map(b => b.id)
         }
 
+        // Build the Include object separately to avoid passing where: undefined
+        const equipmentItemInclude = {
+            model: EquipmentItem,
+            include: [{ model: VehicleType, attributes: ['name'] }],
+        }
+        if (Object.keys(itemWhere).length > 0) {
+            equipmentItemInclude.where = itemWhere
+        }
+
         const rows = await EquipmentAvailability.findAll({
             where,
             include: [
-                {
-                    model: EquipmentItem,
-                    where: Object.keys(itemWhere).length ? itemWhere : undefined,
-                    include: [{ model: VehicleType, attributes: ['name'] }],
-                },
+                equipmentItemInclude,
                 {
                     model: Brigade,
                     attributes: ['id', 'name'],
                     include: [{ model: Detachment, attributes: ['name'] }],
                 },
             ],
-            order: [['id', 'ASC']],
+            // Explicitly order by main model ID to prevent "ambiguous column" error in PG
+            order: [[EquipmentAvailability, 'id', 'ASC']],
         })
         res.json(rows)
     } catch (err) {
+        console.error('SERVER DB ERROR:', err)
         next(err)
     }
 }
