@@ -12,7 +12,7 @@
     display: flex;
     gap: 1rem;
     align-items: center;
-    flex-wrap: wrap;
+  
     padding: 0.8rem 1rem;
     border: 1px solid var(--gray-200);
     border-radius: var(--radius-md);
@@ -181,17 +181,16 @@
 
 /* ─── Vehicle count ─── */
 .gr-vehicle-count {
-    display: flex;
+
     align-items: center;
     gap: 0.5rem;
-    padding: 0.8rem 1rem;
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-md);
-    font-weight: 600;
+    
+ 
+  
+    font-weight: 700;
     color: var(--navy);
-    font-size: 0.95rem;
-    box-shadow: var(--shadow-sm);
+    font-size: 0.8rem;
+  
 }
 
 /* ─── Add item form ─── */

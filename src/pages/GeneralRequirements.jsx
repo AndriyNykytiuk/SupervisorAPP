@@ -14,7 +14,7 @@ import {
     updateEquipmentAvailability,
 } from '../api/services.js'
 import LoadingSpinner from '../components/ui/LoadingSpinner.jsx'
-import { MdDelete, MdAdd } from 'react-icons/md'
+import { MdDelete, MdAdd, MdEdit, MdCheck } from 'react-icons/md'
 import '../scss/generalrequirements.scss'
 
 const GeneralRequirements = ({ selectedBrigade }) => {
@@ -27,6 +27,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
     const [items, setItems] = useState([])
     const [availability, setAvailability] = useState([])
     const [loading, setLoading] = useState(false)
+    const [isEditing, setIsEditing] = useState(false)
 
     // New vehicle type form
     const [newTypeName, setNewTypeName] = useState('')
@@ -158,8 +159,9 @@ const GeneralRequirements = ({ selectedBrigade }) => {
         }
     }
 
-    const hasBrigade = !!selectedBrigade
-
+    if (!selectedBrigade) {
+        return <p style={{ padding: '2rem', textAlign: 'center' }}>Оберіть частину для перегляду потреби</p>
+    }
 
     return (
         <div className="gr-page">
@@ -180,7 +182,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                     </select>
                 </div>
 
-                {isGod && (
+                {isGod && isEditing && (
                     <div className="gr-type-add">
                         <input
                             type="text"
@@ -190,19 +192,45 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                             onKeyDown={(e) => e.key === 'Enter' && handleAddType()}
                         />
                         <button className="gr-btn-add" onClick={handleAddType} title="Додати тип">
-                            <MdAdd size={20} />
+                            <span>Додати тип</span>
                         </button>
                     </div>
                 )}
 
-                {isGod && selectedType && (
+                {isGod && selectedType && isEditing && (
                     <button
                         className="gr-btn-delete-type"
                         onClick={() => handleDeleteType(selectedType)}
                         title="Видалити обраний тип"
                     >
-                        <MdDelete size={18} /> Видалити тип
+                        <span>Видалити тип</span>
                     </button>
+                )}
+                
+                {(isRW || isGod) && (
+                    <button className="gr-btn-edit-toggle" onClick={() => setIsEditing(!isEditing)} title={isEditing ? "Завершити редагування" : "Редагувати"}>
+                        {isEditing ? <MdCheck size={20} /> : <MdEdit size={20} />}
+                    </button>
+                )}
+
+                {/* ── Vehicle count editor ── */}
+                {(isRW || isGod) && selectedType && (
+                    <div className="gr-vehicle-count">
+                        <label>Кількість автомобілів в частині:
+                        <input
+                            type="number"
+                            min="0"
+                            className="gr-input"
+                            value={items.length > 0 ? (getAvail(items[0]?.id)?.vehicleCount || '') : ''}
+                            onChange={(e) => {
+                                items.forEach(item => {
+                                    handleAvailChange(item.id, 'vehicleCount', e.target.value)
+                                })
+                            }}
+                            disabled={!isEditing}
+                        />
+                        </label>
+                    </div>
                 )}
             </div>
 
@@ -222,7 +250,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                             <span>Резерв (наявн.)</span>
                             <span>Не комплект</span>
                             <span>Загальна потреба</span>
-                            {isGod && <span>Дії</span>}
+                            {isGod && isEditing && <span>Дії</span>}
                         </div>
 
                         {items.map((item, index) => {
@@ -242,9 +270,9 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                 <div key={item.id} className="gr-content-row">
                                     <span>{index + 1}</span>
                                     <span className="gr-item-name">{item.name}</span>
-                                    <span>{item.norm}</span>
+                                    <span>{need}</span>
                                     <span>
-                                        {hasBrigade && (isRW || isGod) ? (
+                                        {(isRW || isGod) && isEditing ? (
                                             <input
                                                 type="number"
                                                 min="0"
@@ -252,12 +280,12 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                                 value={available || ''}
                                                 onChange={(e) => handleAvailChange(item.id, 'available', e.target.value)}
                                             />
-                                        ) : hasBrigade ? available : '—'}
+                                        ) : available}
                                     </span>
                                     <span className={shortage > 0 ? 'gr-shortage' : ''}>{shortage > 0 ? shortage : '—'}</span>
                                     <span>{reserveNeed}</span>
                                     <span>
-                                        {hasBrigade && (isRW || isGod) ? (
+                                        {(isRW || isGod) && isEditing ? (
                                             <input
                                                 type="number"
                                                 min="0"
@@ -265,13 +293,13 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                                 value={reserveAvail || ''}
                                                 onChange={(e) => handleAvailChange(item.id, 'reserveAvailable', e.target.value)}
                                             />
-                                        ) : hasBrigade ? reserveAvail : '—'}
+                                        ) : reserveAvail}
                                     </span>
                                     <span className={reserveShortage > 0 ? 'gr-shortage' : ''}>{reserveShortage > 0 ? reserveShortage : '—'}</span>
                                     <span className={totalNeed > 0 ? 'gr-total-need' : ''}>{totalNeed > 0 ? totalNeed : '—'}</span>
-                                    {isGod && (
+                                    {isGod && isEditing && (
                                         <span>
-                                            <button className="delete-btn" onClick={() => handleDeleteItem(item.id)} title="Видалити">
+                                            <button className="gr-delete-btn" onClick={() => handleDeleteItem(item.id)} title="Видалити">
                                                 <MdDelete size={18} />
                                             </button>
                                         </span>
@@ -285,30 +313,12 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                         )}
                     </div>
 
-                    {/* ── Vehicle count editor ── */}
-                    {hasBrigade && (isRW || isGod) && selectedType && (
-                        <div className="gr-vehicle-count">
-                            <label>Кількість автомобілів цього типу в частині:</label>
-                            <input
-                                type="number"
-                                min="0"
-                                className="gr-input"
-                                value={items.length > 0 ? (getAvail(items[0]?.id)?.vehicleCount || '') : ''}
-                                onChange={(e) => {
-                                    // Update vehicleCount for all items in this type
-                                    items.forEach(item => {
-                                        handleAvailChange(item.id, 'vehicleCount', e.target.value)
-                                    })
-                                }}
-                            />
-                        </div>
-                    )}
 
                     {/* ── Add new item (GOD only) ── */}
-                    {isGod && selectedType && (
+                    {isGod && selectedType && isEditing && (
                         <div className="gr-add-item">
-                            <h4>Додати позицію</h4>
-                            <div className="gr-add-item-form">
+                            <h4>Додати нову позицію для цього типу</h4>
+                            <div className="gr-add-form">
                                 <input
                                     type="text"
                                     value={newItemName}
