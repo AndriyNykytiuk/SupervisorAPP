@@ -107,6 +107,17 @@ async function start() {
     // Disable global alter to avoid ER_TOO_MANY_KEYS on Detachments bug
     await sequelize.sync()
 
+    // ── Safe one-time migrations (run on ALL environments) ──────
+    try {
+        await sequelize.query(`
+            ALTER TABLE "EquipmentAvailabilities"
+            ADD COLUMN IF NOT EXISTS "reserveAvailable" INTEGER NOT NULL DEFAULT 0;
+        `)
+    } catch (e) {
+        // Ignore if column already exists (for DBs that don't support IF NOT EXISTS)
+        if (!e.message.includes('already exists')) console.error('Migration error:', e.message)
+    }
+
     if (process.env.NODE_ENV !== 'production') {
         // Explicitly alter TestItem and ToolItem to add the new columns
         const { User, TestItem, ToolItem, ElectricStations, WaterPumps, HydravlicTool, SwimTools, FoamAgent, Powder, ExtenguisDocumentLink, UsageLiquidsLog, backPackExtenguisher, EquipmentArchive, VehicleType, EquipmentItem, EquipmentAvailability } = await import('./models/index.js')
