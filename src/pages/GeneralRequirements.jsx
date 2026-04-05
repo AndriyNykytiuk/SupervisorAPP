@@ -242,7 +242,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                 <div key={item.id} className="gr-content-row">
                                     <span>{index + 1}</span>
                                     <span className="gr-item-name">{item.name}</span>
-                                    <span>{need}</span>
+                                    <span>{item.norm}</span>
                                     <span>
                                         {hasBrigade && (isRW || isGod) ? (
                                             <input
