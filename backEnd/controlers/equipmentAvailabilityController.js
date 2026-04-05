@@ -42,8 +42,8 @@ export const getAll = async (req, res, next) => {
                     include: [{ model: Detachment, attributes: ['name'] }],
                 },
             ],
-            // Explicitly order by main model ID to prevent "ambiguous column" error in PG
-            order: [[EquipmentAvailability, 'id', 'ASC']],
+            // Revert to simple order by since Sequelize handles main model id automatically
+            order: [['id', 'ASC']],
         })
         res.json(rows)
     } catch (err) {
