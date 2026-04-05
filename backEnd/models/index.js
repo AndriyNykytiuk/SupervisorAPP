@@ -17,6 +17,9 @@ import UsageLiquidsLog from './usageLiquidsLog.js'
 import backPackExtenguisher from './backPackExtenguisher.js'
 import EquipmentArchive from './EquipmentArchive.js'
 import TransferLog from './TransferLog.js'
+import VehicleType from './VehicleType.js'
+import EquipmentItem from './EquipmentItem.js'
+import EquipmentAvailability from './EquipmentAvailability.js'
 
 // ── Associations ───────────────────────────────
 // One Detachment has many Brigades
@@ -93,5 +96,17 @@ Brigade.hasMany(TransferLog, { foreignKey: 'toBrigadeId', as: 'IncomingTransfers
 TransferLog.belongsTo(Brigade, { foreignKey: 'fromBrigadeId', as: 'FromBrigade' })
 TransferLog.belongsTo(Brigade, { foreignKey: 'toBrigadeId', as: 'ToBrigade' })
 
-export { User, Detachment, Brigade, testList, TestItem, TestLinks, toolList, ToolItem, ElectricStations, WaterPumps, HydravlicTool, SwimTools, FoamAgent, Powder, ExtenguisDocumentLink, UsageLiquidsLog, backPackExtenguisher, EquipmentArchive, TransferLog }
+// VehicleType <-> EquipmentItem
+VehicleType.hasMany(EquipmentItem, { foreignKey: 'vehicleTypeId', onDelete: 'CASCADE' })
+EquipmentItem.belongsTo(VehicleType, { foreignKey: 'vehicleTypeId' })
+
+// EquipmentItem <-> EquipmentAvailability
+EquipmentItem.hasMany(EquipmentAvailability, { foreignKey: 'equipmentItemId', onDelete: 'CASCADE' })
+EquipmentAvailability.belongsTo(EquipmentItem, { foreignKey: 'equipmentItemId' })
+
+// Brigade <-> EquipmentAvailability
+Brigade.hasMany(EquipmentAvailability, { foreignKey: 'brigadeId' })
+EquipmentAvailability.belongsTo(Brigade, { foreignKey: 'brigadeId' })
+
+export { User, Detachment, Brigade, testList, TestItem, TestLinks, toolList, ToolItem, ElectricStations, WaterPumps, HydravlicTool, SwimTools, FoamAgent, Powder, ExtenguisDocumentLink, UsageLiquidsLog, backPackExtenguisher, EquipmentArchive, TransferLog, VehicleType, EquipmentItem, EquipmentAvailability }
 

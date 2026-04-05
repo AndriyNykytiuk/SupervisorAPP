@@ -31,6 +31,9 @@ import usageLiquidsLogRouter from './routes/usageLiquidsLog.js'
 import backPackExtenguisherRouter from './routes/backPackExtenguisher.js'
 import genericDatasRouter from './routes/genericDatas.js'
 import equipmentArchiveRouter from './routes/equipmentArchive.js'
+import vehicleTypesRouter from './routes/vehicleTypes.js'
+import equipmentItemsRouter from './routes/equipmentItems.js'
+import equipmentAvailabilityRouter from './routes/equipmentAvailability.js'
 
 
 const app = express()
@@ -72,6 +75,9 @@ app.use('/api/usage-liquids-log', authenticate, usageLiquidsLogRouter)
 app.use('/api/backpack-extenguishers', authenticate, backPackExtenguisherRouter)
 app.use('/api/generic-datas', authenticate, genericDatasRouter)
 app.use('/api/archives', authenticate, equipmentArchiveRouter)
+app.use('/api/vehicle-types', authenticate, vehicleTypesRouter)
+app.use('/api/equipment-items', authenticate, equipmentItemsRouter)
+app.use('/api/equipment-availability', authenticate, equipmentAvailabilityRouter)
 
 // ── Catch-all: serve index.html for any other route (React routing) ─────
 const indexPath = path.resolve(__dirname, '../dist/index.html')
@@ -103,7 +109,7 @@ async function start() {
 
     if (process.env.NODE_ENV !== 'production') {
         // Explicitly alter TestItem and ToolItem to add the new columns
-        const { User, TestItem, ToolItem, ElectricStations, WaterPumps, HydravlicTool, SwimTools, FoamAgent, Powder, ExtenguisDocumentLink, UsageLiquidsLog, backPackExtenguisher, EquipmentArchive } = await import('./models/index.js')
+        const { User, TestItem, ToolItem, ElectricStations, WaterPumps, HydravlicTool, SwimTools, FoamAgent, Powder, ExtenguisDocumentLink, UsageLiquidsLog, backPackExtenguisher, EquipmentArchive, VehicleType, EquipmentItem, EquipmentAvailability } = await import('./models/index.js')
         await User.sync({ alter: true })
         await ElectricStations.sync({ alter: true })
         await WaterPumps.sync({ alter: true })
@@ -115,6 +121,9 @@ async function start() {
         await UsageLiquidsLog.sync({ alter: true })
         await backPackExtenguisher.sync({ alter: true })
         await EquipmentArchive.sync({ alter: true })
+        await VehicleType.sync({ alter: true })
+        await EquipmentItem.sync({ alter: true })
+        await EquipmentAvailability.sync({ alter: true })
         console.log('📦 Tables altered for development environment')
     } else {
         console.log('📦 Tables verified for production (no alter)')

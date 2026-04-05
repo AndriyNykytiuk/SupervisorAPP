@@ -27,6 +27,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                 {user?.role !== 'RW' && (
                     <NavLink to="/genericDatas" onClick={() => isOpen && toggleSidebar()}>Загальні дані</NavLink>
                 )}
+                <NavLink to="/tool-requierments" onClick={() => isOpen && toggleSidebar()}>Потреба ПТО та АРО</NavLink>
                 <NavLink to="/literature" onClick={() => isOpen && toggleSidebar()}>CFBT.UA</NavLink>
                 <NavLink to="/archives" onClick={() => isOpen && toggleSidebar()}>Архів</NavLink>
             </div>

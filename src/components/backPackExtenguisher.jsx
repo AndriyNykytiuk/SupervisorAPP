@@ -241,9 +241,6 @@ const BackPackExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
                                         <button className='update-btn' onClick={() => handleEditClick(item)} title="Редагувати">
                                             <MdUpdate size={20} />
                                         </button>
-                                        <button className='delete-btn' onClick={() => handleDelete(item.id)} title="Видалити">
-                                            <MdDelete size={20} />
-                                        </button>
                                     </span>
                                 </div>
                             )}

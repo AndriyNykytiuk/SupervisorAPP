@@ -14,6 +14,7 @@ import GenericDatas from './GenericDatas.jsx'
 import Literature from './Literature.jsx'
 import ArchivePage from './ArchivePage.jsx'
 import Home from './Home.jsx'
+import GeneralRequirements from './GeneralRequirements.jsx'
 
 const Dashboard = () => {
     const { selectedBrigade } = useAuth()
@@ -46,6 +47,7 @@ const Dashboard = () => {
                         <Route path="/genericDatas" element={<GenericDatas selectedBrigade={selectedBrigade} />} />
                         <Route path="/literature" element={<Literature/>} />
                         <Route path="/archives" element={<ArchivePage />} />
+                        <Route path="/tool-requierments" element={<GeneralRequirements selectedBrigade={selectedBrigade} />} />
                     </Route>
                 </Routes>
             </div>

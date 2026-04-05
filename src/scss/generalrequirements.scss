@@ -1,0 +1,300 @@
+/* ─── General Requirements Page ─── */
+.gr-page {
+    animation: fadeIn 0.3s ease-in-out;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* ─── Selector Bar ─── */
+.gr-select-wrapp {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    background: var(--white);
+    box-shadow: var(--shadow-sm);
+
+    .gr-type-selector {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--navy);
+
+        select {
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius-md);
+            padding: 0.4rem 0.8rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--navy);
+            background: var(--white);
+            cursor: pointer;
+            min-width: 160px;
+        }
+    }
+
+    .gr-type-add {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+
+        input {
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius-md);
+            padding: 0.4rem 0.6rem;
+            font-size: 0.9rem;
+            min-width: 140px;
+        }
+    }
+}
+
+.gr-btn-add {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.4rem 0.8rem;
+    background: var(--navy);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+        opacity: 0.85;
+        transform: translateY(-1px);
+    }
+}
+
+.gr-btn-delete-type {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.4rem 0.8rem;
+    background: var(--danger, #ef4444);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+
+    &:hover {
+        opacity: 0.8;
+    }
+}
+
+/* ─── Table ─── */
+.gr-table-wrapper {
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+    background: var(--white);
+}
+
+.gr-content-title {
+    display: grid;
+    grid-template-columns: 0.4fr 4fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.5fr;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 0.7rem 0.8rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: white;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    background: var(--navy);
+    border-bottom: 2px solid var(--gold);
+}
+
+.gr-content-row {
+    display: grid;
+    grid-template-columns: 0.4fr 4fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.5fr;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 0.5rem 0.8rem;
+    font-size: 0.85rem;
+    color: var(--navy);
+    text-align: center;
+    border-bottom: 1px solid var(--gray-100);
+    transition: background 0.15s;
+
+    &:hover {
+        background: var(--gray-50);
+    }
+
+    .gr-item-name {
+        text-align: left;
+        font-weight: 500;
+    }
+}
+
+/* ─── No actions column for non-GOD ─── */
+.gr-content-title:not(:has(> :nth-child(10))),
+.gr-content-row:not(:has(> :nth-child(10))) {
+    grid-template-columns: 0.4fr 4fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr;
+}
+
+/* ─── Inputs ─── */
+.gr-input {
+    width: 60px;
+    padding: 0.25rem 0.4rem;
+    text-align: center;
+    border: 1px solid var(--gray-300);
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: var(--navy);
+    transition: border-color 0.2s;
+
+    &:focus {
+        outline: none;
+        border-color: var(--gold);
+        box-shadow: 0 0 0 2px rgba(252, 215, 0, 0.2);
+    }
+}
+
+/* ─── Highlighted values ─── */
+.gr-shortage {
+    color: var(--danger, #ef4444);
+    font-weight: 700;
+}
+
+.gr-total-need {
+    color: #b91c1c;
+    font-weight: 700;
+    background: rgba(239, 68, 68, 0.08);
+    border-radius: 4px;
+    padding: 0.15rem 0.3rem;
+}
+
+/* ─── Vehicle count ─── */
+.gr-vehicle-count {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1rem;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    color: var(--navy);
+    font-size: 0.95rem;
+    box-shadow: var(--shadow-sm);
+}
+
+/* ─── Add item form ─── */
+.gr-add-item {
+    padding: 1rem;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+
+    h4 {
+        margin: 0 0 0.6rem 0;
+        color: var(--navy);
+        font-size: 0.95rem;
+    }
+
+    .gr-add-item-form {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        align-items: center;
+
+        input {
+            padding: 0.4rem 0.6rem;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            min-width: 120px;
+
+            &:first-child {
+                flex: 1;
+                min-width: 200px;
+            }
+        }
+
+        input[type="number"] {
+            width: 120px;
+            min-width: 100px;
+        }
+    }
+}
+
+/* ─── Empty state ─── */
+.gr-empty {
+    text-align: center;
+    color: var(--gray-500);
+    padding: 2rem;
+    font-size: 0.9rem;
+}
+
+/* ─── Mobile ─── */
+@media (max-width: 768px) {
+    .gr-select-wrapp {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .gr-content-title {
+        display: none;
+    }
+
+    .gr-content-row {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+        padding: 0.8rem;
+        border-bottom: 2px solid var(--gray-200);
+
+        span {
+            display: flex;
+            justify-content: space-between;
+            text-align: right;
+
+            &::before {
+                font-weight: 600;
+                color: var(--gray-500);
+                margin-right: 0.5rem;
+                text-align: left;
+            }
+
+            &:nth-child(1)::before { content: "№:"; }
+            &:nth-child(2)::before { content: "Назва:"; }
+            &:nth-child(3)::before { content: "Норма:"; }
+            &:nth-child(4)::before { content: "Наявн.:"; }
+            &:nth-child(5)::before { content: "Не компл.:"; }
+            &:nth-child(6)::before { content: "Резерв (н):"; }
+            &:nth-child(7)::before { content: "Резерв (р):"; }
+            &:nth-child(8)::before { content: "Не компл.:"; }
+            &:nth-child(9)::before { content: "Потреба:"; }
+        }
+    }
+
+    .gr-add-item .gr-add-item-form {
+        flex-direction: column;
+
+        input {
+            width: 100% !important;
+            min-width: 100% !important;
+        }
+    }
+
+    .gr-vehicle-count {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

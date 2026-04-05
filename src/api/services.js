@@ -292,3 +292,62 @@ export const fetchTransferLogs = async (params = {}) => {
     const { data } = await api.get('/transfer/logs', { params });
     return data;
 };
+
+// ── Vehicle Types ────────────────────────────────────
+export const fetchVehicleTypes = async () => {
+    const { data } = await api.get('/vehicle-types');
+    return data;
+};
+
+export const createVehicleType = async (payload) => {
+    const { data } = await api.post('/vehicle-types', payload);
+    return data;
+};
+
+export const deleteVehicleType = async (id) => {
+    const { data } = await api.delete(`/vehicle-types/${id}`);
+    return data;
+};
+
+// ── Equipment Items ──────────────────────────────────
+export const fetchEquipmentItems = async (vehicleTypeId) => {
+    const params = vehicleTypeId ? { vehicleTypeId } : {};
+    const { data } = await api.get('/equipment-items', { params });
+    return data;
+};
+
+export const createEquipmentItem = async (payload) => {
+    const { data } = await api.post('/equipment-items', payload);
+    return data;
+};
+
+export const updateEquipmentItem = async (id, payload) => {
+    const { data } = await api.put(`/equipment-items/${id}`, payload);
+    return data;
+};
+
+export const deleteEquipmentItem = async (id) => {
+    const { data } = await api.delete(`/equipment-items/${id}`);
+    return data;
+};
+
+// ── Equipment Availability ───────────────────────────
+export const fetchEquipmentAvailability = async (params = {}) => {
+    const { data } = await api.get('/equipment-availability', { params });
+    return data;
+};
+
+export const createEquipmentAvailability = async (payload) => {
+    const { data } = await api.post('/equipment-availability', payload);
+    return data;
+};
+
+export const updateEquipmentAvailability = async (id, payload) => {
+    const { data } = await api.put(`/equipment-availability/${id}`, payload);
+    return data;
+};
+
+export const deleteEquipmentAvailability = async (id) => {
+    const { data } = await api.delete(`/equipment-availability/${id}`);
+    return data;
+};
