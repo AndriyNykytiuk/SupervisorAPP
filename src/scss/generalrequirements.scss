@@ -12,6 +12,7 @@
     display: flex;
     gap: 1rem;
     align-items: center;
+    justify-content: space-between;
   
     padding: 0.8rem 1rem;
     border: 1px solid var(--gray-200);
@@ -153,15 +154,25 @@
     padding: 0.25rem 0.4rem;
     text-align: center;
     border: 1px solid var(--gray-300);
-    border-radius: 4px;
-    font-size: 0.85rem;
+   
+    font-size: 1.2rem;
+    font-weight: 700;
     color: var(--navy);
     transition: border-color 0.2s;
 
     &:focus {
         outline: none;
+        font-weight: 700;
+        font-size: 1rem;
         border-color: var(--gold);
         box-shadow: 0 0 0 2px rgba(252, 215, 0, 0.2);
+    }
+
+    &:disabled {
+        border: none;
+        background: transparent;
+        box-shadow: none;
+        cursor: default;
     }
 }
 
@@ -189,12 +200,60 @@
   
     font-weight: 700;
     color: var(--navy);
-    font-size: 0.8rem;
+    font-size: 0.9rem;
+
   
+}
+
+/* ─── Search ─── */
+.gr-search {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.8rem;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    color: var(--gray-500);
+
+    input {
+        flex: 1;
+        border: none;
+        outline: none;
+        font-size: 0.9rem;
+        color: var(--navy);
+
+        &::placeholder {
+            color: var(--gray-400);
+        }
+    }
+}
+
+/* ─── Edit toggle ─── */
+.gr-btn-edit-toggle {
+    display: flex;
+    align-items: center;
+    padding: 0.4rem 0.6rem;
+    background: var(--gold);
+    color: var(--navy);
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+        opacity: 0.85;
+        transform: translateY(-1px);
+    }
 }
 
 /* ─── Add item form ─── */
 .gr-add-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
     padding: 1rem;
     background: var(--white);
     border: 1px solid var(--gray-200);
@@ -207,28 +266,42 @@
         font-size: 0.95rem;
     }
 
-    .gr-add-item-form {
+    .gr-add-form {
         display: flex;
+        justify-content: space-between;
         gap: 0.5rem;
-        flex-wrap: wrap;
+       
         align-items: center;
 
         input {
-            padding: 0.4rem 0.6rem;
+            padding: 0.4rem 0.8rem;
             border: 1px solid var(--gray-300);
             border-radius: var(--radius-md);
             font-size: 0.9rem;
-            min-width: 120px;
+            min-width: 100px;
+            height: 100%;
 
             &:first-child {
                 flex: 1;
-                min-width: 200px;
+               max-width: 650px;
+               max-height: 40px;
+               height: 100%;
             }
         }
-
+        input::placeholder {
+            color: var(--gray-500);
+            font-size: 0.7rem;
+            height: 100%;
+        }
         input[type="number"] {
-            width: 120px;
+            
             min-width: 100px;
+             padding: 0.4rem 0.8rem;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            min-width: 100px;
+            height: 100%;
         }
     }
 }

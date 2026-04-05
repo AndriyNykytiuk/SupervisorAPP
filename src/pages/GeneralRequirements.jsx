@@ -14,7 +14,7 @@ import {
     updateEquipmentAvailability,
 } from '../api/services.js'
 import LoadingSpinner from '../components/ui/LoadingSpinner.jsx'
-import { MdDelete, MdAdd, MdEdit, MdCheck } from 'react-icons/md'
+import { MdDelete, MdAdd, MdEdit, MdCheck, MdSearch } from 'react-icons/md'
 import '../scss/generalrequirements.scss'
 
 const GeneralRequirements = ({ selectedBrigade }) => {
@@ -28,6 +28,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
     const [availability, setAvailability] = useState([])
     const [loading, setLoading] = useState(false)
     const [isEditing, setIsEditing] = useState(false)
+    const [searchQuery, setSearchQuery] = useState('')
 
     // New vehicle type form
     const [newTypeName, setNewTypeName] = useState('')
@@ -207,11 +208,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                     </button>
                 )}
                 
-                {(isRW || isGod) && (
-                    <button className="gr-btn-edit-toggle" onClick={() => setIsEditing(!isEditing)} title={isEditing ? "Завершити редагування" : "Редагувати"}>
-                        {isEditing ? <MdCheck size={20} /> : <MdEdit size={20} />}
-                    </button>
-                )}
+
 
                 {/* ── Vehicle count editor ── */}
                 {(isRW || isGod) && selectedType && (
@@ -232,7 +229,25 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                         </label>
                     </div>
                 )}
+                {(isRW || isGod) && (
+                    <button className="gr-btn-edit-toggle" onClick={() => setIsEditing(!isEditing)} title={isEditing ? "Завершити редагування" : "Редагувати"}>
+                        {isEditing ? <MdCheck size={20} /> : <MdEdit size={20} />}
+                    </button>
+                )}
             </div>
+
+            {/* ── Search ── */}
+            {selectedType && (
+                <div className="gr-search">
+                    <MdSearch size={18} />
+                    <input
+                        type="text"
+                        placeholder="Пошук за найменуванням..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                </div>
+            )}
 
             {loading ? (
                 <LoadingSpinner />
@@ -253,14 +268,15 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                             {isGod && isEditing && <span>Дії</span>}
                         </div>
 
-                        {items.map((item, index) => {
+                        {items.filter(i => i.name.toLowerCase().includes(searchQuery.toLowerCase())).map((item, index) => {
                             const avail = getAvail(item.id)
-                            const vehicleCount = avail?.vehicleCount || 0
+                            // If this item has no availability record yet, inherit vehicleCount from siblings
+                            const vehicleCount = avail?.vehicleCount || availability.find(a => a.vehicleCount > 0)?.vehicleCount || 0
                             const available = avail?.available || 0
 
                             // Calculated fields
-                            const need = item.norm * vehicleCount
-                            const shortage = need - available
+                            const need = vehicleCount > 0 ? item.norm || 0 : 0
+                            const shortage = (item.norm * vehicleCount) - available
                             const reserveNeed = item.brigadeNorm
                             const reserveAvail = avail?.reserveAvailable || 0
                             const reserveShortage = reserveNeed - reserveAvail
@@ -270,7 +286,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                 <div key={item.id} className="gr-content-row">
                                     <span>{index + 1}</span>
                                     <span className="gr-item-name">{item.name}</span>
-                                    <span>{need}</span>
+                                    <span>{item.norm}</span>
                                     <span>
                                         {(isRW || isGod) && isEditing ? (
                                             <input
