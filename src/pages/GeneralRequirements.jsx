@@ -279,7 +279,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                             const shortage = (item.norm * vehicleCount) - available
                             const reserveNeed = item.brigadeNorm
                             const reserveAvail = avail?.reserveAvailable || 0
-                            const reserveShortage = reserveNeed - reserveAvail
+                            const reserveShortage = (reserveNeed * vehicleCount) - reserveAvail
                             const totalNeed = Math.max(0, shortage) + Math.max(0, reserveShortage)
 
                             return (
