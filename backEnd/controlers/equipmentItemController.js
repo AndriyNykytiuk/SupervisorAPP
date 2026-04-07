@@ -25,7 +25,7 @@ import { EquipmentItem, VehicleType, EquipmentAvailability } from '../models/ind
         const mapped = items.map(t => {
             const json = t.toJSON()
             const av = json.EquipmentAvailabilities?.[0]
-            json.actual_count = av?.count || 0
+            json.actual_count = av?.available || 0
             json.warehouse_actual = av?.reserveAvailable || 0
             delete json.EquipmentAvailabilities
             return json
@@ -85,10 +85,10 @@ import { EquipmentItem, VehicleType, EquipmentAvailability } from '../models/ind
         if (targetBrigadeId && (actual_count !== undefined || warehouse_actual !== undefined)) {
             const [ea] = await EquipmentAvailability.findOrCreate({ 
                 where: { equipmentItemId: id, brigadeId: targetBrigadeId },
-                defaults: { count: 0, reserveAvailable: 0 }
+                defaults: { available: 0, reserveAvailable: 0 }
             })
             const updates = {}
-            if (actual_count !== undefined) updates.count = actual_count
+            if (actual_count !== undefined) updates.available = actual_count
             if (warehouse_actual !== undefined) updates.reserveAvailable = warehouse_actual
             await ea.update(updates)
         }
