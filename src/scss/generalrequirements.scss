@@ -106,7 +106,7 @@
 
 .gr-content-title {
     display: grid;
-    grid-template-columns: 0.4fr 4fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.5fr;
+    grid-template-columns: 0.4fr 3.5fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.5fr;
     gap: 0.5rem;
     align-items: center;
     padding: 0.7rem 0.8rem;
@@ -122,7 +122,7 @@
 
 .gr-content-row {
     display: grid;
-    grid-template-columns: 0.4fr 4fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.5fr;
+    grid-template-columns: 0.4fr 3.5fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.5fr;
     gap: 0.5rem;
     align-items: center;
     padding: 0.5rem 0.8rem;
@@ -143,9 +143,9 @@
 }
 
 /* ─── No actions column for non-GOD ─── */
-.gr-content-title:not(:has(> :nth-child(10))),
-.gr-content-row:not(:has(> :nth-child(10))) {
-    grid-template-columns: 0.4fr 4fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr;
+.gr-content-title:not(:has(> :nth-child(11))),
+.gr-content-row:not(:has(> :nth-child(11))) {
+    grid-template-columns: 0.4fr 3.5fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr;
 }
 
 /* ─── Inputs ─── */
@@ -314,6 +314,26 @@
     font-size: 0.9rem;
 }
 
+/* ─── Small input / rule select ─── */
+.gr-input-small {
+    width: 70px;
+    padding: 0.3rem 0.4rem;
+    text-align: center;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+}
+
+.gr-select-rule {
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    background: var(--white);
+    color: var(--navy);
+    cursor: pointer;
+}
+
 /* ─── Mobile ─── */
 @media (max-width: 768px) {
     .gr-select-wrapp {
@@ -346,13 +366,14 @@
 
             &:nth-child(1)::before { content: "№:"; }
             &:nth-child(2)::before { content: "Назва:"; }
-            &:nth-child(3)::before { content: "Норма:"; }
-            &:nth-child(4)::before { content: "Наявн.:"; }
-            &:nth-child(5)::before { content: "Не компл.:"; }
-            &:nth-child(6)::before { content: "Резерв (н):"; }
-            &:nth-child(7)::before { content: "Резерв (р):"; }
-            &:nth-child(8)::before { content: "Не компл.:"; }
-            &:nth-child(9)::before { content: "Потреба:"; }
+            &:nth-child(3)::before { content: "На 1 авто:"; }
+            &:nth-child(4)::before { content: "Потрібно:"; }
+            &:nth-child(5)::before { content: "Наявн.:"; }
+            &:nth-child(6)::before { content: "Не компл.:"; }
+            &:nth-child(7)::before { content: "Резерв (н):"; }
+            &:nth-child(8)::before { content: "Резерв (р):"; }
+            &:nth-child(9)::before { content: "Не компл.:"; }
+            &:nth-child(10)::before { content: "Потреба:"; }
         }
     }
 

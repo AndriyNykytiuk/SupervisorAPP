@@ -96,6 +96,10 @@ Brigade.hasMany(TransferLog, { foreignKey: 'toBrigadeId', as: 'IncomingTransfers
 TransferLog.belongsTo(Brigade, { foreignKey: 'fromBrigadeId', as: 'FromBrigade' })
 TransferLog.belongsTo(Brigade, { foreignKey: 'toBrigadeId', as: 'ToBrigade' })
 
+// Brigade <-> VehicleType
+Brigade.hasMany(VehicleType, { foreignKey: 'brigadeId' })
+VehicleType.belongsTo(Brigade, { foreignKey: 'brigadeId' })
+
 // VehicleType <-> EquipmentItem
 VehicleType.hasMany(EquipmentItem, { foreignKey: 'vehicleTypeId', onDelete: 'CASCADE' })
 EquipmentItem.belongsTo(VehicleType, { foreignKey: 'vehicleTypeId' })

@@ -9,16 +9,39 @@ const EquipmentItem = sequelize.define('EquipmentItem', {
     },
     name: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
     },
-    norm: {
+    required_per_vehicle: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         defaultValue: 0,
     },
-    brigadeNorm: {
+    required_rule: {
+        type: DataTypes.STRING,
+        defaultValue: 'exact',
+    },
+    actual_count: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
+        defaultValue: 0,
+    },
+    warehouse_required: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        defaultValue: 0,
+    },
+    warehouse_rule: {
+        type: DataTypes.STRING,
+        defaultValue: 'exact',
+    },
+    warehouse_percent: {
+        type: DataTypes.SMALLINT,
+        allowNull: true,
+        
+    },
+    warehouse_actual :{
+        type: DataTypes.INTEGER,
+        allowNull: true,
         defaultValue: 0,
     },
     vehicleTypeId: {

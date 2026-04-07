@@ -4,6 +4,7 @@ import { toast } from 'react-toastify'
 import {
     fetchVehicleTypes,
     createVehicleType,
+    updateVehicleType,
     deleteVehicleType,
     fetchEquipmentItems,
     createEquipmentItem,
@@ -32,19 +33,24 @@ const GeneralRequirements = ({ selectedBrigade }) => {
 
     // New vehicle type form
     const [newTypeName, setNewTypeName] = useState('')
+    const [newTypeVehicleCount, setNewTypeVehicleCount] = useState('')
+
     // New equipment item form
     const [newItemName, setNewItemName] = useState('')
-    const [newItemNorm, setNewItemNorm] = useState('')
-    const [newItemBrigadeNorm, setNewItemBrigadeNorm] = useState('')
+    const [newItemPerVehicle, setNewItemPerVehicle] = useState('')
+    const [newItemRequiredRule, setNewItemRequiredRule] = useState('exact')
+    const [newItemWarehouseRequired, setNewItemWarehouseRequired] = useState('')
+    const [newItemWarehouseRule, setNewItemWarehouseRule] = useState('exact')
+    const [newItemWarehousePercent, setNewItemWarehousePercent] = useState('')
 
     // ── Load vehicle types ──────────────────────────
     useEffect(() => {
         loadVehicleTypes()
-    }, [])
+    }, [selectedBrigade])
 
     const loadVehicleTypes = async () => {
         try {
-            const data = await fetchVehicleTypes()
+            const data = await fetchVehicleTypes(selectedBrigade || undefined)
             setVehicleTypes(data)
             if (data.length > 0 && !selectedType) {
                 setSelectedType(data[0].id)
@@ -83,16 +89,40 @@ const GeneralRequirements = ({ selectedBrigade }) => {
         return availability.find(a => a.equipmentItemId === itemId) || null
     }
 
+    const getVehicleCount = () => {
+        const vt = vehicleTypes.find(t => t.id === selectedType)
+        return vt?.viechle_count || 0
+    }
+
     // ── Vehicle Type CRUD ───────────────────────────
     const handleAddType = async () => {
         if (!newTypeName.trim()) return
+        if (!selectedBrigade) {
+            toast.error('Оберіть частину')
+            return
+        }
         try {
-            await createVehicleType({ name: newTypeName.trim() })
+            await createVehicleType({
+                name: newTypeName.trim(),
+                viechle_count: Number(newTypeVehicleCount) || 0,
+                brigadeId: selectedBrigade,
+            })
             setNewTypeName('')
+            setNewTypeVehicleCount('')
             toast.success('Тип додано')
             loadVehicleTypes()
         } catch (err) {
             toast.error('Помилка при додаванні типу')
+        }
+    }
+
+    const handleUpdateVehicleCount = async (value) => {
+        if (!selectedType) return
+        try {
+            await updateVehicleType(selectedType, { viechle_count: Number(value) || 0 })
+            loadVehicleTypes()
+        } catch (err) {
+            toast.error('Помилка при оновленні кількості авто')
         }
     }
 
@@ -114,13 +144,19 @@ const GeneralRequirements = ({ selectedBrigade }) => {
         try {
             await createEquipmentItem({
                 name: newItemName.trim(),
-                norm: Number(newItemNorm) || 0,
-                brigadeNorm: Number(newItemBrigadeNorm) || 0,
+                required_per_vehicle: Number(newItemPerVehicle) || 0,
+                required_rule: newItemRequiredRule,
+                warehouse_required: Number(newItemWarehouseRequired) || 0,
+                warehouse_rule: newItemWarehouseRule,
+                warehouse_percent: newItemWarehouseRule === 'percent_of_actual' ? (Number(newItemWarehousePercent) || 0) : null,
                 vehicleTypeId: selectedType,
             })
             setNewItemName('')
-            setNewItemNorm('')
-            setNewItemBrigadeNorm('')
+            setNewItemPerVehicle('')
+            setNewItemRequiredRule('exact')
+            setNewItemWarehouseRequired('')
+            setNewItemWarehouseRule('exact')
+            setNewItemWarehousePercent('')
             toast.success('Позицію додано')
             loadData()
         } catch (err) {
@@ -136,6 +172,16 @@ const GeneralRequirements = ({ selectedBrigade }) => {
             loadData()
         } catch (err) {
             toast.error('Помилка при видаленні позиції')
+        }
+    }
+
+    // ── Inline field update for EquipmentItem ───────
+    const handleItemFieldChange = async (itemId, field, value) => {
+        try {
+            await updateEquipmentItem(itemId, { [field]: value })
+            loadData()
+        } catch (err) {
+            toast.error('Помилка при оновленні')
         }
     }
 
@@ -163,6 +209,8 @@ const GeneralRequirements = ({ selectedBrigade }) => {
     if (!selectedBrigade) {
         return <p style={{ padding: '2rem', textAlign: 'center' }}>Оберіть частину для перегляду потреби</p>
     }
+
+    const vehicleCount = getVehicleCount()
 
     return (
         <div className="gr-page">
@@ -192,6 +240,14 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                             placeholder="Новий тип..."
                             onKeyDown={(e) => e.key === 'Enter' && handleAddType()}
                         />
+                        <input
+                            type="number"
+                            value={newTypeVehicleCount}
+                            onChange={(e) => setNewTypeVehicleCount(e.target.value)}
+                            placeholder="К-сть авто"
+                            min="0"
+                            className="gr-input-small"
+                        />
                         <button className="gr-btn-add" onClick={handleAddType} title="Додати тип">
                             <span>Додати тип</span>
                         </button>
@@ -207,23 +263,17 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                         <span>Видалити тип</span>
                     </button>
                 )}
-                
-
 
                 {/* ── Vehicle count editor ── */}
                 {(isRW || isGod) && selectedType && (
                     <div className="gr-vehicle-count">
-                        <label>Кількість автомобілів в частині:
+                        <label>Кількість автомобілів:
                         <input
                             type="number"
                             min="0"
                             className="gr-input"
-                            value={items.length > 0 ? (getAvail(items[0]?.id)?.vehicleCount || '') : ''}
-                            onChange={(e) => {
-                                items.forEach(item => {
-                                    handleAvailChange(item.id, 'vehicleCount', e.target.value)
-                                })
-                            }}
+                            value={vehicleCount || ''}
+                            onChange={(e) => handleUpdateVehicleCount(e.target.value)}
                             disabled={!isEditing}
                         />
                         </label>
@@ -258,7 +308,8 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                         <div className="gr-content-title">
                             <span>№</span>
                             <span>Найменування</span>
-                            <span>Згідно норм</span>
+                            <span>Норма на одиницю техніки</span>
+                         
                             <span>В наявності</span>
                             <span>Не комплект</span>
                             <span>Резерв (норма)</span>
@@ -270,48 +321,102 @@ const GeneralRequirements = ({ selectedBrigade }) => {
 
                         {items.filter(i => i.name.toLowerCase().includes(searchQuery.toLowerCase())).map((item, index) => {
                             const avail = getAvail(item.id)
-                            // If this item has no availability record yet, inherit vehicleCount from siblings
-                            const vehicleCount = avail?.vehicleCount || availability.find(a => a.vehicleCount > 0)?.vehicleCount || 0
-                            const available = avail?.available || 0
 
-                            // Calculated fields
-                            const need = vehicleCount > 0 ? item.norm || 0 : 0
-                            const shortage = (item.norm * vehicleCount) - available
-                            const reserveNeed = item.brigadeNorm
-                            const reserveAvail = avail?.reserveAvailable || 0
-                            const reserveShortage = reserveNeed - reserveAvail
-                            const totalNeed = Math.max(0, shortage) + Math.max(0, reserveShortage)
+                            // Vehicle equipment calculation
+                            const reqPerVehicle = item.required_per_vehicle || 0
+                            const totalRequired = reqPerVehicle * vehicleCount
+                            const actualCount = item.actual_count || 0
+                            const vehicleShortage = totalRequired - actualCount
+
+                            // Warehouse calculation
+                            const warehouseRequired = item.warehouse_required || 0
+                            const warehousePercent = item.warehouse_percent || 0
+                            
+                            let calculatedWarehouseNorm = warehouseRequired
+                            if (item.warehouse_rule === 'percent_of_actual' && item.warehouse_percent) {
+                                calculatedWarehouseNorm = Math.ceil(actualCount * (item.warehouse_percent / 100))
+                            }
+                            const warehouseActual = item.warehouse_actual || 0
+                            const warehouseShortage = calculatedWarehouseNorm - warehouseActual
+
+                            const totalNeed = Math.max(0, vehicleShortage) + Math.max(0, warehouseShortage)
 
                             return (
                                 <div key={item.id} className="gr-content-row">
                                     <span>{index + 1}</span>
                                     <span className="gr-item-name">{item.name}</span>
-                                    <span>{item.norm}</span>
+                                    <span>
+                                        {isGod && isEditing ? (
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                className="gr-input"
+                                                value={reqPerVehicle || ''}
+                                                onBlur={(e) => handleItemFieldChange(item.id, 'required_per_vehicle', Number(e.target.value) || 0)}
+                                                onChange={(e) => {
+                                                    const newItems = items.map(i => i.id === item.id ? { ...i, required_per_vehicle: Number(e.target.value) || 0 } : i)
+                                                    setItems(newItems)
+                                                }}
+                                            />
+                                        ) : (
+                                            item.required_rule === 'min' ? `не менше ${reqPerVehicle}` : reqPerVehicle
+                                        )}
+                                    </span>
+                                  
                                     <span>
                                         {(isRW || isGod) && isEditing ? (
                                             <input
                                                 type="number"
                                                 min="0"
                                                 className="gr-input"
-                                                value={available || ''}
-                                                onChange={(e) => handleAvailChange(item.id, 'available', e.target.value)}
+                                                value={actualCount || ''}
+                                                onBlur={(e) => handleItemFieldChange(item.id, 'actual_count', Number(e.target.value) || 0)}
+                                                onChange={(e) => {
+                                                    const newItems = items.map(i => i.id === item.id ? { ...i, actual_count: Number(e.target.value) || 0 } : i)
+                                                    setItems(newItems)
+                                                }}
                                             />
-                                        ) : available}
+                                        ) : actualCount}
                                     </span>
-                                    <span className={shortage > 0 ? 'gr-shortage' : ''}>{shortage > 0 ? shortage : '—'}</span>
-                                    <span>{reserveNeed}</span>
+                                    <span className={vehicleShortage > 0 ? 'gr-shortage' : ''}>{vehicleShortage > 0 ? vehicleShortage : '—'}</span>
+                                    <span>
+                                        {isGod && isEditing ? (
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                className="gr-input"
+                                                value={item.warehouse_rule === 'percent_of_actual' ? (warehousePercent || '') : (warehouseRequired || '')}
+                                                onBlur={(e) => {
+                                                    const field = item.warehouse_rule === 'percent_of_actual' ? 'warehouse_percent' : 'warehouse_required'
+                                                    handleItemFieldChange(item.id, field, Number(e.target.value) || 0)
+                                                }}
+                                                onChange={(e) => {
+                                                    const field = item.warehouse_rule === 'percent_of_actual' ? 'warehouse_percent' : 'warehouse_required'
+                                                    const newItems = items.map(i => i.id === item.id ? { ...i, [field]: Number(e.target.value) || 0 } : i)
+                                                    setItems(newItems)
+                                                }}
+                                            />
+                                        ) : (
+                                            item.warehouse_rule === 'percent_of_actual' ? `${warehousePercent}%` : 
+                                            item.warehouse_rule === 'min' ? `не менше ${warehouseRequired}` : warehouseRequired
+                                        )}
+                                    </span>
                                     <span>
                                         {(isRW || isGod) && isEditing ? (
                                             <input
                                                 type="number"
                                                 min="0"
                                                 className="gr-input"
-                                                value={reserveAvail || ''}
-                                                onChange={(e) => handleAvailChange(item.id, 'reserveAvailable', e.target.value)}
+                                                value={warehouseActual || ''}
+                                                onBlur={(e) => handleItemFieldChange(item.id, 'warehouse_actual', Number(e.target.value) || 0)}
+                                                onChange={(e) => {
+                                                    const newItems = items.map(i => i.id === item.id ? { ...i, warehouse_actual: Number(e.target.value) || 0 } : i)
+                                                    setItems(newItems)
+                                                }}
                                             />
-                                        ) : reserveAvail}
+                                        ) : warehouseActual}
                                     </span>
-                                    <span className={reserveShortage > 0 ? 'gr-shortage' : ''}>{reserveShortage > 0 ? reserveShortage : '—'}</span>
+                                    <span className={warehouseShortage > 0 ? 'gr-shortage' : ''}>{warehouseShortage > 0 ? warehouseShortage : '—'}</span>
                                     <span className={totalNeed > 0 ? 'gr-total-need' : ''}>{totalNeed > 0 ? totalNeed : '—'}</span>
                                     {isGod && isEditing && (
                                         <span>
@@ -343,18 +448,46 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                 />
                                 <input
                                     type="number"
-                                    value={newItemNorm}
-                                    onChange={(e) => setNewItemNorm(e.target.value)}
+                                    value={newItemPerVehicle}
+                                    onChange={(e) => setNewItemPerVehicle(e.target.value)}
                                     placeholder="Норма на 1 авто"
                                     min="0"
                                 />
+                                <select
+                                    value={newItemRequiredRule}
+                                    onChange={(e) => setNewItemRequiredRule(e.target.value)}
+                                    className="gr-select-rule"
+                                >
+                                    <option value="exact">Точно</option>
+                                    <option value="min">Мінімум</option>
+                                </select>
                                 <input
                                     type="number"
-                                    value={newItemBrigadeNorm}
-                                    onChange={(e) => setNewItemBrigadeNorm(e.target.value)}
+                                    value={newItemWarehouseRequired}
+                                    onChange={(e) => setNewItemWarehouseRequired(e.target.value)}
                                     placeholder="Резерв (норма)"
                                     min="0"
                                 />
+                                <select
+                                    value={newItemWarehouseRule}
+                                    onChange={(e) => setNewItemWarehouseRule(e.target.value)}
+                                    className="gr-select-rule"
+                                >
+                                    <option value="exact">Точно</option>
+                                    <option value="min">Мінімум</option>
+                                    <option value="percent_of_actual">% від наявного</option>
+                                </select>
+                                {newItemWarehouseRule === 'percent_of_actual' && (
+                                    <input
+                                        type="number"
+                                        value={newItemWarehousePercent}
+                                        onChange={(e) => setNewItemWarehousePercent(e.target.value)}
+                                        placeholder="%"
+                                        min="0"
+                                        max="100"
+                                        className="gr-input-small"
+                                    />
+                                )}
                                 <button className="gr-btn-add" onClick={handleAddItem}>
                                     <MdAdd size={20} /> Додати
                                 </button>

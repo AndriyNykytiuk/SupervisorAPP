@@ -1,9 +1,17 @@
-import { VehicleType } from '../models/index.js'
+import { VehicleType, Brigade, EquipmentItem } from '../models/index.js'
 
-// GET /api/vehicle-types
+// GET /api/vehicle-types?brigadeId=
 export const getAll = async (req, res, next) => {
     try {
-        const types = await VehicleType.findAll({ order: [['id', 'ASC']] })
+        const { brigadeId } = req.query
+        const where = {}
+        if (brigadeId) where.brigadeId = brigadeId
+
+        const types = await VehicleType.findAll({
+            where,
+            include: [{ model: Brigade, attributes: ['name'] }],
+            order: [['id', 'ASC']],
+        })
         res.json(types)
     } catch (err) {
         next(err)
@@ -13,10 +21,34 @@ export const getAll = async (req, res, next) => {
 // POST /api/vehicle-types (GOD only)
 export const create = async (req, res, next) => {
     try {
-        const { name } = req.body
-        if (!name) return res.status(400).json({ error: 'Name is required' })
-        const type = await VehicleType.create({ name })
+        const { name, viechle_count, brigadeId } = req.body
+        if (!name || !brigadeId) {
+            return res.status(400).json({ error: 'name and brigadeId are required' })
+        }
+        const type = await VehicleType.create({
+            name,
+            viechle_count: viechle_count || 0,
+            brigadeId,
+        })
         res.status(201).json(type)
+    } catch (err) {
+        next(err)
+    }
+}
+
+// PUT /api/vehicle-types/:id (GOD only)
+export const update = async (req, res, next) => {
+    try {
+        const { id } = req.params
+        const type = await VehicleType.findByPk(id)
+        if (!type) return res.status(404).json({ error: 'VehicleType not found' })
+
+        const { name, viechle_count } = req.body
+        await type.update({
+            ...(name !== undefined && { name }),
+            ...(viechle_count !== undefined && { viechle_count }),
+        })
+        res.json(type)
     } catch (err) {
         next(err)
     }

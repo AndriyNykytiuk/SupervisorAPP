@@ -9,7 +9,7 @@ export const getAll = async (req, res, next) => {
 
         const items = await EquipmentItem.findAll({
             where,
-            include: [{ model: VehicleType, attributes: ['name'] }],
+            include: [{ model: VehicleType, attributes: ['name', 'viechle_count'] }],
             order: [['id', 'ASC']],
         })
         res.json(items)
@@ -21,14 +21,25 @@ export const getAll = async (req, res, next) => {
 // POST /api/equipment-items (GOD only)
 export const create = async (req, res, next) => {
     try {
-        const { name, norm, brigadeNorm, vehicleTypeId } = req.body
+        const {
+            name,
+            required_per_vehicle,
+            required_rule,
+            warehouse_required,
+            warehouse_rule,
+            warehouse_percent,
+            vehicleTypeId,
+        } = req.body
         if (!name || !vehicleTypeId) {
             return res.status(400).json({ error: 'name and vehicleTypeId are required' })
         }
         const item = await EquipmentItem.create({
             name,
-            norm: norm || 0,
-            brigadeNorm: brigadeNorm || 0,
+            required_per_vehicle: required_per_vehicle || 0,
+            required_rule: required_rule || 'exact',
+            warehouse_required: warehouse_required || 0,
+            warehouse_rule: warehouse_rule || 'exact',
+            warehouse_percent: warehouse_percent || null,
             vehicleTypeId,
         })
         res.status(201).json(item)
@@ -44,11 +55,25 @@ export const update = async (req, res, next) => {
         const item = await EquipmentItem.findByPk(id)
         if (!item) return res.status(404).json({ error: 'EquipmentItem not found' })
 
-        const { name, norm, brigadeNorm } = req.body
+        const {
+            name,
+            required_per_vehicle,
+            required_rule,
+            actual_count,
+            warehouse_required,
+            warehouse_rule,
+            warehouse_percent,
+            warehouse_actual,
+        } = req.body
         await item.update({
             ...(name !== undefined && { name }),
-            ...(norm !== undefined && { norm }),
-            ...(brigadeNorm !== undefined && { brigadeNorm }),
+            ...(required_per_vehicle !== undefined && { required_per_vehicle }),
+            ...(required_rule !== undefined && { required_rule }),
+            ...(actual_count !== undefined && { actual_count }),
+            ...(warehouse_required !== undefined && { warehouse_required }),
+            ...(warehouse_rule !== undefined && { warehouse_rule }),
+            ...(warehouse_percent !== undefined && { warehouse_percent }),
+            ...(warehouse_actual !== undefined && { warehouse_actual }),
         })
         res.json(item)
     } catch (err) {

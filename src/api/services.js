@@ -294,13 +294,19 @@ export const fetchTransferLogs = async (params = {}) => {
 };
 
 // ── Vehicle Types ────────────────────────────────────
-export const fetchVehicleTypes = async () => {
-    const { data } = await api.get('/vehicle-types');
+export const fetchVehicleTypes = async (brigadeId) => {
+    const params = brigadeId ? { brigadeId } : {};
+    const { data } = await api.get('/vehicle-types', { params });
     return data;
 };
 
 export const createVehicleType = async (payload) => {
     const { data } = await api.post('/vehicle-types', payload);
+    return data;
+};
+
+export const updateVehicleType = async (id, payload) => {
+    const { data } = await api.put(`/vehicle-types/${id}`, payload);
     return data;
 };
 
