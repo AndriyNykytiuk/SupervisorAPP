@@ -36,12 +36,17 @@ export const create = async (req, res, next) => {
     }
 }
 
-// PUT /api/vehicle-types/:id (GOD only)
+// PUT /api/vehicle-types/:id (GOD, RW)
 export const update = async (req, res, next) => {
     try {
         const { id } = req.params
         const type = await VehicleType.findByPk(id)
         if (!type) return res.status(404).json({ error: 'VehicleType not found' })
+
+        // RW can only update own brigade's vehicle type
+        if (req.user && req.user.role === 'RW' && req.user.brigadeId !== type.brigadeId) {
+            return res.status(403).json({ error: 'Forbidden: can only manage own brigade' })
+        }
 
         const { name, viechle_count } = req.body
         await type.update({
