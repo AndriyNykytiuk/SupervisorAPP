@@ -69,14 +69,8 @@ const GeneralRequirements = ({ selectedBrigade }) => {
     const loadData = async () => {
         setLoading(true)
         try {
-            const [itemsData, availData] = await Promise.all([
-                fetchEquipmentItems(selectedType),
-                selectedBrigade
-                    ? fetchEquipmentAvailability({ brigadeId: selectedBrigade, vehicleTypeId: selectedType })
-                    : Promise.resolve([]),
-            ])
+            const itemsData = await fetchEquipmentItems(selectedType, selectedBrigade)
             setItems(itemsData)
-            setAvailability(availData)
         } catch (err) {
             console.error('Failed to load data:', err)
         } finally {
@@ -85,9 +79,6 @@ const GeneralRequirements = ({ selectedBrigade }) => {
     }
 
     // ── Helpers ─────────────────────────────────────
-    const getAvail = (itemId) => {
-        return availability.find(a => a.equipmentItemId === itemId) || null
-    }
 
     const getVehicleCount = () => {
         const vt = vehicleTypes.find(t => t.id === selectedType)
@@ -104,8 +95,6 @@ const GeneralRequirements = ({ selectedBrigade }) => {
         try {
             await createVehicleType({
                 name: newTypeName.trim(),
-                viechle_count: Number(newTypeVehicleCount) || 0,
-                brigadeId: selectedBrigade,
             })
             setNewTypeName('')
             setNewTypeVehicleCount('')
@@ -119,7 +108,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
     const handleUpdateVehicleCount = async (value) => {
         if (!selectedType) return
         try {
-            await updateVehicleType(selectedType, { viechle_count: Number(value) || 0 })
+            await updateVehicleType(selectedType, { viechle_count: Number(value) || 0, brigadeId: selectedBrigade })
             loadVehicleTypes()
         } catch (err) {
             toast.error('Помилка при оновленні кількості авто')
@@ -178,33 +167,14 @@ const GeneralRequirements = ({ selectedBrigade }) => {
     // ── Inline field update for EquipmentItem ───────
     const handleItemFieldChange = async (itemId, field, value) => {
         try {
-            await updateEquipmentItem(itemId, { [field]: value })
+            await updateEquipmentItem(itemId, { [field]: value, brigadeId: selectedBrigade })
             loadData()
         } catch (err) {
             toast.error('Помилка при оновленні')
         }
     }
 
-    // ── Availability CRUD ───────────────────────────
-    const handleAvailChange = async (itemId, field, value) => {
-        const existing = getAvail(itemId)
-        const numVal = Number(value) || 0
-
-        try {
-            if (existing) {
-                await updateEquipmentAvailability(existing.id, { [field]: numVal })
-            } else {
-                await createEquipmentAvailability({
-                    equipmentItemId: itemId,
-                    brigadeId: selectedBrigade,
-                    [field]: numVal,
-                })
-            }
-            loadData()
-        } catch (err) {
-            toast.error('Помилка при збереженні даних')
-        }
-    }
+    // ── End of CRUD ─────────────────────────────────
 
     if (!selectedBrigade) {
         return <p style={{ padding: '2rem', textAlign: 'center' }}>Оберіть частину для перегляду потреби</p>
@@ -320,8 +290,6 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                         </div>
 
                         {items.filter(i => i.name.toLowerCase().includes(searchQuery.toLowerCase())).map((item, index) => {
-                            const avail = getAvail(item.id)
-
                             // Vehicle equipment calculation
                             const reqPerVehicle = item.required_per_vehicle || 0
                             const totalRequired = reqPerVehicle * vehicleCount

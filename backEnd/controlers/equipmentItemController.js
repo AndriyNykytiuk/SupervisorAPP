@@ -1,18 +1,36 @@
-    import { EquipmentItem, VehicleType } from '../models/index.js'
+import { EquipmentItem, VehicleType, EquipmentAvailability } from '../models/index.js'
 
     // GET /api/equipment-items?vehicleTypeId=
     export const getAll = async (req, res, next) => {
         try {
-            const { vehicleTypeId } = req.query
-            const where = {}
-            if (vehicleTypeId) where.vehicleTypeId = vehicleTypeId
+            const { vehicleTypeId, brigadeId } = req.query
+        const where = {}
+        if (vehicleTypeId) where.vehicleTypeId = vehicleTypeId
 
-            const items = await EquipmentItem.findAll({
-                where,
-                include: [{ model: VehicleType, attributes: ['name', 'viechle_count'] }],
-                order: [['id', 'ASC']],
+        const include = [{ model: VehicleType, attributes: ['name'] }]
+        if (brigadeId) {
+            include.push({ 
+                model: EquipmentAvailability, 
+                where: { brigadeId }, 
+                required: false 
             })
-            res.json(items)
+        }
+
+        const items = await EquipmentItem.findAll({
+            where,
+            include,
+            order: [['id', 'ASC']],
+        })
+
+        const mapped = items.map(t => {
+            const json = t.toJSON()
+            const av = json.EquipmentAvailabilities?.[0]
+            json.actual_count = av?.count || 0
+            json.warehouse_actual = av?.reserveAvailable || 0
+            delete json.EquipmentAvailabilities
+            return json
+        })
+        res.json(mapped)
         } catch (err) {
             next(err)
         }
@@ -52,45 +70,30 @@
     export const update = async (req, res, next) => {
         try {
             const { id } = req.params
-            const item = await EquipmentItem.findByPk(id, {
-                include: [{ model: VehicleType, attributes: ['brigadeId'] }]
-            })
-            if (!item) return res.status(404).json({ error: 'EquipmentItem not found' })
+        const item = await EquipmentItem.findByPk(id)
+        if (!item) return res.status(404).json({ error: 'EquipmentItem not found' })
 
-            if (req.user && req.user.role === 'RW') {
-                if (req.user.brigadeId !== item.VehicleType?.brigadeId) {
-                    return res.status(403).json({ error: 'Forbidden: can only manage own brigade' })
-                }
-                const { actual_count, warehouse_actual } = req.body
-                const updates = {}
-                if (actual_count !== undefined) updates.actual_count = actual_count
-                if (warehouse_actual !== undefined) updates.warehouse_actual = warehouse_actual
-                
-                await item.update(updates)
-                return res.json(item)
-            }
+        const targetBrigadeId = req.user?.role === 'RW' ? req.user.brigadeId : req.body.brigadeId
+        const { actual_count, warehouse_actual, ...globalData } = req.body
 
-            const {
-                name,
-                required_per_vehicle,
-                required_rule,
-                actual_count,
-                warehouse_required,
-                warehouse_rule,
-                warehouse_percent,
-                warehouse_actual,
-            } = req.body
-            await item.update({
-                ...(name !== undefined && { name }),
-                ...(required_per_vehicle !== undefined && { required_per_vehicle }),
-                ...(required_rule !== undefined && { required_rule }),
-                ...(actual_count !== undefined && { actual_count }),
-                ...(warehouse_required !== undefined && { warehouse_required }),
-                ...(warehouse_rule !== undefined && { warehouse_rule }),
-                ...(warehouse_percent !== undefined && { warehouse_percent }),
-                ...(warehouse_actual !== undefined && { warehouse_actual }),
+        // RW role can only update actual/warehouse bounds for their own brigade
+        // GOD role can update the global template details (globalData)
+        if (!req.user || req.user.role === 'GOD') {
+            await item.update(globalData)
+        }
+
+        if (targetBrigadeId && (actual_count !== undefined || warehouse_actual !== undefined)) {
+            const [ea] = await EquipmentAvailability.findOrCreate({ 
+                where: { equipmentItemId: id, brigadeId: targetBrigadeId },
+                defaults: { count: 0, reserveAvailable: 0 }
             })
-            res.json(item)
+            const updates = {}
+            if (actual_count !== undefined) updates.count = actual_count
+            if (warehouse_actual !== undefined) updates.reserveAvailable = warehouse_actual
+            await ea.update(updates)
+        }
+
+        res.json({ message: 'Success' })
         } catch (err) {
             next(err)
         }

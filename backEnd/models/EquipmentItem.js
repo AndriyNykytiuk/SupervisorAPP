@@ -20,11 +20,6 @@ const EquipmentItem = sequelize.define('EquipmentItem', {
         type: DataTypes.STRING,
         defaultValue: 'exact',
     },
-    actual_count: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-        defaultValue: 0,
-    },
     warehouse_required: {
         type: DataTypes.INTEGER,
         allowNull: true,
@@ -38,11 +33,6 @@ const EquipmentItem = sequelize.define('EquipmentItem', {
         type: DataTypes.SMALLINT,
         allowNull: true,
         
-    },
-    warehouse_actual :{
-        type: DataTypes.INTEGER,
-        allowNull: true,
-        defaultValue: 0,
     },
     vehicleTypeId: {
         type: DataTypes.INTEGER,

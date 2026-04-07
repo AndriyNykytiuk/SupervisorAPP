@@ -109,35 +109,19 @@ async function start() {
 
     // ── Safe one-time migrations (run on ALL environments) ──────
     try {
-        await sequelize.query(`
-            ALTER TABLE "EquipmentAvailabilities"
-            ADD COLUMN IF NOT EXISTS "reserveAvailable" INTEGER NOT NULL DEFAULT 0;
-        `)
-        
-        await sequelize.query(`
-            ALTER TABLE "VehicleTypes" 
-            ADD COLUMN IF NOT EXISTS "brigadeId" INTEGER REFERENCES "Brigades"("id") ON DELETE SET NULL ON UPDATE CASCADE,
-            ADD COLUMN IF NOT EXISTS "viechle_count" INTEGER NOT NULL DEFAULT 0;
-        `)
-
-        await sequelize.query(`
-            ALTER TABLE "EquipmentItems" 
-            ADD COLUMN IF NOT EXISTS "required_per_vehicle" INTEGER DEFAULT 0,
-            ADD COLUMN IF NOT EXISTS "required_rule" VARCHAR(255) DEFAULT 'exact',
-            ADD COLUMN IF NOT EXISTS "actual_count" INTEGER DEFAULT 0,
-            ADD COLUMN IF NOT EXISTS "warehouse_required" INTEGER DEFAULT 0,
-            ADD COLUMN IF NOT EXISTS "warehouse_rule" VARCHAR(255) DEFAULT 'exact',
-            ADD COLUMN IF NOT EXISTS "warehouse_percent" SMALLINT,
-            ADD COLUMN IF NOT EXISTS "warehouse_actual" INTEGER DEFAULT 0;
-        `)
+        const { VehicleType, EquipmentItem, EquipmentAvailability, BrigadeVehicle } = await import('./models/index.js')
+        await VehicleType.sync({ alter: true })
+        await EquipmentItem.sync({ alter: true })
+        await EquipmentAvailability.sync({ alter: true })
+        await BrigadeVehicle.sync({ alter: true })
+        console.log('📦 Core equipment tables successfully synchronized with alter:true')
     } catch (e) {
-        // Ignore if column already exists (for DBs that don't support IF NOT EXISTS)
-        if (!e.message.includes('already exists')) console.error('Migration error:', e.message)
+        console.error('Migration error:', e.message)
     }
 
     if (process.env.NODE_ENV !== 'production') {
         // Explicitly alter TestItem and ToolItem to add the new columns
-        const { User, TestItem, ToolItem, ElectricStations, WaterPumps, HydravlicTool, SwimTools, FoamAgent, Powder, ExtenguisDocumentLink, UsageLiquidsLog, backPackExtenguisher, EquipmentArchive, VehicleType, EquipmentItem, EquipmentAvailability } = await import('./models/index.js')
+        const { User, TestItem, ToolItem, ElectricStations, WaterPumps, HydravlicTool, SwimTools, FoamAgent, Powder, ExtenguisDocumentLink, UsageLiquidsLog, backPackExtenguisher, EquipmentArchive, VehicleType, EquipmentItem, EquipmentAvailability, BrigadeVehicle } = await import('./models/index.js')
         await User.sync({ alter: true })
         await ElectricStations.sync({ alter: true })
         await WaterPumps.sync({ alter: true })
@@ -152,6 +136,7 @@ async function start() {
         await VehicleType.sync({ alter: true })
         await EquipmentItem.sync({ alter: true })
         await EquipmentAvailability.sync({ alter: true })
+        await BrigadeVehicle.sync({ alter: true })
         console.log('📦 Tables altered for development environment')
     } else {
         console.log('📦 Tables verified for production (no alter)')

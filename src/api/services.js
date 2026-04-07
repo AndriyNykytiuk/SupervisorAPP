@@ -316,8 +316,9 @@ export const deleteVehicleType = async (id) => {
 };
 
 // ── Equipment Items ──────────────────────────────────
-export const fetchEquipmentItems = async (vehicleTypeId) => {
+export const fetchEquipmentItems = async (vehicleTypeId, brigadeId) => {
     const params = vehicleTypeId ? { vehicleTypeId } : {};
+    if (brigadeId) params.brigadeId = brigadeId;
     const { data } = await api.get('/equipment-items', { params });
     return data;
 };

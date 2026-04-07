@@ -1,18 +1,27 @@
-import { VehicleType, Brigade, EquipmentItem } from '../models/index.js'
+import { VehicleType, Brigade, BrigadeVehicle } from '../models/index.js'
 
 // GET /api/vehicle-types?brigadeId=
 export const getAll = async (req, res, next) => {
     try {
         const { brigadeId } = req.query
-        const where = {}
-        if (brigadeId) where.brigadeId = brigadeId
-
         const types = await VehicleType.findAll({
-            where,
-            include: [{ model: Brigade, attributes: ['name'] }],
+            include: [
+                { 
+                    model: BrigadeVehicle, 
+                    where: brigadeId ? { brigadeId } : {}, 
+                    required: false 
+                }
+            ],
             order: [['id', 'ASC']],
         })
-        res.json(types)
+
+        const mapped = types.map(t => {
+            const json = t.toJSON()
+            json.viechle_count = json.BrigadeVehicles?.[0]?.count || 0
+            delete json.BrigadeVehicles
+            return json
+        })
+        res.json(mapped)
     } catch (err) {
         next(err)
     }
@@ -21,14 +30,12 @@ export const getAll = async (req, res, next) => {
 // POST /api/vehicle-types (GOD only)
 export const create = async (req, res, next) => {
     try {
-        const { name, viechle_count, brigadeId } = req.body
-        if (!name || !brigadeId) {
-            return res.status(400).json({ error: 'name and brigadeId are required' })
+        const { name } = req.body
+        if (!name) {
+            return res.status(400).json({ error: 'name is required' })
         }
         const type = await VehicleType.create({
             name,
-            viechle_count: viechle_count || 0,
-            brigadeId,
         })
         res.status(201).json(type)
     } catch (err) {
@@ -43,17 +50,27 @@ export const update = async (req, res, next) => {
         const type = await VehicleType.findByPk(id)
         if (!type) return res.status(404).json({ error: 'VehicleType not found' })
 
-        // RW can only update own brigade's vehicle type
-        if (req.user && req.user.role === 'RW' && req.user.brigadeId !== type.brigadeId) {
-            return res.status(403).json({ error: 'Forbidden: can only manage own brigade' })
-        }
+        // RW or GOD can pass `brigadeId` to update specific brigade's vehicle count
+        const targetBrigadeId = req.user?.role === 'RW' ? req.user.brigadeId : req.body.brigadeId
 
         const { name, viechle_count } = req.body
-        await type.update({
-            ...(name !== undefined && { name }),
-            ...(viechle_count !== undefined && { viechle_count }),
-        })
-        res.json(type)
+        
+        // Only GOD can update the global name
+        if (name !== undefined && (!req.user || req.user.role === 'GOD')) {
+            await type.update({ name })
+        }
+
+        // Update brigade vehicle count if provided
+        if (viechle_count !== undefined && targetBrigadeId) {
+            const [bv] = await BrigadeVehicle.findOrCreate({ 
+                where: { vehicleTypeId: id, brigadeId: targetBrigadeId },
+                defaults: { count: 0 }
+            })
+            await bv.update({ count: viechle_count })
+        }
+        
+        // Return OK, real data is re-fetched by frontend
+        res.json({ message: 'Success' })
     } catch (err) {
         next(err)
     }
