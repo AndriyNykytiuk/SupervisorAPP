@@ -113,6 +113,23 @@ async function start() {
             ALTER TABLE "EquipmentAvailabilities"
             ADD COLUMN IF NOT EXISTS "reserveAvailable" INTEGER NOT NULL DEFAULT 0;
         `)
+        
+        await sequelize.query(`
+            ALTER TABLE "VehicleTypes" 
+            ADD COLUMN IF NOT EXISTS "brigadeId" INTEGER REFERENCES "Brigades"("id") ON DELETE SET NULL ON UPDATE CASCADE,
+            ADD COLUMN IF NOT EXISTS "viechle_count" INTEGER NOT NULL DEFAULT 0;
+        `)
+
+        await sequelize.query(`
+            ALTER TABLE "EquipmentItems" 
+            ADD COLUMN IF NOT EXISTS "required_per_vehicle" INTEGER DEFAULT 0,
+            ADD COLUMN IF NOT EXISTS "required_rule" VARCHAR(255) DEFAULT 'exact',
+            ADD COLUMN IF NOT EXISTS "actual_count" INTEGER DEFAULT 0,
+            ADD COLUMN IF NOT EXISTS "warehouse_required" INTEGER DEFAULT 0,
+            ADD COLUMN IF NOT EXISTS "warehouse_rule" VARCHAR(255) DEFAULT 'exact',
+            ADD COLUMN IF NOT EXISTS "warehouse_percent" SMALLINT,
+            ADD COLUMN IF NOT EXISTS "warehouse_actual" INTEGER DEFAULT 0;
+        `)
     } catch (e) {
         // Ignore if column already exists (for DBs that don't support IF NOT EXISTS)
         if (!e.message.includes('already exists')) console.error('Migration error:', e.message)
