@@ -21,6 +21,7 @@ import '../scss/generalrequirements.scss'
 const GeneralRequirements = ({ selectedBrigade }) => {
     const { user } = useAuth()
     const isGod = user?.role === 'GOD'
+    const isSemiGod = user?.role === 'SEMI-GOD'
     const isRW = user?.role === 'RW'
 
     const [vehicleTypes, setVehicleTypes] = useState([])
@@ -30,6 +31,14 @@ const GeneralRequirements = ({ selectedBrigade }) => {
     const [loading, setLoading] = useState(false)
     const [isEditing, setIsEditing] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
+
+    // Summary state
+    const [showSummaryModal, setShowSummaryModal] = useState(false)
+    const [summaryLoading, setSummaryLoading] = useState(false)
+    const [summaryData, setSummaryData] = useState([])
+    const [rawSummaryData, setRawSummaryData] = useState([])
+    const [availableDetachments, setAvailableDetachments] = useState([])
+    const [selectedSummaryDetachment, setSelectedSummaryDetachment] = useState('')
 
     // New vehicle type form
     const [newTypeName, setNewTypeName] = useState('')
@@ -42,6 +51,98 @@ const GeneralRequirements = ({ selectedBrigade }) => {
     const [newItemWarehouseRequired, setNewItemWarehouseRequired] = useState('')
     const [newItemWarehouseRule, setNewItemWarehouseRule] = useState('exact')
     const [newItemWarehousePercent, setNewItemWarehousePercent] = useState('')
+
+    // ── Summary Logic ───────────────────────────────
+    const buildMatrix = (data, detachmentFilter) => {
+        const itemsMap = new Map()
+        const regionsSet = new Set()
+        const matrix = {}
+
+        data.forEach(d => {
+            const dName = d.Brigade?.Detachment?.name || 'Інше'
+            if (isGod && detachmentFilter && dName !== detachmentFilter) return
+
+            if (!d.EquipmentItem) return
+            const itemId = d.EquipmentItem.id
+            let itemName = d.EquipmentItem.name
+            const vTypeName = d.EquipmentItem.VehicleType?.name
+            if (vTypeName) itemName += ` (${vTypeName})`
+
+            if (!itemsMap.has(itemId)) itemsMap.set(itemId, itemName)
+            if (!matrix[itemId]) matrix[itemId] = {}
+
+            let regionName = 'Інше'
+            if (isGod && !detachmentFilter) {
+                regionName = dName
+            } else {
+                regionName = d.Brigade?.name || 'Інше'
+            }
+            
+            regionsSet.add(regionName)
+            if (!matrix[itemId][regionName]) matrix[itemId][regionName] = 0
+            matrix[itemId][regionName] += (d.total_need || 0)
+        })
+
+        const columns = Array.from(regionsSet).sort()
+        const rowsData = []
+
+        for (const [itemId, itemName] of itemsMap.entries()) {
+            const row = { id: itemId, name: itemName, total: 0 }
+            columns.forEach(col => {
+                const val = matrix[itemId][col] || 0
+                row[col] = val
+                row.total += val
+            })
+            rowsData.push(row)
+        }
+
+        rowsData.sort((a,b) => a.name.localeCompare(b.name))
+
+        const colTotals = { total: 0 }
+        columns.forEach(c => colTotals[c] = 0)
+        rowsData.forEach(r => {
+            columns.forEach(c => {
+                colTotals[c] += r[c]
+            })
+            colTotals.total += r.total
+        })
+
+        setSummaryData({ columns, rows: rowsData, colTotals })
+    }
+
+    const handleShowSummary = async () => {
+        setSummaryLoading(true)
+        setShowSummaryModal(true)
+        try {
+            const params = {}
+            if (selectedType) params.vehicleTypeId = selectedType
+            
+            const data = await fetchEquipmentAvailability(params)
+            setRawSummaryData(data)
+            
+            if (isGod) {
+                const dets = new Set()
+                data.forEach(d => {
+                    if (d.Brigade?.Detachment?.name) dets.add(d.Brigade.Detachment.name)
+                })
+                setAvailableDetachments(Array.from(dets).sort())
+            }
+            
+            buildMatrix(data, selectedSummaryDetachment)
+        } catch (err) {
+            console.error(err)
+            toast.error('Помилка завантаження зведення')
+            setShowSummaryModal(false)
+        } finally {
+            setSummaryLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        if (showSummaryModal && rawSummaryData.length > 0) {
+            buildMatrix(rawSummaryData, selectedSummaryDetachment)
+        }
+    }, [selectedSummaryDetachment])
 
     // ── Load vehicle types ──────────────────────────
     useEffect(() => {
@@ -63,7 +164,11 @@ const GeneralRequirements = ({ selectedBrigade }) => {
     // ── Load items + availability when type or brigade changes ──
     useEffect(() => {
         if (!selectedType) return
-        loadData()
+        if (showSummaryModal) {
+            handleShowSummary()
+        } else {
+            loadData()
+        }
     }, [selectedType, selectedBrigade])
 
     const loadData = async () => {
@@ -165,9 +270,13 @@ const GeneralRequirements = ({ selectedBrigade }) => {
     }
 
     // ── Inline field update for EquipmentItem ───────
-    const handleItemFieldChange = async (itemId, field, value) => {
+    const handleItemFieldChange = async (itemId, field, value, totalNeedValue) => {
         try {
-            await updateEquipmentItem(itemId, { [field]: value, brigadeId: selectedBrigade })
+            const payload = { [field]: value, brigadeId: selectedBrigade }
+            if (totalNeedValue !== undefined) {
+                payload.total_need = totalNeedValue
+            }
+            await updateEquipmentItem(itemId, payload)
             loadData()
         } catch (err) {
             toast.error('Помилка при оновленні')
@@ -176,16 +285,18 @@ const GeneralRequirements = ({ selectedBrigade }) => {
 
     // ── End of CRUD ─────────────────────────────────
 
-    if (!selectedBrigade) {
-        return <p style={{ padding: '2rem', textAlign: 'center' }}>Оберіть частину для перегляду потреби</p>
-    }
-
-    const vehicleCount = getVehicleCount()
+    const vehicleCount = selectedBrigade ? getVehicleCount() : 0
 
     return (
         <div className="gr-page">
-            <h2 className="gd-title-wrapp">Потреба ПТО та АРО</h2>
+            <div style={{ width: '100%', marginBottom: '1.5rem', paddingBottom: '0.5rem', paddingTop: '0.5rem', borderRadius: '6px', textAlign: 'center' }}>
+                <h2 className="gd-title-wrapp" style={{ margin: 0, padding: '1rem 0', color: 'var(--navy)'}}>Потреба ПТО та АРО</h2>
+            </div>
 
+            {!selectedBrigade && !showSummaryModal ? (
+                <p style={{ padding: '3rem', textAlign: 'center', fontSize: '1.2rem', color: '#7f8c8d' }}>Оберіть частину для перегляду потреби</p>
+            ) : (
+            <>
             {/* ── Vehicle Type Selector ── */}
             <div className="gr-select-wrapp">
                 <div className="gr-type-selector">
@@ -257,20 +368,80 @@ const GeneralRequirements = ({ selectedBrigade }) => {
             </div>
 
             {/* ── Search ── */}
-            {selectedType && (
-                <div className="gr-search">
-                    <MdSearch size={18} />
-                    <input
-                        type="text"
-                        placeholder="Пошук за найменуванням..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
+            {(selectedType || showSummaryModal) && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '100%' }}>
+                    <div className="gr-search" style={{ flex: 1, margin: 0 }}>
+                        <MdSearch size={18} />
+                        <input
+                            type="text"
+                            placeholder="Пошук за найменуванням..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
+                    {isGod && showSummaryModal && (
+                        <select
+                            style={{ padding: '0.45rem 1rem', fontSize: '0.95rem', border: '1px solid var(--gray-300)', borderRadius: 'var(--radius-md)', color: 'var(--navy)', fontWeight: 'bold', outline: 'none', cursor: 'pointer', minWidth: '200px' }}
+                            value={selectedSummaryDetachment}
+                            onChange={(e) => setSelectedSummaryDetachment(e.target.value)}
+                        >
+                            <option value="">Всі загони</option>
+                            {availableDetachments.map(d => (
+                                <option key={d} value={d}>{d}</option>
+                            ))}
+                        </select>
+                    )}
+                    {(isGod || isSemiGod) && (
+                        <button 
+                            style={{ padding: '0.5rem 1.5rem', fontSize: '0.95rem', background: 'var(--navy)', color: 'white', border: '1px solid var(--gold)', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontWeight: 'bold', whiteSpace: 'nowrap', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }} 
+                            onMouseEnter={(e)=> { e.currentTarget.style.background = 'var(--gold)'; e.currentTarget.style.color = 'var(--navy)'; }}
+                            onMouseLeave={(e)=> { e.currentTarget.style.background = 'var(--navy)'; e.currentTarget.style.color = 'white'; }}
+                            onClick={() => {
+                                if (showSummaryModal) setShowSummaryModal(false)
+                                else handleShowSummary()
+                            }}
+                        >
+                            {showSummaryModal ? 'Сховати зведення' : 'Зведення потреб'}
+                        </button>
+                    )}
                 </div>
             )}
 
-            {loading ? (
-                <LoadingSpinner />
+            {loading || summaryLoading ? (
+                <div style={{textAlign: 'center', padding: '2rem'}}><LoadingSpinner /></div>
+            ) : showSummaryModal ? (
+                <div className="gr-table-wrapper" style={{ minWidth: '100%' }}>
+                    <div style={{ minWidth: `${(summaryData?.columns?.length || 0) * 120 + 400}px` }}>
+                        <div className="gr-content-title" style={{ gridTemplateColumns: `0.4fr 3.5fr ${summaryData?.columns?.map(() => 'minmax(100px, 1.5fr)').join(' ')} 0.8fr` }}>
+                            <span>№</span>
+                        <span>Найменування</span>
+                        {summaryData?.columns?.map(c => <span key={c}>{c}</span>)}
+                        <span>Загальна потреба</span>
+                    </div>
+
+                    {summaryData?.rows?.filter(r => r.name.toLowerCase().includes(searchQuery.toLowerCase())).map((row, index) => (
+                        <div key={row.id} className="gr-content-row" style={{ gridTemplateColumns: `0.4fr 3.5fr ${summaryData?.columns?.map(() => 'minmax(100px, 1.5fr)').join(' ')} 0.8fr` }}>
+                            <span>{index + 1}</span>
+                            <span className="gr-item-name">{row.name}</span>
+                            {summaryData?.columns?.map(c => <span key={c}>{row[c] || 0}</span>)}
+                            <span className="gr-total-need">{row.total}</span>
+                        </div>
+                    ))}
+
+                    {summaryData?.rows?.filter(r => r.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
+                        <div className="gr-empty">Немає даних</div>
+                    )}
+
+                    {summaryData?.rows?.length > 0 && (
+                        <div className="gr-content-row" style={{ gridTemplateColumns: `0.4fr 3.5fr ${summaryData?.columns?.map(() => 'minmax(100px, 1.5fr)').join(' ')} 0.8fr`, background: 'var(--gray-50)', fontWeight: 'bold' }}>
+                            <span></span>
+                            <span className="gr-item-name">Всього</span>
+                            {summaryData?.columns?.map(c => <span key={c}>{summaryData?.colTotals?.[c] || 0}</span>)}
+                            <span className="gr-total-need">{summaryData?.colTotals?.total || 0}</span>
+                        </div>
+                    )}
+                    </div>
+                </div>
             ) : (
                 <>
                     {/* ── Table ── */}
@@ -320,7 +491,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                                 min="0"
                                                 className="gr-input"
                                                 value={reqPerVehicle || ''}
-                                                onBlur={(e) => handleItemFieldChange(item.id, 'required_per_vehicle', Number(e.target.value) || 0)}
+                                                onBlur={(e) => handleItemFieldChange(item.id, 'required_per_vehicle', Number(e.target.value) || 0, totalNeed)}
                                                 onChange={(e) => {
                                                     const newItems = items.map(i => i.id === item.id ? { ...i, required_per_vehicle: Number(e.target.value) || 0 } : i)
                                                     setItems(newItems)
@@ -338,7 +509,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                                 min="0"
                                                 className="gr-input"
                                                 value={actualCount || ''}
-                                                onBlur={(e) => handleItemFieldChange(item.id, 'actual_count', Number(e.target.value) || 0)}
+                                                onBlur={(e) => handleItemFieldChange(item.id, 'actual_count', Number(e.target.value) || 0, totalNeed)}
                                                 onChange={(e) => {
                                                     const newItems = items.map(i => i.id === item.id ? { ...i, actual_count: Number(e.target.value) || 0 } : i)
                                                     setItems(newItems)
@@ -356,7 +527,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                                 value={item.warehouse_rule === 'percent_of_actual' ? (warehousePercent || '') : (warehouseRequired || '')}
                                                 onBlur={(e) => {
                                                     const field = item.warehouse_rule === 'percent_of_actual' ? 'warehouse_percent' : 'warehouse_required'
-                                                    handleItemFieldChange(item.id, field, Number(e.target.value) || 0)
+                                                    handleItemFieldChange(item.id, field, Number(e.target.value) || 0, totalNeed)
                                                 }}
                                                 onChange={(e) => {
                                                     const field = item.warehouse_rule === 'percent_of_actual' ? 'warehouse_percent' : 'warehouse_required'
@@ -376,7 +547,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                                 min="0"
                                                 className="gr-input"
                                                 value={warehouseActual || ''}
-                                                onBlur={(e) => handleItemFieldChange(item.id, 'warehouse_actual', Number(e.target.value) || 0)}
+                                                onBlur={(e) => handleItemFieldChange(item.id, 'warehouse_actual', Number(e.target.value) || 0, totalNeed)}
                                                 onChange={(e) => {
                                                     const newItems = items.map(i => i.id === item.id ? { ...i, warehouse_actual: Number(e.target.value) || 0 } : i)
                                                     setItems(newItems)
@@ -463,6 +634,8 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                         </div>
                     )}
                 </>
+            )}
+            </>
             )}
         </div>
     )

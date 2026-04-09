@@ -9,11 +9,11 @@ const EquipmentItem = sequelize.define('EquipmentItem', {
     },
     name: {
         type: DataTypes.STRING,
-        allowNull: true,
+        allowNull: false,
     },
     required_per_vehicle: {
         type: DataTypes.INTEGER,
-        allowNull: true,
+        allowNull: false,
         defaultValue: 0,
     },
     required_rule: {

@@ -55,7 +55,7 @@ export const getAll = async (req, res, next) => {
 // POST /api/equipment-availability (RW own brigade, GOD all)
 export const create = async (req, res, next) => {
     try {
-        const { equipmentItemId, brigadeId, vehicleCount, available, reserveAvailable } = req.body
+        const { equipmentItemId, brigadeId, vehicleCount, available, reserveAvailable, total_need } = req.body
 
         if (!equipmentItemId || !brigadeId) {
             return res.status(400).json({ error: 'equipmentItemId and brigadeId are required' })
@@ -72,6 +72,7 @@ export const create = async (req, res, next) => {
             vehicleCount: vehicleCount || 0,
             available: available || 0,
             reserveAvailable: reserveAvailable || 0,
+            total_need: total_need || 0,
         })
         res.status(201).json(row)
     } catch (err) {
@@ -91,11 +92,12 @@ export const update = async (req, res, next) => {
             return res.status(403).json({ error: 'Forbidden: can only manage own brigade' })
         }
 
-        const { vehicleCount, available, reserveAvailable } = req.body
+        const { vehicleCount, available, reserveAvailable, total_need } = req.body
         await row.update({
             ...(vehicleCount !== undefined && { vehicleCount }),
             ...(available !== undefined && { available }),
             ...(reserveAvailable !== undefined && { reserveAvailable }),
+            ...(total_need !== undefined && { total_need }),
         })
         res.json(row)
     } catch (err) {

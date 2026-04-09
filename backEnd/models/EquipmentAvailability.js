@@ -38,6 +38,10 @@ const EquipmentAvailability = sequelize.define('EquipmentAvailability', {
         allowNull: false,
         defaultValue: 0,
     },
+    total_need: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
 })
 
 export default EquipmentAvailability
