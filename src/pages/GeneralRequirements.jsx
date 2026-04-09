@@ -409,7 +409,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
 
                     {/* ── Search ── */}
                     {(selectedType || showSummaryModal) && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '100%' }}>
+                        <div className="gr-search-wrapper">
                             <div className="gr-search" style={{ flex: 1, margin: 0 }}>
                                 <MdSearch size={18} />
                                 <input
@@ -461,10 +461,10 @@ const GeneralRequirements = ({ selectedBrigade }) => {
 
                                 {summaryData?.rows?.filter(r => r.name.toLowerCase().includes(searchQuery.toLowerCase())).map((row, index) => (
                                     <div key={row.id} className="gr-content-row" style={{ gridTemplateColumns: `0.4fr 3.5fr ${summaryData?.columns?.map(() => 'minmax(100px, 1.5fr)').join(' ')} 0.8fr` }}>
-                                        <span>{index + 1}</span>
-                                        <span className="gr-item-name">{row.name}</span>
-                                        {summaryData?.columns?.map(c => <span key={c}>{row[c] || 0}</span>)}
-                                        <span className="gr-total-need">{row.total}</span>
+                                        <span data-label="№:">{index + 1}</span>
+                                        <span data-label="Найменування:" className="gr-item-name">{row.name}</span>
+                                        {summaryData?.columns?.map(c => <span data-label={`${c}:`} key={c}>{row[c] || 0}</span>)}
+                                        <span data-label="Загальна потреба:" className="gr-total-need">{row.total}</span>
                                     </div>
                                 ))}
 
@@ -474,10 +474,10 @@ const GeneralRequirements = ({ selectedBrigade }) => {
 
                                 {summaryData?.rows?.length > 0 && (
                                     <div className="gr-content-row" style={{ gridTemplateColumns: `0.4fr 3.5fr ${summaryData?.columns?.map(() => 'minmax(100px, 1.5fr)').join(' ')} 0.8fr`, background: 'var(--gray-50)', fontWeight: 'bold' }}>
-                                        <span></span>
-                                        <span className="gr-item-name">Всього</span>
-                                        {summaryData?.columns?.map(c => <span key={c}>{summaryData?.colTotals?.[c] || 0}</span>)}
-                                        <span className="gr-total-need">{summaryData?.colTotals?.total || 0}</span>
+                                        <span data-label=""></span>
+                                        <span data-label="Найменування:" className="gr-item-name">Всього</span>
+                                        {summaryData?.columns?.map(c => <span data-label={`${c}:`} key={c}>{summaryData?.colTotals?.[c] || 0}</span>)}
+                                        <span data-label="Загальна потреба:" className="gr-total-need">{summaryData?.colTotals?.total || 0}</span>
                                     </div>
                                 )}
                             </div>
@@ -522,9 +522,9 @@ const GeneralRequirements = ({ selectedBrigade }) => {
 
                                     return (
                                         <div key={item.id} className="gr-content-row">
-                                            <span>{index + 1}</span>
-                                            <span className="gr-item-name">{item.name}</span>
-                                            <span>
+                                            <span data-label="№:">{index + 1}</span>
+                                            <span data-label="Найменування:" className="gr-item-name">{item.name}</span>
+                                            <span data-label="Норма на одиницю техніки:">
                                                 {isGod && isEditing ? (
                                                     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                                                         <select
@@ -563,7 +563,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                                 )}
                                             </span>
 
-                                            <span>
+                                            <span data-label="В наявності:">
                                                 {(isRW || isGod) && isEditing ? (
                                                     <input
                                                         type="number"
@@ -578,8 +578,8 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                                     />
                                                 ) : actualCount}
                                             </span>
-                                            <span className={vehicleShortage > 0 ? 'gr-shortage' : ''}>{vehicleShortage > 0 ? vehicleShortage : '—'}</span>
-                                            <span>
+                                            <span data-label="Не комплект:" className={vehicleShortage > 0 ? 'gr-shortage' : ''}>{vehicleShortage > 0 ? vehicleShortage : '—'}</span>
+                                            <span data-label="Резерв частини (норма):">
                                                 {isGod && isEditing ? (
                                                     <input
                                                         type="number"
@@ -601,7 +601,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                                         item.warehouse_rule === 'min' ? `не менше ${warehouseRequired}` : warehouseRequired
                                                 )}
                                             </span>
-                                            <span>
+                                            <span data-label="Резерв частини (наявн.):">
                                                 {(isRW || isGod) && isEditing ? (
                                                     <input
                                                         type="number"
@@ -616,10 +616,10 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                                     />
                                                 ) : warehouseActual}
                                             </span>
-                                            <span className={warehouseShortage > 0 ? 'gr-shortage' : ''}>{warehouseShortage > 0 ? warehouseShortage : '—'}</span>
-                                            <span className={totalNeed > 0 ? 'gr-total-need' : ''}>{totalNeed > 0 ? totalNeed : '—'}</span>
+                                            <span data-label="Не комплект:" className={warehouseShortage > 0 ? 'gr-shortage' : ''}>{warehouseShortage > 0 ? warehouseShortage : '—'}</span>
+                                            <span data-label="Загальна потреба:" className={totalNeed > 0 ? 'gr-total-need' : ''}>{totalNeed > 0 ? totalNeed : '—'}</span>
                                             {isGod && isEditing && (
-                                                <span>
+                                                <span data-label="Дії:">
                                                     <button className="gr-delete-btn" onClick={() => handleDeleteItem(item.id)} title="Видалити">
                                                         <MdDelete size={18} />
                                                     </button>
