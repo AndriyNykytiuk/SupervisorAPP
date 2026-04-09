@@ -13,6 +13,7 @@ import {
     fetchEquipmentAvailability,
     createEquipmentAvailability,
     updateEquipmentAvailability,
+    fetchTransferBrigades,
 } from '../api/services.js'
 import LoadingSpinner from '../components/ui/LoadingSpinner.jsx'
 import { MdDelete, MdAdd, MdEdit, MdCheck, MdSearch } from 'react-icons/md'
@@ -53,9 +54,39 @@ const GeneralRequirements = ({ selectedBrigade }) => {
     const [newItemWarehousePercent, setNewItemWarehousePercent] = useState('')
 
     // ── Summary Logic ───────────────────────────────
-    const buildMatrix = (data, detachmentFilter) => {
+    const buildMatrix = (data, detachmentFilter, allItems, allDetachments) => {
         const itemsMap = new Map()
+        
+        // Pre-seed all items
+        if (allItems) {
+            allItems.forEach(item => {
+                let itemName = item.name
+                const vTypeName = item.VehicleType?.name
+                if (vTypeName) itemName += ` (${vTypeName})`
+                if (!itemsMap.has(item.id)) itemsMap.set(item.id, itemName)
+            })
+        }
+
         const regionsSet = new Set()
+
+        // Pre-seed all regions
+        if (allDetachments) {
+            if (isGod && !detachmentFilter) {
+                allDetachments.forEach(d => regionsSet.add(d.name))
+            } else {
+                let targetDetachment = null
+                if (isGod && detachmentFilter) {
+                    targetDetachment = allDetachments.find(d => d.name === detachmentFilter)
+                } else if (isSemiGod) {
+                    targetDetachment = allDetachments.find(d => d.Brigades.some(b => b.id === user?.brigadeId))
+                }
+                
+                if (targetDetachment) {
+                    targetDetachment.Brigades.forEach(b => regionsSet.add(b.name))
+                }
+            }
+        }
+
         const matrix = {}
 
         data.forEach(d => {
@@ -64,11 +95,15 @@ const GeneralRequirements = ({ selectedBrigade }) => {
 
             if (!d.EquipmentItem) return
             const itemId = d.EquipmentItem.id
-            let itemName = d.EquipmentItem.name
-            const vTypeName = d.EquipmentItem.VehicleType?.name
-            if (vTypeName) itemName += ` (${vTypeName})`
-
-            if (!itemsMap.has(itemId)) itemsMap.set(itemId, itemName)
+            
+            // If item wasn't caught by pre-seed
+            if (!itemsMap.has(itemId)) {
+                let itemName = d.EquipmentItem.name
+                const vTypeName = d.EquipmentItem.VehicleType?.name
+                if (vTypeName) itemName += ` (${vTypeName})`
+                itemsMap.set(itemId, itemName)
+            }
+            
             if (!matrix[itemId]) matrix[itemId] = {}
 
             let regionName = 'Інше'
@@ -89,7 +124,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
         for (const [itemId, itemName] of itemsMap.entries()) {
             const row = { id: itemId, name: itemName, total: 0 }
             columns.forEach(col => {
-                const val = matrix[itemId][col] || 0
+                const val = (matrix[itemId] && matrix[itemId][col]) || 0
                 row[col] = val
                 row.total += val
             })
@@ -110,6 +145,9 @@ const GeneralRequirements = ({ selectedBrigade }) => {
         setSummaryData({ columns, rows: rowsData, colTotals })
     }
 
+    const [fullItemsCache, setFullItemsCache] = useState(null)
+    const [fullDetachmentsCache, setFullDetachmentsCache] = useState(null)
+
     const handleShowSummary = async () => {
         setSummaryLoading(true)
         setShowSummaryModal(true)
@@ -117,18 +155,21 @@ const GeneralRequirements = ({ selectedBrigade }) => {
             const params = {}
             if (selectedType) params.vehicleTypeId = selectedType
             
-            const data = await fetchEquipmentAvailability(params)
+            const [data, allItems, allDetachments] = await Promise.all([
+                fetchEquipmentAvailability(params),
+                fetchEquipmentItems(selectedType || undefined),
+                fetchTransferBrigades()
+            ])
+            
             setRawSummaryData(data)
+            setFullItemsCache(allItems)
+            setFullDetachmentsCache(allDetachments)
             
             if (isGod) {
-                const dets = new Set()
-                data.forEach(d => {
-                    if (d.Brigade?.Detachment?.name) dets.add(d.Brigade.Detachment.name)
-                })
-                setAvailableDetachments(Array.from(dets).sort())
+                setAvailableDetachments(allDetachments.map(d => d.name).sort())
             }
             
-            buildMatrix(data, selectedSummaryDetachment)
+            buildMatrix(data, selectedSummaryDetachment, allItems, allDetachments)
         } catch (err) {
             console.error(err)
             toast.error('Помилка завантаження зведення')
@@ -140,7 +181,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
 
     useEffect(() => {
         if (showSummaryModal && rawSummaryData.length > 0) {
-            buildMatrix(rawSummaryData, selectedSummaryDetachment)
+            buildMatrix(rawSummaryData, selectedSummaryDetachment, fullItemsCache, fullDetachmentsCache)
         }
     }, [selectedSummaryDetachment])
 
