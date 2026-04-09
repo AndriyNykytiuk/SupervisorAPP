@@ -526,18 +526,39 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                             <span className="gr-item-name">{item.name}</span>
                                             <span>
                                                 {isGod && isEditing ? (
-                                                    <input
-                                                        type="number"
-                                                        min="0"
-                                                        className="gr-input"
-                                                        value={reqPerVehicle || ''}
-                                                        onBlur={(e) => handleItemFieldChange(item.id, 'required_per_vehicle', Number(e.target.value) || 0, totalNeed)}
-                                                        onChange={(e) => {
-                                                            const newItems = items.map(i => i.id === item.id ? { ...i, required_per_vehicle: Number(e.target.value) || 0 } : i)
-                                                            setItems(newItems)
-                                                        }}
-                                                    />
+                                                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                                        <select
+                                                            value={item.required_rule || 'exact'}
+                                                            onChange={(e) => {
+                                                                const newRule = e.target.value
+                                                                handleItemFieldChange(item.id, 'required_rule', newRule, totalNeed)
+                                                                const newItems = items.map(i => i.id === item.id ? { ...i, required_rule: newRule } : i)
+                                                                setItems(newItems)
+                                                            }}
+                                                            className="gr-select-rule"
+                                                            style={{ maxWidth: '100px', fontSize: '0.85rem' }}
+                                                        >
+                                                            <option value="exact">Точно</option>
+                                                            <option value="min">Мінімум</option>
+                                                            <option value="tu">ТУ</option>
+                                                        </select>
+                                                        {item.required_rule !== 'tu' && (
+                                                            <input
+                                                                type="number"
+                                                                min="0"
+                                                                className="gr-input"
+                                                                value={reqPerVehicle || ''}
+                                                                onBlur={(e) => handleItemFieldChange(item.id, 'required_per_vehicle', Number(e.target.value) || 0, totalNeed)}
+                                                                onChange={(e) => {
+                                                                    const newItems = items.map(i => i.id === item.id ? { ...i, required_per_vehicle: Number(e.target.value) || 0 } : i)
+                                                                    setItems(newItems)
+                                                                }}
+                                                                style={{ maxWidth: '60px' }}
+                                                            />
+                                                        )}
+                                                    </div>
                                                 ) : (
+                                                    item.required_rule === 'tu' ? 'Відповідно до ТУ' :
                                                     item.required_rule === 'min' ? `не менше ${reqPerVehicle}` : reqPerVehicle
                                                 )}
                                             </span>
@@ -625,13 +646,6 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                             onChange={(e) => setNewItemName(e.target.value)}
                                             placeholder="Назва обладнання"
                                         />
-                                        <input
-                                            type="number"
-                                            value={newItemPerVehicle}
-                                            onChange={(e) => setNewItemPerVehicle(e.target.value)}
-                                            placeholder="Норма на 1 авто"
-                                            min="0"
-                                        />
                                         <select
                                             value={newItemRequiredRule}
                                             onChange={(e) => setNewItemRequiredRule(e.target.value)}
@@ -639,7 +653,17 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                         >
                                             <option value="exact">Точно</option>
                                             <option value="min">Мінімум</option>
+                                            <option value="tu">Відповідно до ТУ</option>
                                         </select>
+                                        {newItemRequiredRule !== 'tu' && (
+                                            <input
+                                                type="number"
+                                                value={newItemPerVehicle}
+                                                onChange={(e) => setNewItemPerVehicle(e.target.value)}
+                                                placeholder="Норма на 1 авто"
+                                                min="0"
+                                            />
+                                        )}
                                         <input
                                             type="number"
                                             value={newItemWarehouseRequired}
