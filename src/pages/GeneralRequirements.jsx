@@ -613,22 +613,18 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                     <TfiPrinter />
                                 </button>
                             )}
-                        </div>
-                    )}
-
-                    {/* ── Regular table print button ── */}
-                    {!showSummaryModal && selectedType && items.length > 0 && (
-                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                            <button
-                                className='print-btn'
-                                onClick={exportBrigadeTableToPdf}
-                                title="Друк таблиці"
-                                style={{ padding: '0.5rem 0.8rem', fontSize: '1.2rem', background: 'var(--navy)', color: 'white', border: '1px solid var(--gold)', borderRadius: 'var(--radius-md)', cursor: 'pointer', display: 'flex', alignItems: 'center', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
-                                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--gold)'; e.currentTarget.style.color = 'var(--navy)'; }}
-                                onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--navy)'; e.currentTarget.style.color = 'white'; }}
-                            >
-                                <TfiPrinter />
-                            </button>
+                            {!showSummaryModal && selectedType && items.length > 0 && (
+                                <button
+                                    className='print-btn'
+                                    onClick={exportBrigadeTableToPdf}
+                                    title="Друк таблиці"
+                                    style={{ padding: '0.5rem 0.8rem', fontSize: '1.2rem', background: 'var(--navy)', color: 'white', border: '1px solid var(--gold)', borderRadius: 'var(--radius-md)', cursor: 'pointer', display: 'flex', alignItems: 'center', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
+                                    onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--gold)'; e.currentTarget.style.color = 'var(--navy)'; }}
+                                    onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--navy)'; e.currentTarget.style.color = 'white'; }}
+                                >
+                                    <TfiPrinter />
+                                </button>
+                            )}
                         </div>
                     )}
 
@@ -678,8 +674,8 @@ const GeneralRequirements = ({ selectedBrigade }) => {
 
                                     <span>В наявності</span>
                                     <span>Не комплект</span>
-                                    <span>Резерв (норма)</span>
-                                    <span>Резерв (наявн.)</span>
+                                    <span>Резерв частини (норма)</span>
+                                    <span>Резерв частини (наявн.)</span>
                                     <span>Не комплект</span>
                                     <span>Загальна потреба</span>
                                     {isGod && isEditing && <span>Дії</span>}
@@ -853,7 +849,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                             type="number"
                                             value={newItemWarehouseRequired}
                                             onChange={(e) => setNewItemWarehouseRequired(e.target.value)}
-                                            placeholder="Резерв (норма)"
+                                            placeholder="Резерв частини (норма)"
                                             min="0"
                                         />
                                         <select
