@@ -199,6 +199,7 @@ export const getByBrigade = async (req, res, next) => {
                 where: { brigadeId: req.params.brigadeId },
                 required: false,
             },
+            order: [['id', 'ASC']]
         })
         res.json(lists)
     } catch (err) {

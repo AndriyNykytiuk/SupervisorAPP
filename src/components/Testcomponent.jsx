@@ -108,7 +108,7 @@ const Testcomponent = ({ selectedBrigade }) => {
                 !searchQuery ||
                 list.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 list.TestItems?.some(i => i.name?.toLowerCase().includes(searchQuery.toLowerCase()))
-            ).map((list) => (
+            ).sort((a, b) => a.id - b.id).map((list) => (
                 <ItemTest key={list.id} testList={list} selectedBrigade={selectedBrigade} onItemCreated={refetch} searchQuery={searchQuery} />
             ))}
         </div>
