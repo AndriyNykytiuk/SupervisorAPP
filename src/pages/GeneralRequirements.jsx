@@ -17,6 +17,8 @@ import {
 } from '../api/services.js'
 import LoadingSpinner from '../components/ui/LoadingSpinner.jsx'
 import { MdDelete, MdAdd, MdEdit, MdCheck, MdSearch } from 'react-icons/md'
+import { TfiPrinter } from 'react-icons/tfi'
+import html2pdf from 'html2pdf.js'
 import '../scss/generalrequirements.scss'
 
 const GeneralRequirements = ({ selectedBrigade }) => {
@@ -52,6 +54,72 @@ const GeneralRequirements = ({ selectedBrigade }) => {
     const [newItemWarehouseRequired, setNewItemWarehouseRequired] = useState('')
     const [newItemWarehouseRule, setNewItemWarehouseRule] = useState('exact')
     const [newItemWarehousePercent, setNewItemWarehousePercent] = useState('')
+
+    // ── PDF Export ─────────────────────────────────
+    const exportSummaryToPdf = () => {
+        if (!summaryData?.rows?.length) return
+
+        const cols = summaryData.columns || []
+        const rows = summaryData.rows || []
+        const totals = summaryData.colTotals || {}
+        const vType = vehicleTypes.find(t => t.id === Number(selectedType))
+        const typeName = vType?.name || ''
+        const detName = selectedSummaryDetachment || 'Всі загони'
+        const today = new Date().toLocaleDateString('uk-UA')
+
+        const html = `
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #1a1a2e;">
+            <h2 style="text-align: center; margin-bottom: 4px;">Зведення потреб ПТО та АРО</h2>
+            <p style="text-align: center; margin: 0 0 2px; font-size: 13px; color: #555;">${typeName ? 'Тип техніки: ' + typeName : 'Всі типи техніки'}</p>
+            <p style="text-align: center; margin: 0 0 2px; font-size: 13px; color: #555;">Загін: ${detName}</p>
+            <p style="text-align: center; margin: 0 0 14px; font-size: 12px; color: #888;">Станом на: ${today}</p>
+            <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                <thead>
+                    <tr style="background: #1a1a2e; color: white;">
+                        <th style="border: 1px solid #333; padding: 6px 4px; width: 30px;">№</th>
+                        <th style="border: 1px solid #333; padding: 6px 4px; text-align: left;">Найменування</th>
+                        ${cols.map(c => `<th style="border: 1px solid #333; padding: 6px 4px; text-align: center;">${c}</th>`).join('')}
+                        <th style="border: 1px solid #333; padding: 6px 4px; text-align: center; background: #2d2d5e;">Загальна потреба</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows.map((row, i) => `
+                        <tr style="background: ${i % 2 === 0 ? '#fff' : '#f5f5fa'};">
+                            <td style="border: 1px solid #ccc; padding: 5px 4px; text-align: center;">${i + 1}</td>
+                            <td style="border: 1px solid #ccc; padding: 5px 6px; font-weight: 500;">${row.name}</td>
+                            ${cols.map(c => `<td style="border: 1px solid #ccc; padding: 5px 4px; text-align: center;">${row[c] || 0}</td>`).join('')}
+                            <td style="border: 1px solid #ccc; padding: 5px 4px; text-align: center; font-weight: 700; color: ${row.total > 0 ? '#b91c1c' : '#1a1a2e'};">${row.total}</td>
+                        </tr>
+                    `).join('')}
+                    <tr style="background: #e8e8f0; font-weight: 700;">
+                        <td style="border: 1px solid #999; padding: 6px 4px;"></td>
+                        <td style="border: 1px solid #999; padding: 6px 6px;">Всього</td>
+                        ${cols.map(c => `<td style="border: 1px solid #999; padding: 6px 4px; text-align: center;">${totals[c] || 0}</td>`).join('')}
+                        <td style="border: 1px solid #999; padding: 6px 4px; text-align: center; color: #b91c1c;">${totals.total || 0}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>`
+
+        const container = document.createElement('div')
+        container.innerHTML = html
+        document.body.appendChild(container)
+
+        html2pdf()
+            .set({
+                margin: [0.3, 0.2, 0.3, 0.2],
+                filename: `Зведення_потреби_${typeName || 'всі'}_${today}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' },
+            })
+            .from(container)
+            .outputPdf('bloburl')
+            .then((url) => {
+                document.body.removeChild(container)
+                window.open(url, '_blank')
+            })
+    }
 
     // ── Summary Logic ───────────────────────────────
     const buildMatrix = (data, detachmentFilter, allItems, allDetachments) => {
@@ -441,7 +509,19 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                         else handleShowSummary()
                                     }}
                                 >
-                                    {showSummaryModal ? 'Сховати зведення' : 'Зведення потреб'}
+                                    {showSummaryModal ? 'Сховати зведення' : 'Зведення потреби'}
+                                </button>
+                            )}
+                            {showSummaryModal && summaryData?.rows?.length > 0 && (
+                                <button
+                                className='print-btn'
+                                    onClick={exportSummaryToPdf}
+                                    title="Друк зведення"
+                                    style={{ padding: '0.5rem 0.8rem', fontSize: '1.2rem', background: 'var(--navy)', color: 'white', border: '1px solid var(--gold)', borderRadius: 'var(--radius-md)', cursor: 'pointer', display: 'flex', alignItems: 'center', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
+                                    onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--gold)'; e.currentTarget.style.color = 'var(--navy)'; }}
+                                    onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--navy)'; e.currentTarget.style.color = 'white'; }}
+                                >
+                                    <TfiPrinter />
                                 </button>
                             )}
                         </div>

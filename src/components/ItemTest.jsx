@@ -363,7 +363,7 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
 
             <div className={`item-body ${isExpanded ? 'expanded' : ''}`}>
                 {testList.TestItems?.length > 0 ? (
-                    testList.TestItems.filter(i => !searchQuery || testList.name?.toLowerCase().includes(searchQuery.toLowerCase()) || i.name?.toLowerCase().includes(searchQuery.toLowerCase())).map((item) => (
+                    [...testList.TestItems].sort((a, b) => a.id - b.id).filter(i => !searchQuery || testList.name?.toLowerCase().includes(searchQuery.toLowerCase()) || i.name?.toLowerCase().includes(searchQuery.toLowerCase())).map((item) => (
                         <div key={item.id} className='item-row-container'>
                             {editingItemId === item.id ? (
                                 <form className='edit-form' onSubmit={(e) => handleUpdateSubmit(e, item.id)}>

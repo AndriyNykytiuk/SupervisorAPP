@@ -206,6 +206,12 @@
             }
         }
 
+        .header__date-info-text {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
         .header__date-user {
             background: rgba(252, 215, 0, 0.15);
             color: var(--gold);
