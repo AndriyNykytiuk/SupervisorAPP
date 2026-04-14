@@ -121,6 +121,95 @@ const GeneralRequirements = ({ selectedBrigade }) => {
             })
     }
 
+    // ── PDF Export (brigade table) ─────────────────────
+    // --- print pdf in title will print brigade name only if user has logined ONLY FOR RW//
+    const exportBrigadeTableToPdf = () => {
+        if (!items.length || !selectedType) return
+        const brigadeName = user?.brigadeName || ''
+        const vType = vehicleTypes.find(t => t.id === Number(selectedType))
+        const typeName = vType?.name || ''
+        const today = new Date().toLocaleDateString('uk-UA')
+
+        const tableRows = items.map((item, i) => {
+            const reqPerVehicle = item.required_per_vehicle || 0
+            const totalRequired = reqPerVehicle * vehicleCount
+            const actualCount = item.actual_count || 0
+            const vehicleShortage = totalRequired - actualCount
+
+            const warehouseRequired = item.warehouse_required || 0
+            let calculatedWarehouseNorm = warehouseRequired
+            if (item.warehouse_rule === 'percent_of_actual' && item.warehouse_percent) {
+                calculatedWarehouseNorm = Math.ceil(actualCount * (item.warehouse_percent / 100))
+            }
+            const warehouseActual = item.warehouse_actual || 0
+            const warehouseShortage = calculatedWarehouseNorm - warehouseActual
+            const totalNeed = Math.max(0, vehicleShortage) + Math.max(0, warehouseShortage)
+
+            const normDisplay = item.required_rule === 'tu' ? '\u0412\u0456\u0434\u043f\u043e\u0432\u0456\u0434\u043d\u043e \u0434\u043e \u0422\u0423' :
+                item.required_rule === 'min' ? `\u043d\u0435 \u043c\u0435\u043d\u0448\u0435 ${reqPerVehicle}` : reqPerVehicle
+
+            const whNormDisplay = item.warehouse_rule === 'percent_of_actual' ? `${item.warehouse_percent}%` :
+                item.warehouse_rule === 'min' ? `\u043d\u0435 \u043c\u0435\u043d\u0448\u0435 ${warehouseRequired}` : warehouseRequired
+
+            return `
+                <tr style="background: ${i % 2 === 0 ? '#fff' : '#f5f5fa'};">
+                    <td style="border: 1px solid #ccc; padding: 5px 4px; text-align: center;">${i + 1}</td>
+                    <td style="border: 1px solid #ccc; padding: 5px 6px; font-weight: 500;">${item.name}</td>
+                    <td style="border: 1px solid #ccc; padding: 5px 4px; text-align: center;">${normDisplay}</td>
+                    <td style="border: 1px solid #ccc; padding: 5px 4px; text-align: center;">${actualCount}</td>
+                    <td style="border: 1px solid #ccc; padding: 5px 4px; text-align: center; color: ${vehicleShortage > 0 ? '#b91c1c' : 'inherit'};">${vehicleShortage > 0 ? vehicleShortage : '\u2014'}</td>
+                    <td style="border: 1px solid #ccc; padding: 5px 4px; text-align: center;">${whNormDisplay}</td>
+                    <td style="border: 1px solid #ccc; padding: 5px 4px; text-align: center;">${warehouseActual}</td>
+                    <td style="border: 1px solid #ccc; padding: 5px 4px; text-align: center; color: ${warehouseShortage > 0 ? '#b91c1c' : 'inherit'};">${warehouseShortage > 0 ? warehouseShortage : '\u2014'}</td>
+                    <td style="border: 1px solid #ccc; padding: 5px 4px; text-align: center; font-weight: 700; color: ${totalNeed > 0 ? '#b91c1c' : '#1a1a2e'};">${totalNeed > 0 ? totalNeed : '\u2014'}</td>
+                </tr>`
+        })
+
+        const html = `
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #1a1a2e;">
+            <h2 style="text-align: center; margin-bottom: 4px;">\u0412\u0456\u0434\u043e\u043c\u0456\u0441\u0442\u044c \u043f\u043e\u0442\u0440\u0435\u0431\u0438 \u041f\u0422\u041e \u0442\u0430 \u0410\u0420\u041e</h2>
+            <p style="text-align: center; margin: 0 0 2px; font-size: 13px; color: #555;">${brigadeName ? brigadeName + ' | ' : ''}\u0422\u0438\u043f \u0442\u0435\u0445\u043d\u0456\u043a\u0438: ${typeName} | \u041a\u0456\u043b\u044c\u043a\u0456\u0441\u0442\u044c \u0430\u0432\u0442\u043e: ${vehicleCount}</p>
+            <p style="text-align: center; margin: 0 0 14px; font-size: 12px; color: #888;">\u0421\u0442\u0430\u043d\u043e\u043c \u043d\u0430: ${today}</p>
+            <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                <thead>
+                    <tr style="background: #1a1a2e; color: white;">
+                        <th style="border: 1px solid #333; padding: 6px 4px; width: 30px;">\u2116</th>
+                        <th style="border: 1px solid #333; padding: 6px 4px; text-align: left;">\u041d\u0430\u0439\u043c\u0435\u043d\u0443\u0432\u0430\u043d\u043d\u044f</th>
+                        <th style="border: 1px solid #333; padding: 6px 4px; text-align: center;">\u041d\u043e\u0440\u043c\u0430 \u043d\u0430 1 \u0430\u0432\u0442\u043e</th>
+                        <th style="border: 1px solid #333; padding: 6px 4px; text-align: center;">\u0412 \u043d\u0430\u044f\u0432\u043d\u043e\u0441\u0442\u0456</th>
+                        <th style="border: 1px solid #333; padding: 6px 4px; text-align: center;">\u041d\u0435 \u043a\u043e\u043c\u043f\u043b\u0435\u043a\u0442</th>
+                        <th style="border: 1px solid #333; padding: 6px 4px; text-align: center;">\u0420\u0435\u0437\u0435\u0440\u0432 (\u043d\u043e\u0440\u043c\u0430)</th>
+                        <th style="border: 1px solid #333; padding: 6px 4px; text-align: center;">\u0420\u0435\u0437\u0435\u0440\u0432 (\u043d\u0430\u044f\u0432\u043d.)</th>
+                        <th style="border: 1px solid #333; padding: 6px 4px; text-align: center;">\u041d\u0435 \u043a\u043e\u043c\u043f\u043b\u0435\u043a\u0442</th>
+                        <th style="border: 1px solid #333; padding: 6px 4px; text-align: center; background: #2d2d5e;">\u0417\u0430\u0433\u0430\u043b\u044c\u043d\u0430 \u043f\u043e\u0442\u0440\u0435\u0431\u0430</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tableRows.join('')}
+                </tbody>
+            </table>
+        </div>`
+
+        const container = document.createElement('div')
+        container.innerHTML = html
+        document.body.appendChild(container)
+
+        html2pdf()
+            .set({
+                margin: [0.3, 0.2, 0.3, 0.2],
+                filename: `\u041f\u043e\u0442\u0440\u0435\u0431\u0438_${typeName}_${today}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' },
+            })
+            .from(container)
+            .outputPdf('bloburl')
+            .then((url) => {
+                document.body.removeChild(container)
+                window.open(url, '_blank')
+            })
+    }
+
     // ── Summary Logic ───────────────────────────────
     const buildMatrix = (data, detachmentFilter, allItems, allDetachments) => {
         // 2. Prepare items reference & fallback dictionary
@@ -524,6 +613,22 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                     <TfiPrinter />
                                 </button>
                             )}
+                        </div>
+                    )}
+
+                    {/* ── Regular table print button ── */}
+                    {!showSummaryModal && selectedType && items.length > 0 && (
+                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <button
+                                className='print-btn'
+                                onClick={exportBrigadeTableToPdf}
+                                title="Друк таблиці"
+                                style={{ padding: '0.5rem 0.8rem', fontSize: '1.2rem', background: 'var(--navy)', color: 'white', border: '1px solid var(--gold)', borderRadius: 'var(--radius-md)', cursor: 'pointer', display: 'flex', alignItems: 'center', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
+                                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--gold)'; e.currentTarget.style.color = 'var(--navy)'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--navy)'; e.currentTarget.style.color = 'white'; }}
+                            >
+                                <TfiPrinter />
+                            </button>
                         </div>
                     )}
 
