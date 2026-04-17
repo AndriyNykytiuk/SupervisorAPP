@@ -215,12 +215,12 @@ const GeneralRequirements = ({ selectedBrigade }) => {
         // 2. Prepare items reference & fallback dictionary
         const itemsById = new Map()
         if (allItems) {
-             allItems.forEach(item => {
-                 let itemName = item.name
-                 const vType = item.VehicleType?.name
-                 if (vType && !selectedType) itemName += ` (${vType})`
-                 itemsById.set(item.id, { ...item, _displayName: itemName })
-             })
+            allItems.forEach(item => {
+                let itemName = item.name
+                const vType = item.VehicleType?.name
+                if (vType && !selectedType) itemName += ` (${vType})`
+                itemsById.set(item.id, { ...item, _displayName: itemName })
+            })
         }
 
         const regionsSet = new Set()
@@ -603,7 +603,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                             )}
                             {showSummaryModal && summaryData?.rows?.length > 0 && (
                                 <button
-                                className='print-btn'
+                                    className='print-btn'
                                     onClick={exportSummaryToPdf}
                                     title="Друк зведення"
                                     style={{ padding: '0.5rem 0.8rem', fontSize: '1.2rem', background: 'var(--navy)', color: 'white', border: '1px solid var(--gold)', borderRadius: 'var(--radius-md)', cursor: 'pointer', display: 'flex', alignItems: 'center', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
@@ -740,7 +740,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                                     </div>
                                                 ) : (
                                                     item.required_rule === 'tu' ? 'Відповідно до ТУ' :
-                                                    item.required_rule === 'min' ? `не менше ${reqPerVehicle}` : reqPerVehicle
+                                                        item.required_rule === 'min' ? `не менше ${reqPerVehicle}` : reqPerVehicle
                                                 )}
                                             </span>
 

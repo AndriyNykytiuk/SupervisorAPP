@@ -70,8 +70,9 @@ const PowderComponent = ({ powderData, onSave }) => {
         setIsEditing(false);
     };
 
-    const totalVehicle = data.carsPassedPowder + data.carsFailedPowder;
-    const warehouseTotal = data.warehousePassedPowder + data.warehouseFailedPowder;
+    const currentData = isEditing ? editData : data;
+    const totalVehicle = Number(currentData.carsPassedPowder || 0) + Number(currentData.carsFailedPowder || 0);
+    const warehouseTotal = Number(currentData.warehousePassedPowder || 0) + Number(currentData.warehouseFailedPowder || 0);
     const totalPowder = totalVehicle + warehouseTotal;
 
     return (

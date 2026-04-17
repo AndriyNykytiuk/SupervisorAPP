@@ -73,8 +73,9 @@ const FoamComponent = ({ foamData, onSave }) => {
         setIsEditing(false);
     };
 
-    const totalVehicle = data.carsPassedTests + data.carsFailedTests;
-    const warehouseTotal = data.warehousePassedTests + data.warehouseFailedTests;
+    const currentData = isEditing ? editData : data;
+    const totalVehicle = Number(currentData.carsPassedTests || 0) + Number(currentData.carsFailedTests || 0);
+    const warehouseTotal = Number(currentData.warehousePassedTests || 0) + Number(currentData.warehouseFailedTests || 0);
     const totalFoam = totalVehicle + warehouseTotal;
 
     return (
