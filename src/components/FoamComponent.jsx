@@ -82,7 +82,7 @@ const FoamComponent = ({ foamData, onSave }) => {
         <div className="foam-wrapper">
             <div className='foam-header'>
                 <h3>Піноутворювач</h3>
-                <span>{totalFoam} л</span>
+                <span><span>{totalFoam}</span> л</span>
                 {isEditing ? (
                     <div className="edit-actions">
                         <button onClick={handleCancel} disabled={isSaving}>✕</button>
@@ -102,7 +102,7 @@ const FoamComponent = ({ foamData, onSave }) => {
             <div className="foam-content">
                 {/* На автомобілях */}
                 <div className="foam-card">
-                    <h4>На автомобілях: {totalVehicle} л</h4>
+                    <h4><span>На автомобілях: </span><span>{totalVehicle}</span><span> л</span></h4>
                     <div className="card-body">
                         <div className="card-row">
                             <span className="label">Пройшов випробування:</span>
@@ -137,7 +137,7 @@ const FoamComponent = ({ foamData, onSave }) => {
 
                 {/* На складі */}
                 <div className="foam-card">
-                    <h4>На складі: {warehouseTotal} л</h4>
+                    <h4><span>На складі: </span><span>{warehouseTotal}</span><span> л</span></h4>
                     <div className="card-body">
                         <div className="card-row">
                             <span className="label">Пройшов випробування:</span>

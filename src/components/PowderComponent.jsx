@@ -79,7 +79,7 @@ const PowderComponent = ({ powderData, onSave }) => {
         <div className="foam-wrapper">
             <div className='foam-header'>
                 <h3>Порошок</h3>
-                <span>{totalPowder} кг</span>
+                <span><span>{totalPowder}</span> кг</span>
                 {isEditing ? (
                     <div className="edit-actions">
                         <button onClick={handleCancel} disabled={isSaving}>✕</button>
@@ -98,7 +98,7 @@ const PowderComponent = ({ powderData, onSave }) => {
 
             <div className="foam-content">
                 <div className="foam-card">
-                    <h4>На автомобілях: {totalVehicle} кг</h4>
+                    <h4><span>На авто: </span><span>{totalVehicle}</span><span> кг</span></h4>
                     <div className="card-body">
                         <div className="card-row">
                             <span className="label">Пройшов випробування:</span>
@@ -120,7 +120,7 @@ const PowderComponent = ({ powderData, onSave }) => {
                 </div>
 
                 <div className="foam-card">
-                    <h4>На складі: {warehouseTotal} кг</h4>
+                    <h4><span>У складі: </span><span>{warehouseTotal}</span><span> кг</span></h4>
                     <div className="card-body">
                         <div className="card-row">
                             <span className="label">Пройшов випробування:</span>
