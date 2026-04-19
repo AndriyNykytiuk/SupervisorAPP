@@ -86,7 +86,7 @@ app.use('/api/special-tools', authenticate, specialToolsRouter)
 // ── Catch-all: serve index.html for any other route (React routing) ─────
 const indexPath = path.resolve(__dirname, '../dist/index.html')
 if (fs.existsSync(indexPath)) {
-    app.get('/{*path}', (req, res) => {
+    app.get('*', (req, res) => {
         res.sendFile(indexPath)
     })
 } else {
@@ -95,8 +95,6 @@ if (fs.existsSync(indexPath)) {
         res.status(404).json({ error: 'Endpoint not found, and /dist folder is missing' })
     })
 }
-
-// ── Error handler ──────────────────────────────
 
 // ── Error handler ──────────────────────────────
 app.use((err, req, res, next) => {

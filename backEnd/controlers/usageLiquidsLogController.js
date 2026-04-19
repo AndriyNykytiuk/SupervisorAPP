@@ -39,7 +39,7 @@ export const getById = async (req, res, next) => {
 export const getByBrigade = async (req, res, next) => {
     try {
         const { brigadeId } = req.params
-        if (req.scope?.brigadeId && req.scope.brigadeId != brigadeId) return res.status(403).json({ error: 'Forbidden' })
+        if (req.scope?.brigadeId && req.scope.brigadeId !== Number(brigadeId)) return res.status(403).json({ error: 'Forbidden' })
         if (req.scope?.detachmentId && !req.scope.brigadeId) {
             const brigade = await Brigade.findByPk(brigadeId)
             if (!brigade || brigade.detachmentId !== req.scope.detachmentId) return res.status(403).json({ error: 'Forbidden' })
