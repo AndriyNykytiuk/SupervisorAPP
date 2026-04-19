@@ -1,6 +1,6 @@
 @use 'shared' as *;
 
-.item-backpackextenguisher-wrapper {
+.item-specialtool-wrapper {
     @include card-wrapper;
 
     .item-header {
@@ -26,6 +26,7 @@
         h3 { color: var(--navy); font-size: 1rem; font-weight: 700; margin: 0; }
     }
 
+    .link-box, .edit-actions { display: flex; flex-direction: column; gap: 0.5rem; max-width: 140px; }
     .add-btn { @include btn-gold; }
 
     .item-body {

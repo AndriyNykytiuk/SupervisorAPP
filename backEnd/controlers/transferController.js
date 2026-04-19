@@ -1,4 +1,4 @@
-import { TestItem, testList, ToolItem, toolList, Brigade, Detachment, ElectricStations, WaterPumps, HydravlicTool, SwimTools, TransferLog } from '../models/index.js'
+import { TestItem, testList, ToolItem, toolList, Brigade, Detachment, ElectricStations, WaterPumps, HydravlicTool, SwimTools, TransferLog, backPackExtenguisher, SpecialTool } from '../models/index.js'
 import { Op } from 'sequelize'
 
 // GET /api/transfer/brigades — all detachments with brigades (no role restriction)
@@ -54,6 +54,11 @@ export const getAllByBrigade = async (req, res, next) => {
             where: { brigadeId }
         })
 
+        // Fetch Backpacks
+        const backPackExtenguishers = await backPackExtenguisher.findAll({
+            where: { brigadeId }
+        })
+
         res.json({
             brigadeId: parseInt(brigadeId),
             testLists,
@@ -62,6 +67,7 @@ export const getAllByBrigade = async (req, res, next) => {
             waterPumps,
             hydravlicTools,
             swimTools,
+            backPackExtenguishers,
         })
     } catch (err) {
         next(err)
@@ -71,7 +77,7 @@ export const getAllByBrigade = async (req, res, next) => {
 // PUT /api/transfer — move test items + tool items to another brigade
 export const transferItems = async (req, res, next) => {
     try {
-        const { testItemIds, toolItemIds, electricStationIds, waterPumpIds, hydravlicToolIds, swimToolTransfers, toBrigadeId } = req.body
+        const { testItemIds, toolItemIds, electricStationIds, waterPumpIds, hydravlicToolIds, swimToolTransfers, backPackExtenguisherIds, specialToolIds, toBrigadeId } = req.body
 
         if (!toBrigadeId) {
             return res.status(400).json({ error: 'toBrigadeId is required' })
@@ -180,6 +186,46 @@ export const transferItems = async (req, res, next) => {
             await HydravlicTool.update({ brigadeId: toBrigadeId }, { where: { id: hydravlicToolIds } })
             result.hydravlicTools = await HydravlicTool.findAll({
                 where: { id: hydravlicToolIds },
+                include: [Brigade],
+            })
+        }
+
+        // Transfer backpack extenguishers
+        if (backPackExtenguisherIds && backPackExtenguisherIds.length > 0) {
+            const items = await backPackExtenguisher.findAll({ where: { id: backPackExtenguisherIds }, include: [Brigade] })
+            for (const item of items) {
+                await TransferLog.create({
+                    itemName: item.name || `BackPackExtenguisher #${item.id}`,
+                    equipmentType: 'backPackExtenguisher',
+                    fromBrigadeId: item.brigadeId,
+                    toBrigadeId,
+                    quantity: 1,
+                    details: item.toJSON(),
+                })
+            }
+            await backPackExtenguisher.update({ brigadeId: toBrigadeId }, { where: { id: backPackExtenguisherIds } })
+            result.backPackExtenguishers = await backPackExtenguisher.findAll({
+                where: { id: backPackExtenguisherIds },
+                include: [Brigade],
+            })
+        }
+
+        // Transfer special tools
+        if (specialToolIds && specialToolIds.length > 0) {
+            const items = await SpecialTool.findAll({ where: { id: specialToolIds }, include: [Brigade] })
+            for (const item of items) {
+                await TransferLog.create({
+                    itemName: item.name || `SpecialTool #${item.id}`,
+                    equipmentType: 'SpecialTool',
+                    fromBrigadeId: item.brigadeId,
+                    toBrigadeId,
+                    quantity: item.quantity || 1,
+                    details: item.toJSON(),
+                })
+            }
+            await SpecialTool.update({ brigadeId: toBrigadeId }, { where: { id: specialToolIds } })
+            result.specialTools = await SpecialTool.findAll({
+                where: { id: specialToolIds },
                 include: [Brigade],
             })
         }

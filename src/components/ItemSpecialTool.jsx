@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { MdUpdate, MdDelete } from "react-icons/md"
-import { fetchWaterPumpsByBrigade, createWaterPump, updateWaterPump, deleteWaterPump, archiveEquipmentItem, transferItems } from '../api/services.js';
+import { fetchSpecialToolsByBrigade, createSpecialTool, updateSpecialTool, deleteSpecialTool, archiveEquipmentItem, transferItems } from '../api/services.js'
 import { toast } from 'react-toastify';
 import ArchiveModal from './ArchiveModal.jsx'
-import '../scss/itemwaterpump.scss'
+import '../scss/specialtool.scss'
 
-const ItemWaterPump = ({ selectedBrigade, searchQuery = '', transferBrigades = [] }) => {
+const ItemSpecialTool = ({ selectedBrigade, searchQuery = '', transferBrigades = [] }) => {
     const [elements, setElements] = useState([])
     const [showForm, setShowForm] = useState(false)
     const [editingItemId, setEditingItemId] = useState(null)
@@ -15,8 +15,7 @@ const ItemWaterPump = ({ selectedBrigade, searchQuery = '', transferBrigades = [
 
     const initialFormState = {
         name: '',
-        yearOfPurchase: '',
-        powerOf: '',
+        quantity: '',
         placeOfStorage: '',
         notes: ''
     }
@@ -30,16 +29,16 @@ const ItemWaterPump = ({ selectedBrigade, searchQuery = '', transferBrigades = [
     const fetchData = async () => {
         if (!selectedBrigade) return
         try {
-            const data = await fetchWaterPumpsByBrigade(selectedBrigade);
+            const data = await fetchSpecialToolsByBrigade(selectedBrigade)
             setElements(data)
         } catch (err) {
-            console.error('Failed to fetch Water Pumps:', err)
+            console.error('Failed to fetch special tools:', err)
         }
     }
 
     useEffect(() => {
-        fetchData()
-    }, [selectedBrigade])
+        fetchData();
+    }, [selectedBrigade]);
 
     useEffect(() => {
         if (searchQuery) {
@@ -51,7 +50,7 @@ const ItemWaterPump = ({ selectedBrigade, searchQuery = '', transferBrigades = [
                 }, 300);
             }
         }
-    }, [searchQuery, elements])
+    }, [searchQuery, elements]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -63,41 +62,39 @@ const ItemWaterPump = ({ selectedBrigade, searchQuery = '', transferBrigades = [
 
     const handleCreate = async (e) => {
         e.preventDefault()
-        if (!formData.name.trim()) return
 
         try {
-            await createWaterPump({
+            await createSpecialTool({
                 name: formData.name,
-                yearOfPurchase: formData.yearOfPurchase ? parseInt(formData.yearOfPurchase, 10) : null,
-                powerOf: formData.powerOf ? parseFloat(formData.powerOf) : null,
+                quantity: formData.quantity ? parseInt(formData.quantity, 10) : 0,
                 placeOfStorage: formData.placeOfStorage,
                 notes: formData.notes,
                 brigadeId: selectedBrigade,
-            });
+            })
 
             setFormData(initialFormState)
             setShowForm(false)
-            toast.success('Мотопомпу успішно додано!');
+            toast.success('Спеціальне обладнання успішно додано!');
             fetchData()
         } catch (err) {
             toast.error(err.response?.data?.error || 'Помилка при збереженні')
-            console.error('Failed to create Water Pump:', err)
+            console.error('Failed to create special tool:', err)
         }
     }
 
     const handleUpdateSubmit = async (e, id) => {
         e.preventDefault()
         try {
-            await updateWaterPump(id, {
+            await updateSpecialTool(id, {
                 name: editFormData.name,
-                yearOfPurchase: editFormData.yearOfPurchase ? parseInt(editFormData.yearOfPurchase, 10) : null,
-                powerOf: editFormData.powerOf ? parseFloat(editFormData.powerOf) : null,
+                quantity: editFormData.quantity ? parseInt(editFormData.quantity, 10) : 0,
                 placeOfStorage: editFormData.placeOfStorage,
                 notes: editFormData.notes,
-            });
+            })
+
             if (editFormData.transferToBrigadeId) {
                 await transferItems({
-                    waterPumpIds: [id],
+                    specialToolIds: [id],
                     toBrigadeId: parseInt(editFormData.transferToBrigadeId, 10)
                 });
                 toast.success('Обладнання передано!');
@@ -109,19 +106,19 @@ const ItemWaterPump = ({ selectedBrigade, searchQuery = '', transferBrigades = [
             fetchData()
         } catch (err) {
             toast.error(err.response?.data?.error || 'Помилка при оновленні чи передачі')
-            console.error('Failed to update Water Pump:', err)
+            console.error('Failed to update special tool:', err)
         }
     }
 
     const handleDelete = async (id) => {
-        if (!window.confirm("Дійсно видалити цю мотопомпу?")) return;
+        if (!window.confirm("Дійсно видалити цей запис?")) return;
         try {
-            await deleteWaterPump(id);
+            await deleteSpecialTool(id)
             toast.success('Запис успішно видалено!');
             fetchData()
         } catch (err) {
             toast.error(err.response?.data?.error || 'Помилка при видаленні')
-            console.error('Failed to delete Water Pump:', err)
+            console.error('Failed to delete special tool:', err)
         }
     }
 
@@ -129,8 +126,7 @@ const ItemWaterPump = ({ selectedBrigade, searchQuery = '', transferBrigades = [
         setEditingItemId(item.id)
         setEditFormData({
             name: item.name || '',
-            yearOfPurchase: item.yearOfPurchase || '',
-            powerOf: item.powerOf || '',
+            quantity: item.quantity || 0,
             placeOfStorage: item.placeOfStorage || '',
             notes: item.notes || '',
             transferToBrigadeId: ''
@@ -151,7 +147,7 @@ const ItemWaterPump = ({ selectedBrigade, searchQuery = '', transferBrigades = [
         if (!itemToArchive) return
         try {
             await archiveEquipmentItem({
-                equipmentType: 'WaterPumps',
+                equipmentType: 'SpecialTool', 
                 originalId: itemToArchive.id,
                 ...archiveData
             })
@@ -160,7 +156,7 @@ const ItemWaterPump = ({ selectedBrigade, searchQuery = '', transferBrigades = [
                 handleCancelEdit()
             }
         } catch (error) {
-            console.error('Failed to archive Water Pump:', error)
+            console.error('Failed to archive Special Tool:', error)
             throw error 
         }
     }
@@ -168,27 +164,27 @@ const ItemWaterPump = ({ selectedBrigade, searchQuery = '', transferBrigades = [
     if (!selectedBrigade) return null;
 
     // Hide component if search query doesn't match list name or any item name
-    const listNameMatch = !searchQuery || 'Мотопомпи'.toLowerCase().includes(searchQuery.toLowerCase());
+    const listNameMatch = !searchQuery || 
+        'Спеціальне обладнання'.toLowerCase().includes(searchQuery.toLowerCase());
     const hasMatchingItems = elements?.some(i => i.name?.toLowerCase().includes(searchQuery.toLowerCase()));
     if (searchQuery && !listNameMatch && !hasMatchingItems) return null;
 
     return (
-        <div className='item-waterpump-wrapper' ref={wrapperRef}>
+        <div className='item-specialtool-wrapper' ref={wrapperRef}>
             <div className='item-header' onClick={toggleExpand} style={{ cursor: 'pointer' }}>
                 <div className='item-header-title'>
-                    <h2>Мотопомпи - {elements?.length} шт.</h2>
+                    <h2>Спеціальне обладнання - {elements?.length || 0}</h2>
                     <h3 className='add-btn' onClick={(e) => { e.stopPropagation(); setShowForm(!showForm); }}>
                         {showForm ? '✕' : '+ додати'}
                     </h3>
                 </div>
                 {isExpanded && elements?.length > 0 && (
-                    <div className='item-header-row water-pump-row'>
-                        <span>назва обладнання</span>
-                        <span>рік закупівлі</span>
-                        <span>потужність (л/с)</span>
-                        <span>місце зберігання</span>
-                        <span>примітки</span>
-                        <span>Оновити дані</span>
+                    <div className='item-header-row'>
+                        <span title="Назва">НАЗВА</span>
+                        <span title="Кількість">КІЛЬКІСТЬ</span>
+                        <span title="Місце зберігання">МІСЦЕ ЗБЕРІГАННЯ</span>
+                        <span title="Примітки">ПРИМІТКИ</span>
+                        <span>ДІЇ</span>
                     </div>
                 )}
             </div>
@@ -197,23 +193,21 @@ const ItemWaterPump = ({ selectedBrigade, searchQuery = '', transferBrigades = [
                 <div className='modal-overlay' onClick={() => setShowForm(false)}>
                     <div className='modal-content' onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header">
-                            <h3>Додати мотопомпу</h3>
+                            <h3>Додати спеціальне обладнання</h3>
                             <button className="close-btn" onClick={() => setShowForm(false)}>✕</button>
                         </div>
                         <form className='add-form' onSubmit={handleCreate}>
-                            <input type='text' name='name' placeholder='Назва обладнання' value={formData.name} onChange={handleChange} required />
-                            <input type='number' name='yearOfPurchase' placeholder='Рік закупівлі' value={formData.yearOfPurchase} onChange={handleChange} required />
-                            <input type='number' step='0.1' name='powerOf' placeholder='Потужність (л/с)' value={formData.powerOf} onChange={handleChange} required />
-                            <select name='placeOfStorage' value={formData.placeOfStorage} onChange={handleChange} required>
-                                <option value="" disabled>Оберіть місце зберігання</option>
-                                <option value="На техніці">На техніці</option>
-                                <option value="Склад">Склад</option>
-                                <option value="На автомобілях зведеного загону">На автомобілях зведеного загону</option>
-                                <option value="Склад зведеного загону">Склад зведеного загону</option>
-                                <option value="Мат. Резерв">Мат. Резерв</option>
-                                <option value="Ремонт">Ремонт</option>
-                            </select>
-                            <input type='text' name='notes' placeholder='Примітки' value={formData.notes} onChange={handleChange} />
+                            <label>Назва</label>
+                            <input type='text' name='name' value={formData.name} onChange={handleChange} required />
+                            
+                            <label>Кількість</label>
+                            <input type='number' name='quantity' value={formData.quantity} onChange={handleChange} min="0" required />
+                            
+                            <label>Місце зберігання</label>
+                            <input type='text' name='placeOfStorage' value={formData.placeOfStorage} onChange={handleChange} />
+                            
+                            <label>Примітки</label>
+                            <input type='text' name='notes' value={formData.notes} onChange={handleChange} />
 
                             <button type='submit'>Створити</button>
                         </form>
@@ -227,18 +221,10 @@ const ItemWaterPump = ({ selectedBrigade, searchQuery = '', transferBrigades = [
                         <div key={item.id} className='item-row-container'>
                             {editingItemId === item.id ? (
                                 <form className='edit-form' onSubmit={(e) => handleUpdateSubmit(e, item.id)}>
-                                    <input type='text' name='name' placeholder='Назва' value={editFormData.name} onChange={handleEditChange} required />
-                                    <input type='number' name='yearOfPurchase' placeholder='Рік' value={editFormData.yearOfPurchase} onChange={handleEditChange} required />
-                                    <input type='number' step='0.1' name='powerOf' placeholder='Потужність' value={editFormData.powerOf} onChange={handleEditChange} required />
-                                    <select name='placeOfStorage' value={editFormData.placeOfStorage} onChange={handleEditChange} required>
-                                        <option value="На техніці">На техніці</option>
-                                        <option value="Склад">Склад</option>
-                                        <option value="На автомобілях зведеного загону">На автомобілях зведеного загону</option>
-                                        <option value="Склад зведеного загону">Склад зведеного загону</option>
-                                        <option value="Мат. Резерв">Мат. Резерв</option>
-                                        <option value="Ремонт">Ремонт</option>
-                                    </select>
-                                    <input type='text' name='notes' placeholder='Примітки' value={editFormData.notes} onChange={handleEditChange} />
+                                    <input type='text' name='name' value={editFormData.name} onChange={handleEditChange} required placeholder="Назва" />
+                                    <input type='number' name='quantity' value={editFormData.quantity} onChange={handleEditChange} min="0" required placeholder="Кількість" />
+                                    <input type='text' name='placeOfStorage' value={editFormData.placeOfStorage} onChange={handleEditChange} placeholder="Місце зберігання" />
+                                    <input type='text' name='notes' value={editFormData.notes} onChange={handleEditChange} placeholder="Примітки" />
 
                                     <div className='edit-actions'>
                                         {transferBrigades && transferBrigades.length > 0 && (
@@ -271,15 +257,14 @@ const ItemWaterPump = ({ selectedBrigade, searchQuery = '', transferBrigades = [
                                     </div>
                                 </form>
                             ) : (
-                                <div className='item-row water-pump-row'>
-                                    <span style={{ flex: '1.5' }} title="Назва">{item.name}</span>
-                                    <span style={{ flex: '0.5' }} title="Рік закупівлі">{item.yearOfPurchase || '—'}</span>
-                                    <span style={{ flex: '0.8' }} title="Потужність (л/с)">{item.powerOf || '—'}</span>
-                                    <span style={{ flex: '1.5' }} title="Місце зберігання">{item.placeOfStorage || '—'}</span>
-                                    <span style={{ flex: '1.5' }} title="Примітки">{item.notes || '—'}</span>
+                                <div className='item-row'>
+                                    <span title="Назва">{item.name}</span>
+                                    <span title="Кількість">{item.quantity}</span>
+                                    <span title="Місце зберігання">{item.placeOfStorage || '-'}</span>
+                                    <span title="Примітки">{item.notes || '-'}</span>
 
-                                    <span className="action-buttons-wrap" title="оновити дані" style={{ display: 'flex', justifyContent: 'center' }}>
-                                        <button className='update-btn' onClick={() => handleEditClick(item)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--navy)' }}>
+                                    <span className="action-buttons-wrap">
+                                        <button className='update-btn' onClick={() => handleEditClick(item)} title="Редагувати">
                                             <MdUpdate size={20} />
                                         </button>
                                     </span>
@@ -288,7 +273,7 @@ const ItemWaterPump = ({ selectedBrigade, searchQuery = '', transferBrigades = [
                         </div>
                     ))
                 ) : (
-                    <p style={{ padding: '1rem', color: 'var(--gray-600)' }}>Частина поки не має таких мотопомп</p>
+                    <p style={{ padding: '1rem', color: 'var(--gray-600)' }}>Частина поки немає спеціального обладнання</p>
                 ))}
             </div>
             
@@ -302,4 +287,4 @@ const ItemWaterPump = ({ selectedBrigade, searchQuery = '', transferBrigades = [
     )
 }
 
-export default ItemWaterPump
+export default ItemSpecialTool

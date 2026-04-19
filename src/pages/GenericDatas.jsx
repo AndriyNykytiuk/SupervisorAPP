@@ -102,9 +102,20 @@ const GenericDatas = () => {
     hydrauliktools = hydrauliktools.filter(isMatch);
 
     const totalFoamPassed = foam.reduce((sum, item) => sum + (item.vehiclePassed || 0) + (item.wherehousePassed || 0), 0);
+    const foamVehiclePassed = foam.reduce((sum, item) => sum + (item.vehiclePassed || 0), 0);
+    const foamWarehousePassed = foam.reduce((sum, item) => sum + (item.wherehousePassed || 0), 0);
+
     const totalFoamNotPassed = foam.reduce((sum, item) => sum + (item.vehicleNotPassed || 0) + (item.wherehouseNotPassed || 0), 0);
+    const foamVehicleNotPassed = foam.reduce((sum, item) => sum + (item.vehicleNotPassed || 0), 0);
+    const foamWarehouseNotPassed = foam.reduce((sum, item) => sum + (item.wherehouseNotPassed || 0), 0);
+
     const totalPowderPassed = powder.reduce((sum, item) => sum + (item.vehiclePowderPassed || 0) + (item.werhousePowderPassed || 0), 0);
+    const powderVehiclePassed = powder.reduce((sum, item) => sum + (item.vehiclePowderPassed || 0), 0);
+    const powderWarehousePassed = powder.reduce((sum, item) => sum + (item.werhousePowderPassed || 0), 0);
+
     const totalPowderNotPassed = powder.reduce((sum, item) => sum + (item.vehiclePowderNotPassed || 0) + (item.werhousePowderNotPassed || 0), 0);
+    const powderVehicleNotPassed = powder.reduce((sum, item) => sum + (item.vehiclePowderNotPassed || 0), 0);
+    const powderWarehouseNotPassed = powder.reduce((sum, item) => sum + (item.werhousePowderNotPassed || 0), 0);
 
     const usedFoam = usedLiquids
         .filter(r => r.substance === 'Піноутворювач')
@@ -209,24 +220,72 @@ const GenericDatas = () => {
                     </h3>
                 </div>
                 <div className="gd-totals-grid" style={{ marginTop: '1rem' }}>
-                    <div className="gd-totals-card"><div className='gd-tatal-liquid'>
-                        <div className="gd-totals-label">Піноутворювач (Придатний)</div>
-                        <div className="gd-totals-value" style={{ color: 'var(--success)' }}>{totalFoamPassed} л</div>
-                    </div></div>
-                    <div className="gd-totals-card"><div className='gd-tatal-liquid'>
-                        <div className="gd-totals-label">Піноутворювач (Непридатний)</div>
-                        <div className="gd-totals-value" style={{ color: 'var(--danger)' }}>{totalFoamNotPassed} л</div>
-                    </div></div>
+                    <div className="gd-totals-card">
+                        <div className='gd-tatal-liquid'>
+                            <div className='gd-tatal-liquid-item'>
+                                <div className="gd-totals-label">Піноутворювач (Придатний)</div>
+                                <div className="gd-totals-value" style={{ color: 'var(--success)' }}>{totalFoamPassed} л</div>
+                            </div>
+                            <div className='gd-tatal-liquid-item'>
+                                <div className="gd-totals-label-1">на автомобілях</div>
+                                <div className="gd-totals-value" style={{ color: 'var(--success)' }}>{foamVehiclePassed} л</div>
+                            </div>
+                            <div className='gd-tatal-liquid-item'>
+                                <div className="gd-totals-label-2"> На складі</div>
+                                <div className="gd-totals-value" style={{ color: 'var(--success)' }}>{foamWarehousePassed} л</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="gd-totals-card">
+                        <div className='gd-tatal-liquid'>
+                            <div className='gd-tatal-liquid-item'>
+                                <div className="gd-totals-label">Піноутворювач (Непридатний)</div>
+                                <div className="gd-totals-value" style={{ color: 'var(--danger)' }}>{totalFoamNotPassed} л</div>
+                            </div>
+                            <div className='gd-tatal-liquid-item'>
+                                <div className="gd-totals-label-1">на автомобілях</div>
+                                <div className="gd-totals-value" style={{ color: 'var(--danger)' }}>{foamVehicleNotPassed} л</div>
+                            </div>
+                            <div className='gd-tatal-liquid-item'>
+                                <div className="gd-totals-label-2"> На складі</div>
+                                <div className="gd-totals-value" style={{ color: 'var(--danger)' }}>{foamWarehouseNotPassed} л</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div className="gd-totals-grid" style={{ marginTop: '1rem' }}>
-                    <div className="gd-totals-card"><div className='gd-tatal-liquid'>
-                        <div className="gd-totals-label">Порошок (Придатний)</div>
-                        <div className="gd-totals-value" style={{ color: 'var(--success)' }}>{totalPowderPassed} кг</div>
-                    </div></div>
-                    <div className="gd-totals-card"><div className='gd-tatal-liquid'>
-                        <div className="gd-totals-label">Порошок (Непридатний)</div>
-                        <div className="gd-totals-value" style={{ color: 'var(--danger)' }}>{totalPowderNotPassed} кг</div>
-                    </div></div>
+                    <div className="gd-totals-card">
+                        <div className='gd-tatal-liquid'>
+                            <div className='gd-tatal-liquid-item'>
+                                <div className="gd-totals-label">Порошок (Придатний)</div>
+                                <div className="gd-totals-value" style={{ color: 'var(--success)' }}>{totalPowderPassed} кг</div>
+                            </div>
+                            <div className='gd-tatal-liquid-item'>
+                                <div className="gd-totals-label-1">на автомобілях</div>
+                                <div className="gd-totals-value" style={{ color: 'var(--success)' }}>{powderVehiclePassed} кг</div>
+                            </div>
+                            <div className='gd-tatal-liquid-item'>
+                                <div className="gd-totals-label-2"> На складі</div>
+                                <div className="gd-totals-value" style={{ color: 'var(--success)' }}>{powderWarehousePassed} кг</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="gd-totals-card">
+                        <div className='gd-tatal-liquid'>
+                            <div className='gd-tatal-liquid-item'>
+                                <div className="gd-totals-label">Порошок (Непридатний)</div>
+                                <div className="gd-totals-value" style={{ color: 'var(--danger)' }}>{totalPowderNotPassed} кг</div>
+                            </div>
+                            <div className='gd-tatal-liquid-item'>
+                                <div className="gd-totals-label-1">на автомобілях</div>
+                                <div className="gd-totals-value" style={{ color: 'var(--danger)' }}>{powderVehicleNotPassed} кг</div>
+                            </div>
+                            <div className='gd-tatal-liquid-item'>
+                                <div className="gd-totals-label-2"> На складі</div>
+                                <div className="gd-totals-value" style={{ color: 'var(--danger)' }}>{powderWarehouseNotPassed} кг</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

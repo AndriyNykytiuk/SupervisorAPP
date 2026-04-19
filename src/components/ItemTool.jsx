@@ -1,14 +1,28 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { MdUpdate } from "react-icons/md"
-import { createToolItem, updateToolItem, archiveEquipmentItem } from '../api/services.js';
+import { createToolItem, updateToolItem, archiveEquipmentItem, transferItems } from '../api/services.js';
 import { toast } from 'react-toastify';
 import ArchiveModal from './ArchiveModal.jsx'
 import '../scss/itemtool.scss'
 
-const ItemTool = ({ toolList, selectedBrigade, onItemCreated, searchQuery = '' }) => {
+const ItemTool = ({ toolList, selectedBrigade, onItemCreated, searchQuery = '', transferBrigades = [] }) => {
     const [showForm, setShowForm] = useState(false)
     const [isExpanded, setIsExpanded] = useState(false)
     const [editingItemId, setEditingItemId] = useState(null)
+    const wrapperRef = useRef(null)
+
+    useEffect(() => {
+        if (searchQuery) {
+            setIsExpanded(true);
+            const hasMatch = toolList.ToolItems?.some(i => i.name?.toLowerCase().includes(searchQuery.toLowerCase()));
+            if (hasMatch) {
+                setTimeout(() => {
+                    wrapperRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+            }
+        }
+    }, [searchQuery, toolList])
+
 
     const initialFormState = {
         name: '',
@@ -73,11 +87,20 @@ const ItemTool = ({ toolList, selectedBrigade, onItemCreated, searchQuery = '' }
                 notes: editFormData.notes,
             });
 
+            if (editFormData.transferToBrigadeId) {
+                await transferItems({
+                    toolItemIds: [id],
+                    toBrigadeId: parseInt(editFormData.transferToBrigadeId, 10)
+                });
+                toast.success('Обладнання передано!');
+            } else {
+                toast.success('Дані успішно оновлено!');
+            }
+
             setEditingItemId(null)
-            toast.success('Дані успішно оновлено!');
             onItemCreated()
         } catch (err) {
-            toast.error(err.response?.data?.error || 'Помилка при оновленні')
+            toast.error(err.response?.data?.error || 'Помилка при оновленні чи передачі')
             console.error('Failed to update tool item:', err)
         }
     }
@@ -90,7 +113,8 @@ const ItemTool = ({ toolList, selectedBrigade, onItemCreated, searchQuery = '' }
             powerfull: item.powerfull || '',
             storagePlace: item.storagePlace || '',
             quantity: item.quantity || 0,
-            notes: item.notes || ''
+            notes: item.notes || '',
+            transferToBrigadeId: ''
         })
     }
 
@@ -127,7 +151,7 @@ const ItemTool = ({ toolList, selectedBrigade, onItemCreated, searchQuery = '' }
     }
 
     return (
-        <div className='item-tool-wrapper'>
+        <div className='item-tool-wrapper' ref={wrapperRef}>
             <div className='item-header' onClick={() => setIsExpanded(!isExpanded)} style={{ cursor: 'pointer' }}>
                 <div className='item-header-title'>
                     <div className='item-header-title-add'>
@@ -180,9 +204,26 @@ const ItemTool = ({ toolList, selectedBrigade, onItemCreated, searchQuery = '' }
                                     <input type='number' name='powerfull' placeholder='Потужність' value={editFormData.powerfull} onChange={handleEditChange} />
                                     <input type='text' name='storagePlace' placeholder='Місце зберігання' value={editFormData.storagePlace} onChange={handleEditChange} />
                                     <input type='text' name='notes' placeholder='Примітки' value={editFormData.notes} onChange={handleEditChange} />
+
                                     <div className='edit-actions'>
+                                        {transferBrigades && transferBrigades.length > 0 && (
+                                            <select 
+                                                name='transferToBrigadeId' 
+                                                value={editFormData.transferToBrigadeId || ''} 
+                                                onChange={handleEditChange}
+                                                style={{ border: '2px solid var(--accent)', backgroundColor: '#fff8dc' }}
+                                            >
+                                                <option value="">-- Передача до іншого підрозділу (без змін) --</option>
+                                                {transferBrigades.map(det => (
+                                                    <optgroup key={`det_${det.id}`} label={det.name}>
+                                                        {det.Brigades?.filter(b => b.id !== selectedBrigade).map(b => (
+                                                            <option key={`brig_${b.id}`} value={b.id}>{b.name}</option>
+                                                        ))}
+                                                    </optgroup>
+                                                ))}
+                                            </select>
+                                        )}
                                         <button type='submit' className='save-btn'>Зберегти</button>
-                                        <button type='button' className='cancel-btn' onClick={handleCancelEdit}>відмінити</button>
                                         <button
                                             type='button'
                                             className='archive-btn'
@@ -191,6 +232,7 @@ const ItemTool = ({ toolList, selectedBrigade, onItemCreated, searchQuery = '' }
                                         >
                                             Списати
                                         </button>
+                                        <button type='button' className='cancel-btn' onClick={handleCancelEdit}>відмінити</button>
                                     </div>
                                 </form>
                             ) : (

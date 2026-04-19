@@ -105,13 +105,20 @@
 
 .gd-tatal-liquid {
     display: flex;
+    flex-direction: column;
     width: 100%;
-    align-items: center;
-    justify-content: center;
+    align-items: flex-start;
+    justify-content: space-between;
     gap: 1rem;
 }
-
-.gd-totals-label {
+.gd-tatal-liquid-item{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+.gd-totals-label, .gd-totals-label-1, .gd-totals-label-2 {
     flex: 60%;
     font-size: 0.75rem;
     color: var(--gray-500);
@@ -120,11 +127,18 @@
     letter-spacing: 0.3px;
 }
 
+.gd-totals-label-1, .gd-totals-label-2 {
+    text-transform: none; /* keep lowercase as authored */
+    font-size: 0.7rem;
+    padding-left: 0.75rem; /* indent sub-items purely visually */
+}
+
 .gd-totals-value {
-    flex:40%;
+    flex: 40%;
     font-weight: 700;
     font-size: 1rem;
     color: var(--success);
+    text-align: right;
 }
 
 .gd-records-list {

@@ -21,6 +21,7 @@ import VehicleType from './VehicleType.js'
 import EquipmentItem from './EquipmentItem.js'
 import EquipmentAvailability from './EquipmentAvailability.js'
 import BrigadeVehicle from './BrigadeVehicle.js'
+import SpecialTool from './SpecialTool.js'
 
 // ── Associations ───────────────────────────────
 // One Detachment has many Brigades
@@ -87,6 +88,10 @@ UsageLiquidsLog.belongsTo(Brigade, { foreignKey: 'brigadeId' })
 Brigade.hasMany(backPackExtenguisher, { foreignKey: 'brigadeId' })
 backPackExtenguisher.belongsTo(Brigade, { foreignKey: 'brigadeId' })
 
+// One Brigade has many SpecialTools
+Brigade.hasMany(SpecialTool, { foreignKey: 'brigadeId' })
+SpecialTool.belongsTo(Brigade, { foreignKey: 'brigadeId' })
+
 // One Brigade has many EquipmentArchives
 Brigade.hasMany(EquipmentArchive, { foreignKey: 'brigadeId' })
 EquipmentArchive.belongsTo(Brigade, { foreignKey: 'brigadeId' })
@@ -117,5 +122,5 @@ EquipmentAvailability.belongsTo(EquipmentItem, { foreignKey: 'equipmentItemId' }
 Brigade.hasMany(EquipmentAvailability, { foreignKey: 'brigadeId' })
 EquipmentAvailability.belongsTo(Brigade, { foreignKey: 'brigadeId' })
 
-export { User, Detachment, Brigade, testList, TestItem, TestLinks, toolList, ToolItem, ElectricStations, WaterPumps, HydravlicTool, SwimTools, FoamAgent, Powder, ExtenguisDocumentLink, UsageLiquidsLog, backPackExtenguisher, EquipmentArchive, TransferLog, VehicleType, EquipmentItem, EquipmentAvailability, BrigadeVehicle }
+export { User, Detachment, Brigade, testList, TestItem, TestLinks, toolList, ToolItem, ElectricStations, WaterPumps, HydravlicTool, SwimTools, FoamAgent, Powder, ExtenguisDocumentLink, UsageLiquidsLog, backPackExtenguisher, EquipmentArchive, TransferLog, VehicleType, EquipmentItem, EquipmentAvailability, BrigadeVehicle, SpecialTool }
 

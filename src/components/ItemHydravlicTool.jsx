@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { MdUpdate, MdDelete } from "react-icons/md"
-import { fetchHydravlicToolsByBrigade, createHydravlicTool, updateHydravlicTool, deleteHydravlicTool, archiveEquipmentItem } from '../api/services.js';
+import { fetchHydravlicToolsByBrigade, createHydravlicTool, updateHydravlicTool, deleteHydravlicTool, archiveEquipmentItem, transferItems } from '../api/services.js';
 import { toast } from 'react-toastify';
 import ArchiveModal from './ArchiveModal.jsx'
 import '../scss/itemhydravlictool.scss'
 
-const ItemHydravlicTool = ({ selectedBrigade, searchQuery = '' }) => {
+const ItemHydravlicTool = ({ selectedBrigade, searchQuery = '', transferBrigades = [] }) => {
     const [elements, setElements] = useState([])
     const [showForm, setShowForm] = useState(false)
     const [editingItemId, setEditingItemId] = useState(null)
     const [isExpanded, setIsExpanded] = useState(false)
     const toggleExpand = () => setIsExpanded(prev => !prev)
+    const wrapperRef = useRef(null)
 
     const initialFormState = {
         name: '',
@@ -39,6 +40,18 @@ const ItemHydravlicTool = ({ selectedBrigade, searchQuery = '' }) => {
     useEffect(() => {
         fetchData()
     }, [selectedBrigade])
+
+    useEffect(() => {
+        if (searchQuery) {
+            setIsExpanded(true);
+            const hasMatch = elements?.some(i => i.name?.toLowerCase().includes(searchQuery.toLowerCase()));
+            if (hasMatch) {
+                setTimeout(() => {
+                    wrapperRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+            }
+        }
+    }, [searchQuery, elements])
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -84,12 +97,21 @@ const ItemHydravlicTool = ({ selectedBrigade, searchQuery = '' }) => {
                 notes: editFormData.notes,
             });
 
+            if (editFormData.transferToBrigadeId) {
+                await transferItems({
+                    hydravlicToolIds: [id],
+                    toBrigadeId: parseInt(editFormData.transferToBrigadeId, 10)
+                });
+                toast.success('Обладнання передано!');
+            } else {
+                toast.success('Дані успішно оновлено!');
+            }
+
             setEditingItemId(null)
-            toast.success('Дані успішно оновлено!');
             fetchData()
         } catch (err) {
             const errorMsg = err.response?.data?.error || err.message || 'Помилка';
-            toast.error(`Не вдалося оновити дані: ${errorMsg}`);
+            toast.error(`Не вдалося оновити дані чи передати: ${errorMsg}`);
             console.error('Failed to update Hydravlic Tool:', err)
         }
     }
@@ -114,7 +136,8 @@ const ItemHydravlicTool = ({ selectedBrigade, searchQuery = '' }) => {
             yaerOfPurchase: item.yaerOfPurchase || '',
             typeOfStern: item.typeOfStern || '',
             placeOfStorage: item.placeOfStorage || '',
-            notes: item.notes || ''
+            notes: item.notes || '',
+            transferToBrigadeId: ''
         })
     }
 
@@ -154,7 +177,7 @@ const ItemHydravlicTool = ({ selectedBrigade, searchQuery = '' }) => {
     if (searchQuery && !listNameMatch && !hasMatchingItems) return null;
 
     return (
-        <div className='item-hydravlic-tool-wrapper'>
+        <div className='item-hydravlic-tool-wrapper' ref={wrapperRef}>
             <div className='item-header' onClick={toggleExpand} style={{ cursor: 'pointer' }}>
                 <div className='item-header-title'>
                     <h2>Гідравлічний інструмент - {elements?.length} шт.</h2>
@@ -229,8 +252,24 @@ const ItemHydravlicTool = ({ selectedBrigade, searchQuery = '' }) => {
                                     <input type='text' name='notes' placeholder='Примітки' value={editFormData.notes} onChange={handleEditChange} />
 
                                     <div className='edit-actions'>
+                                        {transferBrigades && transferBrigades.length > 0 && (
+                                            <select 
+                                                name='transferToBrigadeId' 
+                                                value={editFormData.transferToBrigadeId || ''} 
+                                                onChange={handleEditChange}
+                                                style={{ border: '2px solid var(--accent)', backgroundColor: '#fff8dc' }}
+                                            >
+                                                <option value="">-- Передача до іншого підрозділу (без змін) --</option>
+                                                {transferBrigades.map(det => (
+                                                    <optgroup key={`det_${det.id}`} label={det.name}>
+                                                        {det.Brigades?.filter(b => b.id !== selectedBrigade).map(b => (
+                                                            <option key={`brig_${b.id}`} value={b.id}>{b.name}</option>
+                                                        ))}
+                                                    </optgroup>
+                                                ))}
+                                            </select>
+                                        )}
                                         <button type='submit' className='save-btn'>Зберегти</button>
-                                        <button type='button' className='cancel-btn' onClick={handleCancelEdit}>відмінити</button>
                                         <button
                                             type='button'
                                             className='archive-btn'
@@ -239,6 +278,7 @@ const ItemHydravlicTool = ({ selectedBrigade, searchQuery = '' }) => {
                                         >
                                             Списати
                                         </button>
+                                        <button type='button' className='cancel-btn' onClick={handleCancelEdit}>відмінити</button>
                                     </div>
                                 </form>
                             ) : (

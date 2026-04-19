@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { MdUpdate, MdDelete } from "react-icons/md"
-import { fetchBackPackExtenguishersByBrigade, createBackPackExtenguisher, updateBackPackExtenguisher, deleteBackPackExtenguisher, archiveEquipmentItem } from '../api/services.js'
+import { fetchBackPackExtenguishersByBrigade, createBackPackExtenguisher, updateBackPackExtenguisher, deleteBackPackExtenguisher, archiveEquipmentItem, transferItems } from '../api/services.js'
 import { toast } from 'react-toastify';
 import ArchiveModal from './ArchiveModal.jsx'
 import '../scss/backpackextenguisher.scss'
 
-const BackPackExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
+const BackPackExtenguisher = ({ selectedBrigade, searchQuery = '', transferBrigades = [] }) => {
     const [elements, setElements] = useState([])
     const [showForm, setShowForm] = useState(false)
     const [editingItemId, setEditingItemId] = useState(null)
     const [isExpanded, setIsExpanded] = useState(false)
     const toggleExpand = () => setIsExpanded(prev => !prev)
+    const wrapperRef = useRef(null)
 
     const initialFormState = {
         name: '',
@@ -37,8 +38,20 @@ const BackPackExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
     }
 
     useEffect(() => {
-        fetchData()
-    }, [selectedBrigade])
+        fetchData();
+    }, [selectedBrigade]);
+
+    useEffect(() => {
+        if (searchQuery) {
+            setIsExpanded(true);
+            const hasMatch = elements?.some(i => i.name?.toLowerCase().includes(searchQuery.toLowerCase()));
+            if (hasMatch) {
+                setTimeout(() => {
+                    wrapperRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+            }
+        }
+    }, [searchQuery, elements]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -80,12 +93,20 @@ const BackPackExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
                 typeStern: editFormData.typeStern,
                 placeOfStorage: editFormData.placeOfStorage,
             })
+            if (editFormData.transferToBrigadeId) {
+                await transferItems({
+                    backPackExtenguisherIds: [id],
+                    toBrigadeId: parseInt(editFormData.transferToBrigadeId, 10)
+                });
+                toast.success('Обладнання передано!');
+            } else {
+                toast.success('Дані успішно оновлено!');
+            }
 
             setEditingItemId(null)
-            toast.success('Дані успішно оновлено!');
             fetchData()
         } catch (err) {
-            toast.error(err.response?.data?.error || 'Помилка при оновленні')
+            toast.error(err.response?.data?.error || 'Помилка при оновленні чи передачі')
             console.error('Failed to update backpack extinguisher:', err)
         }
     }
@@ -108,7 +129,8 @@ const BackPackExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
             name: item.name || '',
             volumeOfWater: item.volumeOfWater || 0,
             typeStern: item.typeStern || '',
-            placeOfStorage: item.placeOfStorage || ''
+            placeOfStorage: item.placeOfStorage || '',
+            transferToBrigadeId: ''
         })
     }
 
@@ -151,7 +173,7 @@ const BackPackExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
     if (searchQuery && !listNameMatch && !hasMatchingItems) return null;
 
     return (
-        <div className='item-backpackextenguisher-wrapper'>
+        <div className='item-backpackextenguisher-wrapper' ref={wrapperRef}>
             <div className='item-header' onClick={toggleExpand} style={{ cursor: 'pointer' }}>
                 <div className='item-header-title'>
                     <h2>Ранцеві вогнегасники - {elements?.length || 0   }</h2>
@@ -218,8 +240,24 @@ const BackPackExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
                                     <input type='text' name='placeOfStorage' value={editFormData.placeOfStorage} onChange={handleEditChange} placeholder="Місце зберігання" />
 
                                     <div className='edit-actions'>
+                                        {transferBrigades && transferBrigades.length > 0 && (
+                                            <select 
+                                                name='transferToBrigadeId' 
+                                                value={editFormData.transferToBrigadeId || ''} 
+                                                onChange={handleEditChange}
+                                                style={{ border: '2px solid var(--accent)', backgroundColor: '#fff8dc' }}
+                                            >
+                                                <option value="">-- Передача до іншого підрозділу (без змін) --</option>
+                                                {transferBrigades.map(det => (
+                                                    <optgroup key={`det_${det.id}`} label={det.name}>
+                                                        {det.Brigades?.filter(b => b.id !== selectedBrigade).map(b => (
+                                                            <option key={`brig_${b.id}`} value={b.id}>{b.name}</option>
+                                                        ))}
+                                                    </optgroup>
+                                                ))}
+                                            </select>
+                                        )}
                                         <button type='submit' className='save-btn'>Зберегти</button>
-                                        <button type='button' className='cancel-btn' onClick={handleCancelEdit}>відмінити</button>
                                         <button 
                                             type='button' 
                                             className='archive-btn' 
@@ -228,6 +266,7 @@ const BackPackExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
                                         >
                                             Списати
                                         </button>
+                                        <button type='button' className='cancel-btn' onClick={handleCancelEdit}>відмінити</button>
                                     </div>
                                 </form>
                             ) : (

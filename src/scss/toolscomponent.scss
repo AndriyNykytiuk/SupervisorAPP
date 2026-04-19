@@ -24,3 +24,33 @@
         margin: 0;
     }
 }
+
+.search-bar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.search-bar {
+    
+    width: 100%;
+    height: 100%;
+    padding: 0.5rem 0.75rem;
+   
+}
+
+.find-tool-button {
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    outline: none;
+    background: var(--navy);
+    min-width: 200px;
+    color: var(--white);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    &:focus { border-color: var(--gold); box-shadow: var(--shadow-gold); }
+    &:hover { color: var(--gold); }
+}

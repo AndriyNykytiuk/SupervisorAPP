@@ -270,6 +270,27 @@ export const deleteBackPackExtenguisher = async (id) => {
     return data;
 };
 
+// ── Special Tools ────────────────────────────────────
+export const fetchSpecialToolsByBrigade = async (brigadeId) => {
+    const { data } = await api.get(`/special-tools/brigade/${brigadeId}`);
+    return data;
+};
+
+export const createSpecialTool = async (payload) => {
+    const { data } = await api.post('/special-tools', payload);
+    return data;
+};
+
+export const updateSpecialTool = async (id, payload) => {
+    const { data } = await api.put(`/special-tools/${id}`, payload);
+    return data;
+};
+
+export const deleteSpecialTool = async (id) => {
+    const { data } = await api.delete(`/special-tools/${id}`);
+    return data;
+};
+
 // ── Generic Datas ────────────────────────────────────
 export const fetchGenericDatas = async () => {
     const { data } = await api.get('/generic-datas');
@@ -356,5 +377,11 @@ export const updateEquipmentAvailability = async (id, payload) => {
 
 export const deleteEquipmentAvailability = async (id) => {
     const { data } = await api.delete(`/equipment-availability/${id}`);
+    return data;
+};
+
+// ── Search Tools ─────────────────────────────────────
+export const searchAllTools = async (query) => {
+    const { data } = await api.get('/search/tools', { params: { q: query } });
     return data;
 };

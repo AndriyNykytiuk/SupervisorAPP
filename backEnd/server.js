@@ -34,6 +34,8 @@ import equipmentArchiveRouter from './routes/equipmentArchive.js'
 import vehicleTypesRouter from './routes/vehicleTypes.js'
 import equipmentItemsRouter from './routes/equipmentItems.js'
 import equipmentAvailabilityRouter from './routes/equipmentAvailability.js'
+import searchRouter from './routes/search.js'
+import specialToolsRouter from './routes/specialTools.js'
 
 
 const app = express()
@@ -78,6 +80,8 @@ app.use('/api/archives', authenticate, equipmentArchiveRouter)
 app.use('/api/vehicle-types', authenticate, vehicleTypesRouter)
 app.use('/api/equipment-items', authenticate, equipmentItemsRouter)
 app.use('/api/equipment-availability', authenticate, equipmentAvailabilityRouter)
+app.use('/api/search', authenticate, searchRouter)
+app.use('/api/special-tools', authenticate, specialToolsRouter)
 
 // ── Catch-all: serve index.html for any other route (React routing) ─────
 const indexPath = path.resolve(__dirname, '../dist/index.html')
@@ -137,6 +141,8 @@ async function start() {
         await EquipmentItem.sync({ alter: true })
         await EquipmentAvailability.sync({ alter: true })
         await BrigadeVehicle.sync({ alter: true })
+        const { SpecialTool } = await import('./models/index.js')
+        await SpecialTool.sync({ alter: true })
         console.log('📦 Tables altered for development environment')
     } else {
         console.log('📦 Tables verified for production (no alter)')
