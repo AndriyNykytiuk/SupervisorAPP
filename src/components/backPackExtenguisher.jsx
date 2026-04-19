@@ -44,7 +44,11 @@ const BackPackExtenguisher = ({ selectedBrigade, searchQuery = '', transferBriga
     useEffect(() => {
         if (searchQuery) {
             setIsExpanded(true);
-            const hasMatch = elements?.some(i => i.name?.toLowerCase().includes(searchQuery.toLowerCase()));
+            const hasMatch = elements?.some(i => 
+                i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                i.volumeOfWater?.toString().includes(searchQuery.toLowerCase()) ||
+                i.typeStern?.toLowerCase().includes(searchQuery.toLowerCase())
+            );
             if (hasMatch) {
                 setTimeout(() => {
                     wrapperRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -169,7 +173,11 @@ const BackPackExtenguisher = ({ selectedBrigade, searchQuery = '', transferBriga
     const listNameMatch = !searchQuery || 
         'Ранцеві вогнегасники'.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (searchQuery.toLowerCase().startsWith('електр') && 'Ранцеві вогнегасники'.toLowerCase().includes('електро')); // Placeholder if needed
-    const hasMatchingItems = elements?.some(i => i.name?.toLowerCase().includes(searchQuery.toLowerCase()));
+    const hasMatchingItems = elements?.some(i => 
+        i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        i.volumeOfWater?.toString().includes(searchQuery.toLowerCase()) ||
+        i.typeStern?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
     if (searchQuery && !listNameMatch && !hasMatchingItems) return null;
 
     return (
@@ -225,7 +233,12 @@ const BackPackExtenguisher = ({ selectedBrigade, searchQuery = '', transferBriga
 
             <div className={`item-body ${isExpanded ? 'expanded' : ''}`}>
                 {isExpanded && (elements?.length > 0 ? (
-                    elements.filter(i => listNameMatch || i.name?.toLowerCase().includes(searchQuery.toLowerCase())).map((item) => (
+                    elements.filter(i => 
+                        listNameMatch || 
+                        i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        i.volumeOfWater?.toString().includes(searchQuery.toLowerCase()) ||
+                        i.typeStern?.toLowerCase().includes(searchQuery.toLowerCase())
+                    ).map((item) => (
                         <div key={item.id} className='item-row-container'>
                             {editingItemId === item.id ? (
                                 <form className='edit-form' onSubmit={(e) => handleUpdateSubmit(e, item.id)}>

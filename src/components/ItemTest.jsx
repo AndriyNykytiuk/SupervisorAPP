@@ -248,7 +248,7 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
                 <div className='item-header-title'>
                     <div className='item-header-title-add' style={{ flex: 1, userSelect: 'none' }}>
                         <h2>{testList.name} - {testList.TestItems?.length} шт.</h2>
-                        <FaArrowDownWideShort className='arrow-down' />
+                       
                     </div>
 
                     <div className='item-header-actions'>

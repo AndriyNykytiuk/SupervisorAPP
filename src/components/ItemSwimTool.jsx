@@ -156,8 +156,16 @@ const ItemSwimTool = ({ selectedBrigade, searchQuery = '' }) => {
 
     if (!selectedBrigade) return null;
 
-    // Hide component if search query doesn't match list name
-    const listNameMatch = !searchQuery || 'Засоби порятунку на воді'.toLowerCase().includes(searchQuery.toLowerCase());
+    // Hide component if search query doesn't match list name or sub-item names
+    const subItemMatch = searchQuery && [
+        'Рятувальні човни', 'Моторні човни', 'Рятувальні круги', 
+        'мотузки', 'Александрова', 'сани', 'жилети', 'гідрокостюми'
+    ].some(s => s.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    const listNameMatch = !searchQuery || 
+        'Засоби порятунку на воді'.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        subItemMatch;
+
     if (searchQuery && !listNameMatch) return null;
 
     return (

@@ -44,7 +44,10 @@ const ItemElectricTool = ({ selectedBrigade, searchQuery = '', transferBrigades 
     useEffect(() => {
         if (searchQuery) {
             setIsExpanded(true);
-            const hasMatch = elements?.some(i => i.name?.toLowerCase().includes(searchQuery.toLowerCase()));
+            const hasMatch = elements?.some(i => 
+                i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                i.powerOf?.toString().includes(searchQuery.toLowerCase())
+            );
             if (hasMatch) {
                 setTimeout(() => {
                     wrapperRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -169,7 +172,10 @@ const ItemElectricTool = ({ selectedBrigade, searchQuery = '', transferBrigades 
 
     // Hide component if search query doesn't match list name or any item name
     const listNameMatch = !searchQuery || 'Електростанції'.toLowerCase().includes(searchQuery.toLowerCase());
-    const hasMatchingItems = elements?.some(i => i.name?.toLowerCase().includes(searchQuery.toLowerCase()));
+    const hasMatchingItems = elements?.some(i => 
+        i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        i.powerOf?.toString().includes(searchQuery.toLowerCase())
+    );
     if (searchQuery && !listNameMatch && !hasMatchingItems) return null;
 
     return (
@@ -225,7 +231,11 @@ const ItemElectricTool = ({ selectedBrigade, searchQuery = '', transferBrigades 
 
             <div className={`item-body `}>
                 {isExpanded && (elements?.length > 0 ? (
-                    elements.filter(i => listNameMatch || i.name?.toLowerCase().includes(searchQuery.toLowerCase())).map((item) => (
+                    elements.filter(i => 
+                        listNameMatch || 
+                        i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        i.powerOf?.toString().includes(searchQuery.toLowerCase())
+                    ).map((item) => (
                         <div key={item.id} className='item-row-container'>
                             {editingItemId === item.id ? (
                                 <form className='edit-form' onSubmit={(e) => handleUpdateSubmit(e, item.id)}>

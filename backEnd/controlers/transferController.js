@@ -59,6 +59,11 @@ export const getAllByBrigade = async (req, res, next) => {
             where: { brigadeId }
         })
 
+        // Fetch Special Tools
+        const specialTools = await SpecialTool.findAll({
+            where: { brigadeId }
+        })
+
         res.json({
             brigadeId: parseInt(brigadeId),
             testLists,
@@ -68,6 +73,7 @@ export const getAllByBrigade = async (req, res, next) => {
             hydravlicTools,
             swimTools,
             backPackExtenguishers,
+            specialTools,
         })
     } catch (err) {
         next(err)

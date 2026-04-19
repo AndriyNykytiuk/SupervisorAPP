@@ -14,7 +14,10 @@ const ItemTool = ({ toolList, selectedBrigade, onItemCreated, searchQuery = '', 
     useEffect(() => {
         if (searchQuery) {
             setIsExpanded(true);
-            const hasMatch = toolList.ToolItems?.some(i => i.name?.toLowerCase().includes(searchQuery.toLowerCase()));
+            const hasMatch = toolList.ToolItems?.some(i => 
+                i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                i.powerfull?.toString().includes(searchQuery.toLowerCase())
+            );
             if (hasMatch) {
                 setTimeout(() => {
                     wrapperRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -195,7 +198,12 @@ const ItemTool = ({ toolList, selectedBrigade, onItemCreated, searchQuery = '', 
 
             <div className={`item-body ${isExpanded ? 'expanded' : ''}`}>
                 {toolList.ToolItems?.length > 0 ? (
-                    toolList.ToolItems.filter(i => !searchQuery || toolList.name?.toLowerCase().includes(searchQuery.toLowerCase()) || i.name?.toLowerCase().includes(searchQuery.toLowerCase())).map((item) => (
+                    toolList.ToolItems.filter(i => 
+                        !searchQuery || 
+                        toolList.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                        i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        i.powerfull?.toString().includes(searchQuery.toLowerCase())
+                    ).map((item) => (
                         <div key={item.id} className='item-row-container'>
                             {editingItemId === item.id ? (
                                 <form className='edit-form' onSubmit={(e) => handleUpdateSubmit(e, item.id)}>
