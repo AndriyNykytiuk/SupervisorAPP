@@ -3,10 +3,17 @@ import { User } from '../models/index.js'
 
 const SALT_ROUNDS = 10
 
-// GET /api/users
+// GET /api/users  (supports ?brigadeId=123 filter)
 export const getAll = async (req, res, next) => {
     try {
-        const users = await User.findAll()
+        const where = {}
+        if (req.query.brigadeId) {
+            where.brigadeId = Number(req.query.brigadeId)
+        }
+        const users = await User.findAll({
+            where,
+            attributes: { exclude: ['password'] },
+        })
         res.json(users)
     } catch (err) {
         next(err)

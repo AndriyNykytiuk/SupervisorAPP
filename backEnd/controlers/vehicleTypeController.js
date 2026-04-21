@@ -1,4 +1,4 @@
-import { VehicleType, Brigade, BrigadeVehicle } from '../models/index.js'
+import { VehicleType, Brigade, BrigadeVehicle, EquipmentItem } from '../models/index.js'
 
 // GET /api/vehicle-types?brigadeId=
 export const getAll = async (req, res, next) => {
@@ -28,17 +28,49 @@ export const getAll = async (req, res, next) => {
 }
 
 // POST /api/vehicle-types (GOD only)
+// body: { name, cloneFromId? } — if cloneFromId is provided, equipment items from that type are copied with zeroed quantities
 export const create = async (req, res, next) => {
+    const sequelize = VehicleType.sequelize
+    const t = await sequelize.transaction()
     try {
-        const { name } = req.body
+        const { name, cloneFromId } = req.body
         if (!name) {
+            await t.rollback()
             return res.status(400).json({ error: 'name is required' })
         }
-        const type = await VehicleType.create({
-            name,
-        })
-        res.status(201).json(type)
+
+        const type = await VehicleType.create({ name }, { transaction: t })
+
+        let clonedCount = 0
+        if (cloneFromId) {
+            const source = await VehicleType.findByPk(cloneFromId, { transaction: t })
+            if (!source) {
+                await t.rollback()
+                return res.status(400).json({ error: 'cloneFromId not found' })
+            }
+            const sourceItems = await EquipmentItem.findAll({
+                where: { vehicleTypeId: cloneFromId },
+                transaction: t,
+            })
+            if (sourceItems.length > 0) {
+                const clones = sourceItems.map((it) => ({
+                    name: it.name,
+                    required_per_vehicle: 0,
+                    required_rule: it.required_rule || 'exact',
+                    warehouse_required: 0,
+                    warehouse_rule: it.warehouse_rule || 'exact',
+                    warehouse_percent: null,
+                    vehicleTypeId: type.id,
+                }))
+                await EquipmentItem.bulkCreate(clones, { transaction: t })
+                clonedCount = clones.length
+            }
+        }
+
+        await t.commit()
+        res.status(201).json({ ...type.toJSON(), clonedCount })
     } catch (err) {
+        await t.rollback()
         next(err)
     }
 }

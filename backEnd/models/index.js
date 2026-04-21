@@ -22,6 +22,9 @@ import EquipmentItem from './EquipmentItem.js'
 import EquipmentAvailability from './EquipmentAvailability.js'
 import BrigadeVehicle from './BrigadeVehicle.js'
 import SpecialTool from './SpecialTool.js'
+import FireEvent from './FireEvent.js'
+import EventTeam from './EventTeam.js'
+import EventHistory from './EventHistory.js'
 
 // ── Associations ───────────────────────────────
 // One Detachment has many Brigades
@@ -122,5 +125,25 @@ EquipmentAvailability.belongsTo(EquipmentItem, { foreignKey: 'equipmentItemId' }
 Brigade.hasMany(EquipmentAvailability, { foreignKey: 'brigadeId' })
 EquipmentAvailability.belongsTo(Brigade, { foreignKey: 'brigadeId' })
 
-export { User, Detachment, Brigade, testList, TestItem, TestLinks, toolList, ToolItem, ElectricStations, WaterPumps, HydravlicTool, SwimTools, FoamAgent, Powder, ExtenguisDocumentLink, UsageLiquidsLog, backPackExtenguisher, EquipmentArchive, TransferLog, VehicleType, EquipmentItem, EquipmentAvailability, BrigadeVehicle, SpecialTool }
+// FireEvent <-> EventTeam
+FireEvent.hasMany(EventTeam, { foreignKey: 'fireEventId', onDelete: 'CASCADE' })
+EventTeam.belongsTo(FireEvent, { foreignKey: 'fireEventId' })
+
+// FireEvent <-> EventHistory
+FireEvent.hasMany(EventHistory, { foreignKey: 'fireEventId', onDelete: 'CASCADE' })
+EventHistory.belongsTo(FireEvent, { foreignKey: 'fireEventId' })
+
+// EventTeam <-> Brigade (association, no cascade — brigades shouldn't be deleted anyway)
+Brigade.hasMany(EventTeam, { foreignKey: 'brigadeId' })
+EventTeam.belongsTo(Brigade, { foreignKey: 'brigadeId' })
+
+// EventTeam <-> User (senior user)
+User.hasMany(EventTeam, { foreignKey: 'seniorUserId' })
+EventTeam.belongsTo(User, { foreignKey: 'seniorUserId', as: 'SeniorUser' })
+
+// FireEvent <-> User (creator)
+User.hasMany(FireEvent, { foreignKey: 'createdByUserId' })
+FireEvent.belongsTo(User, { foreignKey: 'createdByUserId', as: 'Creator' })
+
+export { User, Detachment, Brigade, testList, TestItem, TestLinks, toolList, ToolItem, ElectricStations, WaterPumps, HydravlicTool, SwimTools, FoamAgent, Powder, ExtenguisDocumentLink, UsageLiquidsLog, backPackExtenguisher, EquipmentArchive, TransferLog, VehicleType, EquipmentItem, EquipmentAvailability, BrigadeVehicle, SpecialTool, FireEvent, EventTeam, EventHistory }
 

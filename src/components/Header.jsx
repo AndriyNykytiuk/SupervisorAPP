@@ -1,18 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { fetchDetachments, fetchBrigadeLastLogin } from '../api/services.js';
 import useApi from '../hooks/useApi.js';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { IoLogOutOutline, IoCalendarOutline } from 'react-icons/io5';
 import { HiOutlineBuildingOffice2 } from 'react-icons/hi2';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import CreateEventModal from './CreateEventModal.jsx';
 import '../scss/header.scss';
 import logopict from '../img/DSNSlogo.svg';
 
 const Header = ({ toggleSidebar }) => {
     const { user, selectedBrigade, setBrigade, logout } = useAuth();
     const location = useLocation();
+    const navigate = useNavigate();
     const isGenericDatasPage = location.pathname === '/genericDatas';
+    const isGod = user?.role === 'GOD';
+    const [showCreateEvent, setShowCreateEvent] = useState(false);
+    const [showAvatarMenu, setShowAvatarMenu] = useState(false);
+    const avatarMenuRef = useRef(null);
+
+    useEffect(() => {
+        if (!showAvatarMenu) return;
+        const onDocClick = (e) => {
+            if (avatarMenuRef.current && !avatarMenuRef.current.contains(e.target)) {
+                setShowAvatarMenu(false);
+            }
+        };
+        document.addEventListener('mousedown', onDocClick);
+        return () => document.removeEventListener('mousedown', onDocClick);
+    }, [showAvatarMenu]);
 
     const showDropdown = user?.role === 'GOD' || user?.role === 'SEMI-GOD';
 
@@ -103,11 +120,40 @@ const Header = ({ toggleSidebar }) => {
                             )
                         )}
 
-                        <div className='header__user-info'>
-                            <div className='header__avatar'>
+                        <div className='header__user-info' ref={avatarMenuRef}>
+                            <div
+                                className={`header__avatar${isGod ? ' is-god' : ''}`}
+                                onClick={isGod ? () => setShowAvatarMenu((v) => !v) : undefined}
+                                title={isGod ? 'Меню подій' : undefined}
+                                role={isGod ? 'button' : undefined}
+                            >
                                 {user?.name?.[0]?.toUpperCase() || 'U'}
                             </div>
                             <span className='header__username'>{user?.name || 'User'}</span>
+                            {isGod && showAvatarMenu && (
+                                <div className='header__avatar-menu'>
+                                    <button
+                                        type='button'
+                                        className='header__avatar-menu-item'
+                                        onClick={() => {
+                                            setShowAvatarMenu(false);
+                                            setShowCreateEvent(true);
+                                        }}
+                                    >
+                                        Створити подію
+                                    </button>
+                                    <button
+                                        type='button'
+                                        className='header__avatar-menu-item'
+                                        onClick={() => {
+                                            setShowAvatarMenu(false);
+                                            navigate('/events');
+                                        }}
+                                    >
+                                        Події
+                                    </button>
+                                </div>
+                            )}
                         </div>
                         <button className='header__hamburger' onClick={toggleSidebar} aria-label="Toggle sidebar">
                             <GiHamburgerMenu />
@@ -122,6 +168,14 @@ const Header = ({ toggleSidebar }) => {
 
             {/* ─── Accent Gradient Line ─── */}
             <div className='header__accent'></div>
+
+            {isGod && (
+                <CreateEventModal
+                    isOpen={showCreateEvent}
+                    onClose={() => setShowCreateEvent(false)}
+                    onCreated={() => navigate('/events')}
+                />
+            )}
         </header>
     )
 }

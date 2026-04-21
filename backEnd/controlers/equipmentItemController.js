@@ -101,6 +101,51 @@ import { EquipmentItem, VehicleType, EquipmentAvailability } from '../models/ind
         }
     }
 
+    // POST /api/equipment-items/bulk (GOD only)
+    // body: { items: [{ name, required_per_vehicle, required_rule?, warehouse_required?, warehouse_rule?, warehouse_percent?, vehicleTypeId }] }
+    export const bulkCreate = async (req, res, next) => {
+        const sequelize = EquipmentItem.sequelize
+        const t = await sequelize.transaction()
+        try {
+            const items = Array.isArray(req.body?.items) ? req.body.items : null
+            if (!items || items.length === 0) {
+                return res.status(400).json({ error: 'items array is required' })
+            }
+
+            const typeIds = [...new Set(items.map((i) => i.vehicleTypeId).filter(Boolean))]
+            const types = await VehicleType.findAll({ where: { id: typeIds }, transaction: t })
+            const validIds = new Set(types.map((v) => v.id))
+
+            const prepared = []
+            for (const [idx, raw] of items.entries()) {
+                if (!raw.name || !raw.vehicleTypeId) {
+                    await t.rollback()
+                    return res.status(400).json({ error: `Row ${idx}: name and vehicleTypeId required` })
+                }
+                if (!validIds.has(Number(raw.vehicleTypeId))) {
+                    await t.rollback()
+                    return res.status(400).json({ error: `Row ${idx}: vehicleTypeId ${raw.vehicleTypeId} not found` })
+                }
+                prepared.push({
+                    name: String(raw.name).trim(),
+                    required_per_vehicle: Number(raw.required_per_vehicle) || 0,
+                    required_rule: raw.required_rule || 'exact',
+                    warehouse_required: Number(raw.warehouse_required) || 0,
+                    warehouse_rule: raw.warehouse_rule || 'exact',
+                    warehouse_percent: raw.warehouse_percent ?? null,
+                    vehicleTypeId: Number(raw.vehicleTypeId),
+                })
+            }
+
+            const created = await EquipmentItem.bulkCreate(prepared, { transaction: t })
+            await t.commit()
+            res.status(201).json({ created: created.length, items: created })
+        } catch (err) {
+            await t.rollback()
+            next(err)
+        }
+    }
+
     // DELETE /api/equipment-items/:id (GOD only)
     export const remove = async (req, res, next) => {
         try {

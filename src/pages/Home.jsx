@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import api from '../api/axios.js';
 import { formatDistanceToNow, isValid } from 'date-fns';
 import { uk } from 'date-fns/locale';
 import LoginActivityChart from '../components/LoginActivityChart.jsx';
 import '../scss/home.scss';
+import '../scss/fireevents.scss';
 
 const Home = () => {
     const { user } = useAuth();
@@ -45,6 +47,7 @@ const Home = () => {
                             <li><a href="/nextTestes">Найближчі випробування</a></li>
                             <li><a href="/tools">Відомості ПТО та АРО</a></li>
                             <li><a href="/extenguisLiquids">Вогонегасні речовини</a></li>
+                            <li><Link to="/events">Події / пожежі</Link></li>
                         </ul>
                     </div>
                 </div>
@@ -71,6 +74,10 @@ const Home = () => {
             <div className="home-header">
                 <h2>Панель активності підрозділів</h2>
                 <p>Зведена інформація про останні оновлення в кожній частині.</p>
+            </div>
+
+            <div className="home-events-button">
+                <Link to="/events">Події / пожежі →</Link>
             </div>
 
             {loading ? (

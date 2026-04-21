@@ -5,6 +5,7 @@ import { authorize } from '../middleware/authorize.js'
 const router = Router()
 
 router.get('/', ctrl.getAll)
+router.post('/bulk', authorize('GOD'), ctrl.bulkCreate)
 router.post('/', authorize('GOD'), ctrl.create)
 router.put('/:id', authorize('GOD', 'RW'), ctrl.update)
 router.delete('/:id', authorize('GOD'), ctrl.remove)

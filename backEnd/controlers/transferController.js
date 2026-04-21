@@ -1,5 +1,6 @@
 import { TestItem, testList, ToolItem, toolList, Brigade, Detachment, ElectricStations, WaterPumps, HydravlicTool, SwimTools, TransferLog, backPackExtenguisher, SpecialTool } from '../models/index.js'
 import { Op } from 'sequelize'
+import sequelize from '../config/db.js'
 
 // GET /api/transfer/brigades — all detachments with brigades (no role restriction)
 export const getAllBrigades = async (req, res, next) => {
@@ -82,233 +83,246 @@ export const getAllByBrigade = async (req, res, next) => {
 
 // PUT /api/transfer — move test items + tool items to another brigade
 export const transferItems = async (req, res, next) => {
+    const { testItemIds, toolItemIds, electricStationIds, waterPumpIds, hydravlicToolIds, swimToolTransfers, backPackExtenguisherIds, specialToolIds, toBrigadeId } = req.body
+
+    if (!toBrigadeId) {
+        return res.status(400).json({ error: 'toBrigadeId is required' })
+    }
+
     try {
-        const { testItemIds, toolItemIds, electricStationIds, waterPumpIds, hydravlicToolIds, swimToolTransfers, backPackExtenguisherIds, specialToolIds, toBrigadeId } = req.body
+        const result = await sequelize.transaction(async (t) => {
+            const targetBrigade = await Brigade.findByPk(toBrigadeId, { transaction: t })
+            if (!targetBrigade) {
+                const err = new Error('Target brigade not found')
+                err.status = 404
+                throw err
+            }
 
-        if (!toBrigadeId) {
-            return res.status(400).json({ error: 'toBrigadeId is required' })
-        }
+            const result = { testItems: [], toolItems: [], electricStations: [] }
 
-        const targetBrigade = await Brigade.findByPk(toBrigadeId)
-        if (!targetBrigade) {
-            return res.status(404).json({ error: 'Target brigade not found' })
-        }
-
-        const result = { testItems: [], toolItems: [], electricStations: [] }
-
-        // Transfer test items
-        if (testItemIds && testItemIds.length > 0) {
-            const items = await TestItem.findAll({ where: { id: testItemIds }, include: [Brigade] })
-            for (const item of items) {
-                await TransferLog.create({
-                    itemName: item.name || `TestItem #${item.id}`,
-                    equipmentType: 'TestItem',
-                    fromBrigadeId: item.brigadeId,
-                    toBrigadeId,
-                    quantity: 1,
-                    details: item.toJSON(),
+            // Transfer test items
+            if (testItemIds && testItemIds.length > 0) {
+                const items = await TestItem.findAll({ where: { id: testItemIds }, include: [Brigade], transaction: t })
+                for (const item of items) {
+                    await TransferLog.create({
+                        itemName: item.name || `TestItem #${item.id}`,
+                        equipmentType: 'TestItem',
+                        fromBrigadeId: item.brigadeId,
+                        toBrigadeId,
+                        quantity: 1,
+                        details: item.toJSON(),
+                    }, { transaction: t })
+                }
+                await TestItem.update({ brigadeId: toBrigadeId }, { where: { id: testItemIds }, transaction: t })
+                result.testItems = await TestItem.findAll({
+                    where: { id: testItemIds },
+                    include: [testList, Brigade],
+                    transaction: t,
                 })
             }
-            await TestItem.update({ brigadeId: toBrigadeId }, { where: { id: testItemIds } })
-            result.testItems = await TestItem.findAll({
-                where: { id: testItemIds },
-                include: [testList, Brigade],
-            })
-        }
 
-        // Transfer tool items
-        if (toolItemIds && toolItemIds.length > 0) {
-            const items = await ToolItem.findAll({ where: { id: toolItemIds }, include: [Brigade] })
-            for (const item of items) {
-                await TransferLog.create({
-                    itemName: item.name || `ToolItem #${item.id}`,
-                    equipmentType: 'ToolItem',
-                    fromBrigadeId: item.brigadeId,
-                    toBrigadeId,
-                    quantity: 1,
-                    details: item.toJSON(),
+            // Transfer tool items
+            if (toolItemIds && toolItemIds.length > 0) {
+                const items = await ToolItem.findAll({ where: { id: toolItemIds }, include: [Brigade], transaction: t })
+                for (const item of items) {
+                    await TransferLog.create({
+                        itemName: item.name || `ToolItem #${item.id}`,
+                        equipmentType: 'ToolItem',
+                        fromBrigadeId: item.brigadeId,
+                        toBrigadeId,
+                        quantity: 1,
+                        details: item.toJSON(),
+                    }, { transaction: t })
+                }
+                await ToolItem.update({ brigadeId: toBrigadeId }, { where: { id: toolItemIds }, transaction: t })
+                result.toolItems = await ToolItem.findAll({
+                    where: { id: toolItemIds },
+                    include: [toolList, Brigade],
+                    transaction: t,
                 })
             }
-            await ToolItem.update({ brigadeId: toBrigadeId }, { where: { id: toolItemIds } })
-            result.toolItems = await ToolItem.findAll({
-                where: { id: toolItemIds },
-                include: [toolList, Brigade],
-            })
-        }
 
-        // Transfer electric stations
-        if (electricStationIds && electricStationIds.length > 0) {
-            const items = await ElectricStations.findAll({ where: { id: electricStationIds }, include: [Brigade] })
-            for (const item of items) {
-                await TransferLog.create({
-                    itemName: item.name || `ElectricStation #${item.id}`,
-                    equipmentType: 'ElectricStations',
-                    fromBrigadeId: item.brigadeId,
-                    toBrigadeId,
-                    quantity: 1,
-                    details: item.toJSON(),
+            // Transfer electric stations
+            if (electricStationIds && electricStationIds.length > 0) {
+                const items = await ElectricStations.findAll({ where: { id: electricStationIds }, include: [Brigade], transaction: t })
+                for (const item of items) {
+                    await TransferLog.create({
+                        itemName: item.name || `ElectricStation #${item.id}`,
+                        equipmentType: 'ElectricStations',
+                        fromBrigadeId: item.brigadeId,
+                        toBrigadeId,
+                        quantity: 1,
+                        details: item.toJSON(),
+                    }, { transaction: t })
+                }
+                await ElectricStations.update({ brigadeId: toBrigadeId }, { where: { id: electricStationIds }, transaction: t })
+                result.electricStations = await ElectricStations.findAll({
+                    where: { id: electricStationIds },
+                    include: [Brigade],
+                    transaction: t,
                 })
             }
-            await ElectricStations.update({ brigadeId: toBrigadeId }, { where: { id: electricStationIds } })
-            result.electricStations = await ElectricStations.findAll({
-                where: { id: electricStationIds },
-                include: [Brigade],
-            })
-        }
 
-        // Transfer water pumps
-        if (waterPumpIds && waterPumpIds.length > 0) {
-            const items = await WaterPumps.findAll({ where: { id: waterPumpIds }, include: [Brigade] })
-            for (const item of items) {
-                await TransferLog.create({
-                    itemName: item.name || `WaterPump #${item.id}`,
-                    equipmentType: 'WaterPumps',
-                    fromBrigadeId: item.brigadeId,
-                    toBrigadeId,
-                    quantity: 1,
-                    details: item.toJSON(),
+            // Transfer water pumps
+            if (waterPumpIds && waterPumpIds.length > 0) {
+                const items = await WaterPumps.findAll({ where: { id: waterPumpIds }, include: [Brigade], transaction: t })
+                for (const item of items) {
+                    await TransferLog.create({
+                        itemName: item.name || `WaterPump #${item.id}`,
+                        equipmentType: 'WaterPumps',
+                        fromBrigadeId: item.brigadeId,
+                        toBrigadeId,
+                        quantity: 1,
+                        details: item.toJSON(),
+                    }, { transaction: t })
+                }
+                await WaterPumps.update({ brigadeId: toBrigadeId }, { where: { id: waterPumpIds }, transaction: t })
+                result.waterPumps = await WaterPumps.findAll({
+                    where: { id: waterPumpIds },
+                    include: [Brigade],
+                    transaction: t,
                 })
             }
-            await WaterPumps.update({ brigadeId: toBrigadeId }, { where: { id: waterPumpIds } })
-            result.waterPumps = await WaterPumps.findAll({
-                where: { id: waterPumpIds },
-                include: [Brigade],
-            })
-        }
 
-        // Transfer hydravlic tools
-        if (hydravlicToolIds && hydravlicToolIds.length > 0) {
-            const items = await HydravlicTool.findAll({ where: { id: hydravlicToolIds }, include: [Brigade] })
-            for (const item of items) {
-                await TransferLog.create({
-                    itemName: item.name || `HydravlicTool #${item.id}`,
-                    equipmentType: 'HydravlicTool',
-                    fromBrigadeId: item.brigadeId,
-                    toBrigadeId,
-                    quantity: 1,
-                    details: item.toJSON(),
+            // Transfer hydravlic tools
+            if (hydravlicToolIds && hydravlicToolIds.length > 0) {
+                const items = await HydravlicTool.findAll({ where: { id: hydravlicToolIds }, include: [Brigade], transaction: t })
+                for (const item of items) {
+                    await TransferLog.create({
+                        itemName: item.name || `HydravlicTool #${item.id}`,
+                        equipmentType: 'HydravlicTool',
+                        fromBrigadeId: item.brigadeId,
+                        toBrigadeId,
+                        quantity: 1,
+                        details: item.toJSON(),
+                    }, { transaction: t })
+                }
+                await HydravlicTool.update({ brigadeId: toBrigadeId }, { where: { id: hydravlicToolIds }, transaction: t })
+                result.hydravlicTools = await HydravlicTool.findAll({
+                    where: { id: hydravlicToolIds },
+                    include: [Brigade],
+                    transaction: t,
                 })
             }
-            await HydravlicTool.update({ brigadeId: toBrigadeId }, { where: { id: hydravlicToolIds } })
-            result.hydravlicTools = await HydravlicTool.findAll({
-                where: { id: hydravlicToolIds },
-                include: [Brigade],
-            })
-        }
 
-        // Transfer backpack extenguishers
-        if (backPackExtenguisherIds && backPackExtenguisherIds.length > 0) {
-            const items = await backPackExtenguisher.findAll({ where: { id: backPackExtenguisherIds }, include: [Brigade] })
-            for (const item of items) {
-                await TransferLog.create({
-                    itemName: item.name || `BackPackExtenguisher #${item.id}`,
-                    equipmentType: 'backPackExtenguisher',
-                    fromBrigadeId: item.brigadeId,
-                    toBrigadeId,
-                    quantity: 1,
-                    details: item.toJSON(),
+            // Transfer backpack extenguishers
+            if (backPackExtenguisherIds && backPackExtenguisherIds.length > 0) {
+                const items = await backPackExtenguisher.findAll({ where: { id: backPackExtenguisherIds }, include: [Brigade], transaction: t })
+                for (const item of items) {
+                    await TransferLog.create({
+                        itemName: item.name || `BackPackExtenguisher #${item.id}`,
+                        equipmentType: 'backPackExtenguisher',
+                        fromBrigadeId: item.brigadeId,
+                        toBrigadeId,
+                        quantity: 1,
+                        details: item.toJSON(),
+                    }, { transaction: t })
+                }
+                await backPackExtenguisher.update({ brigadeId: toBrigadeId }, { where: { id: backPackExtenguisherIds }, transaction: t })
+                result.backPackExtenguishers = await backPackExtenguisher.findAll({
+                    where: { id: backPackExtenguisherIds },
+                    include: [Brigade],
+                    transaction: t,
                 })
             }
-            await backPackExtenguisher.update({ brigadeId: toBrigadeId }, { where: { id: backPackExtenguisherIds } })
-            result.backPackExtenguishers = await backPackExtenguisher.findAll({
-                where: { id: backPackExtenguisherIds },
-                include: [Brigade],
-            })
-        }
 
-        // Transfer special tools
-        if (specialToolIds && specialToolIds.length > 0) {
-            const items = await SpecialTool.findAll({ where: { id: specialToolIds }, include: [Brigade] })
-            for (const item of items) {
-                await TransferLog.create({
-                    itemName: item.name || `SpecialTool #${item.id}`,
-                    equipmentType: 'SpecialTool',
-                    fromBrigadeId: item.brigadeId,
-                    toBrigadeId,
-                    quantity: item.quantity || 1,
-                    details: item.toJSON(),
+            // Transfer special tools
+            if (specialToolIds && specialToolIds.length > 0) {
+                const items = await SpecialTool.findAll({ where: { id: specialToolIds }, include: [Brigade], transaction: t })
+                for (const item of items) {
+                    await TransferLog.create({
+                        itemName: item.name || `SpecialTool #${item.id}`,
+                        equipmentType: 'SpecialTool',
+                        fromBrigadeId: item.brigadeId,
+                        toBrigadeId,
+                        quantity: item.quantity || 1,
+                        details: item.toJSON(),
+                    }, { transaction: t })
+                }
+                await SpecialTool.update({ brigadeId: toBrigadeId }, { where: { id: specialToolIds }, transaction: t })
+                result.specialTools = await SpecialTool.findAll({
+                    where: { id: specialToolIds },
+                    include: [Brigade],
+                    transaction: t,
                 })
             }
-            await SpecialTool.update({ brigadeId: toBrigadeId }, { where: { id: specialToolIds } })
-            result.specialTools = await SpecialTool.findAll({
-                where: { id: specialToolIds },
-                include: [Brigade],
-            })
-        }
 
-        // Transfer swim tools line-by-line quantities
-        if (swimToolTransfers && swimToolTransfers.length > 0) {
-            result.swimTools = []
-            for (const transfer of swimToolTransfers) {
-                const { id, transferData } = transfer
-                const originalRecord = await SwimTools.findByPk(id)
+            // Transfer swim tools line-by-line quantities
+            if (swimToolTransfers && swimToolTransfers.length > 0) {
+                result.swimTools = []
+                for (const transfer of swimToolTransfers) {
+                    const { id, transferData } = transfer
+                    const originalRecord = await SwimTools.findByPk(id, { transaction: t })
 
-                if (originalRecord) {
-                    // Log the swim tools transfer
-                    const totalQty = Object.values(transferData).reduce((sum, v) => sum + (v || 0), 0)
-                    if (totalQty > 0) {
-                        await TransferLog.create({
-                            itemName: 'Засоби порятунку на воді',
-                            equipmentType: 'SwimTools',
-                            fromBrigadeId: originalRecord.brigadeId,
-                            toBrigadeId,
-                            quantity: totalQty,
-                            details: transferData,
-                        })
-                    }
+                    if (originalRecord) {
+                        const totalQty = Object.values(transferData).reduce((sum, v) => sum + (v || 0), 0)
+                        if (totalQty > 0) {
+                            await TransferLog.create({
+                                itemName: 'Засоби порятунку на воді',
+                                equipmentType: 'SwimTools',
+                                fromBrigadeId: originalRecord.brigadeId,
+                                toBrigadeId,
+                                quantity: totalQty,
+                                details: transferData,
+                            }, { transaction: t })
+                        }
 
-                    // Deduct from original
-                    originalRecord.lifeBoat = Math.max(0, (originalRecord.lifeBoat || 0) - (transferData.lifeBoat || 0))
-                    originalRecord.motorLifeBoat = Math.max(0, (originalRecord.motorLifeBoat || 0) - (transferData.motorLifeBoat || 0))
-                    originalRecord.lifeBouy = Math.max(0, (originalRecord.lifeBouy || 0) - (transferData.lifeBouy || 0))
-                    originalRecord.lifeRoup = Math.max(0, (originalRecord.lifeRoup || 0) - (transferData.lifeRoup || 0))
-                    originalRecord.lifePath = Math.max(0, (originalRecord.lifePath || 0) - (transferData.lifePath || 0))
-                    originalRecord.rescueSlad = Math.max(0, (originalRecord.rescueSlad || 0) - (transferData.rescueSlad || 0))
-                    originalRecord.lifeJacket = Math.max(0, (originalRecord.lifeJacket || 0) - (transferData.lifeJacket || 0))
-                    originalRecord.drySuits = Math.max(0, (originalRecord.drySuits || 0) - (transferData.drySuits || 0))
+                        originalRecord.lifeBoat = Math.max(0, (originalRecord.lifeBoat || 0) - (transferData.lifeBoat || 0))
+                        originalRecord.motorLifeBoat = Math.max(0, (originalRecord.motorLifeBoat || 0) - (transferData.motorLifeBoat || 0))
+                        originalRecord.lifeBouy = Math.max(0, (originalRecord.lifeBouy || 0) - (transferData.lifeBouy || 0))
+                        originalRecord.lifeRoup = Math.max(0, (originalRecord.lifeRoup || 0) - (transferData.lifeRoup || 0))
+                        originalRecord.lifePath = Math.max(0, (originalRecord.lifePath || 0) - (transferData.lifePath || 0))
+                        originalRecord.rescueSlad = Math.max(0, (originalRecord.rescueSlad || 0) - (transferData.rescueSlad || 0))
+                        originalRecord.lifeJacket = Math.max(0, (originalRecord.lifeJacket || 0) - (transferData.lifeJacket || 0))
+                        originalRecord.drySuits = Math.max(0, (originalRecord.drySuits || 0) - (transferData.drySuits || 0))
 
-                    await originalRecord.save()
+                        await originalRecord.save({ transaction: t })
 
-                    // Destroy original record if totally empty now
-                    if (originalRecord.lifeBoat === 0 && originalRecord.motorLifeBoat === 0 && originalRecord.lifeBouy === 0 &&
-                        originalRecord.lifeRoup === 0 && originalRecord.lifePath === 0 && originalRecord.rescueSlad === 0 &&
-                        originalRecord.lifeJacket === 0 && originalRecord.drySuits === 0) {
-                        await originalRecord.destroy()
-                    }
+                        if (originalRecord.lifeBoat === 0 && originalRecord.motorLifeBoat === 0 && originalRecord.lifeBouy === 0 &&
+                            originalRecord.lifeRoup === 0 && originalRecord.lifePath === 0 && originalRecord.rescueSlad === 0 &&
+                            originalRecord.lifeJacket === 0 && originalRecord.drySuits === 0) {
+                            await originalRecord.destroy({ transaction: t })
+                        }
 
-                    const existingTargetRecord = await SwimTools.findOne({ where: { brigadeId: toBrigadeId } })
+                        const existingTargetRecord = await SwimTools.findOne({ where: { brigadeId: toBrigadeId }, transaction: t })
 
-                    if (existingTargetRecord) {
-                        existingTargetRecord.lifeBoat = (existingTargetRecord.lifeBoat || 0) + (transferData.lifeBoat || 0)
-                        existingTargetRecord.motorLifeBoat = (existingTargetRecord.motorLifeBoat || 0) + (transferData.motorLifeBoat || 0)
-                        existingTargetRecord.lifeBouy = (existingTargetRecord.lifeBouy || 0) + (transferData.lifeBouy || 0)
-                        existingTargetRecord.lifeRoup = (existingTargetRecord.lifeRoup || 0) + (transferData.lifeRoup || 0)
-                        existingTargetRecord.lifePath = (existingTargetRecord.lifePath || 0) + (transferData.lifePath || 0)
-                        existingTargetRecord.rescueSlad = (existingTargetRecord.rescueSlad || 0) + (transferData.rescueSlad || 0)
-                        existingTargetRecord.lifeJacket = (existingTargetRecord.lifeJacket || 0) + (transferData.lifeJacket || 0)
-                        existingTargetRecord.drySuits = (existingTargetRecord.drySuits || 0) + (transferData.drySuits || 0)
-                        await existingTargetRecord.save()
-                        result.swimTools.push(existingTargetRecord)
-                    } else {
-                        const newRecord = await SwimTools.create({
-                            brigadeId: toBrigadeId,
-                            lifeBoat: transferData.lifeBoat || 0,
-                            motorLifeBoat: transferData.motorLifeBoat || 0,
-                            lifeBouy: transferData.lifeBouy || 0,
-                            lifeRoup: transferData.lifeRoup || 0,
-                            lifePath: transferData.lifePath || 0,
-                            rescueSlad: transferData.rescueSlad || 0,
-                            lifeJacket: transferData.lifeJacket || 0,
-                            drySuits: transferData.drySuits || 0
-                        })
-                        result.swimTools.push(newRecord)
+                        if (existingTargetRecord) {
+                            existingTargetRecord.lifeBoat = (existingTargetRecord.lifeBoat || 0) + (transferData.lifeBoat || 0)
+                            existingTargetRecord.motorLifeBoat = (existingTargetRecord.motorLifeBoat || 0) + (transferData.motorLifeBoat || 0)
+                            existingTargetRecord.lifeBouy = (existingTargetRecord.lifeBouy || 0) + (transferData.lifeBouy || 0)
+                            existingTargetRecord.lifeRoup = (existingTargetRecord.lifeRoup || 0) + (transferData.lifeRoup || 0)
+                            existingTargetRecord.lifePath = (existingTargetRecord.lifePath || 0) + (transferData.lifePath || 0)
+                            existingTargetRecord.rescueSlad = (existingTargetRecord.rescueSlad || 0) + (transferData.rescueSlad || 0)
+                            existingTargetRecord.lifeJacket = (existingTargetRecord.lifeJacket || 0) + (transferData.lifeJacket || 0)
+                            existingTargetRecord.drySuits = (existingTargetRecord.drySuits || 0) + (transferData.drySuits || 0)
+                            await existingTargetRecord.save({ transaction: t })
+                            result.swimTools.push(existingTargetRecord)
+                        } else {
+                            const newRecord = await SwimTools.create({
+                                brigadeId: toBrigadeId,
+                                lifeBoat: transferData.lifeBoat || 0,
+                                motorLifeBoat: transferData.motorLifeBoat || 0,
+                                lifeBouy: transferData.lifeBouy || 0,
+                                lifeRoup: transferData.lifeRoup || 0,
+                                lifePath: transferData.lifePath || 0,
+                                rescueSlad: transferData.rescueSlad || 0,
+                                lifeJacket: transferData.lifeJacket || 0,
+                                drySuits: transferData.drySuits || 0
+                            }, { transaction: t })
+                            result.swimTools.push(newRecord)
+                        }
                     }
                 }
             }
-        }
+
+            return result
+        })
 
         res.json(result)
     } catch (err) {
+        if (err.status === 404) {
+            return res.status(404).json({ error: err.message })
+        }
         next(err)
     }
 }

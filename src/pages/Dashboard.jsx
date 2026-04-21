@@ -15,6 +15,8 @@ import Literature from './Literature.jsx'
 import ArchivePage from './ArchivePage.jsx'
 import Home from './Home.jsx'
 import GeneralRequirements from './GeneralRequirements.jsx'
+import EventsPage from './EventsPage.jsx'
+import EventHistoryPage from './EventHistoryPage.jsx'
 
 const Dashboard = () => {
     const { selectedBrigade } = useAuth()
@@ -48,6 +50,9 @@ const Dashboard = () => {
                         <Route path="/literature" element={<Literature/>} />
                         <Route path="/archives" element={<ArchivePage />} />
                         <Route path="/tool-requierments" element={<GeneralRequirements selectedBrigade={selectedBrigade} />} />
+                        <Route path="/events" element={<EventsPage />} />
+                        <Route path="/events/history" element={<EventHistoryPage />} />
+                        <Route path="/events/:eventId/history" element={<EventHistoryPage />} />
                     </Route>
                 </Routes>
             </div>

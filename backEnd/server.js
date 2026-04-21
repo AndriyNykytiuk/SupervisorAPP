@@ -8,6 +8,7 @@ const __dirname = path.dirname(__filename)
 
 
 import express from 'express'
+import rateLimit from 'express-rate-limit'
 import sequelize, { testConnection } from './config/db.js'
 import { authenticate } from './middleware/authenticate.js'
 import authRouter from './routes/auth.js'
@@ -36,6 +37,8 @@ import equipmentItemsRouter from './routes/equipmentItems.js'
 import equipmentAvailabilityRouter from './routes/equipmentAvailability.js'
 import searchRouter from './routes/search.js'
 import specialToolsRouter from './routes/specialTools.js'
+import fireEventsRouter from './routes/fireEvents.js'
+import garrisonToolsRouter from './routes/garrisonTools.js'
 
 
 const app = express()
@@ -44,8 +47,21 @@ const PORT = process.env.PORT || 3000
 import fs from 'fs'
 
 // ── Middleware ──────────────────────────────────
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
+app.use(express.json({ limit: '1mb' }))
+app.use(express.urlencoded({ extended: true, limit: '1mb' }))
+
+// ── Global API rate limiter (auth routes have their own stricter limiter) ──
+const apiLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 120,
+    message: { error: 'Забагато запитів. Спробуйте пізніше.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+})
+app.use('/api', (req, res, next) => {
+    if (req.path.startsWith('/auth')) return next()
+    return apiLimiter(req, res, next)
+})
 
 // Serve static files from the 'dist' folder (Vite build) - only if it exists (production)
 const distPath = path.resolve(__dirname, '../dist')
@@ -82,6 +98,8 @@ app.use('/api/equipment-items', authenticate, equipmentItemsRouter)
 app.use('/api/equipment-availability', authenticate, equipmentAvailabilityRouter)
 app.use('/api/search', authenticate, searchRouter)
 app.use('/api/special-tools', authenticate, specialToolsRouter)
+app.use('/api/fire-events', authenticate, fireEventsRouter)
+app.use('/api/garrison-tools', authenticate, garrisonToolsRouter)
 
 // ── Catch-all: serve index.html for any other route (React routing) ─────
 const indexPath = path.resolve(__dirname, '../dist/index.html')
@@ -139,8 +157,11 @@ async function start() {
         await EquipmentItem.sync({ alter: true })
         await EquipmentAvailability.sync({ alter: true })
         await BrigadeVehicle.sync({ alter: true })
-        const { SpecialTool } = await import('./models/index.js')
+        const { SpecialTool, FireEvent, EventTeam, EventHistory } = await import('./models/index.js')
         await SpecialTool.sync({ alter: true })
+        await FireEvent.sync({ alter: true })
+        await EventTeam.sync({ alter: true })
+        await EventHistory.sync({ alter: true })
         console.log('📦 Tables altered for development environment')
     } else {
         console.log('📦 Tables verified for production (no alter)')

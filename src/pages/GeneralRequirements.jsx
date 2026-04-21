@@ -46,6 +46,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
     // New vehicle type form
     const [newTypeName, setNewTypeName] = useState('')
     const [newTypeVehicleCount, setNewTypeVehicleCount] = useState('')
+    const [newTypeCloneFromId, setNewTypeCloneFromId] = useState('')
 
     // New equipment item form
     const [newItemName, setNewItemName] = useState('')
@@ -395,12 +396,17 @@ const GeneralRequirements = ({ selectedBrigade }) => {
             return
         }
         try {
-            await createVehicleType({
-                name: newTypeName.trim(),
-            })
+            const payload = { name: newTypeName.trim() }
+            if (newTypeCloneFromId) payload.cloneFromId = Number(newTypeCloneFromId)
+            const created = await createVehicleType(payload)
             setNewTypeName('')
             setNewTypeVehicleCount('')
-            toast.success('Тип додано')
+            setNewTypeCloneFromId('')
+            if (created?.clonedCount > 0) {
+                toast.success(`Тип додано (клоновано позицій: ${created.clonedCount})`)
+            } else {
+                toast.success('Тип додано')
+            }
             loadVehicleTypes()
         } catch (err) {
             toast.error('Помилка при додаванні типу')
@@ -526,6 +532,19 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                     min="0"
                                     className="gr-input-small"
                                 />
+                                <select
+                                    value={newTypeCloneFromId}
+                                    onChange={(e) => setNewTypeCloneFromId(e.target.value)}
+                                    className="gr-clone-select"
+                                    title="Створити на основі існуючого типу (позиції скопіюються з нульовими кількостями)"
+                                >
+                                    <option value="">Створити на основі...</option>
+                                    {vehicleTypes.map((t) => (
+                                        <option key={t.id} value={t.id}>
+                                            {t.name}
+                                        </option>
+                                    ))}
+                                </select>
                                 <button className="gr-btn-add" onClick={handleAddType} title="Додати тип">
                                     <span>Додати тип</span>
                                 </button>
@@ -704,7 +723,23 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                     return (
                                         <div key={item.id} className="gr-content-row">
                                             <span data-label="№:">{index + 1}</span>
-                                            <span data-label="Найменування:" className="gr-item-name">{item.name}</span>
+                                            <span data-label="Найменування:" className="gr-item-name">
+                                                {isGod && isEditing ? (
+                                                    <input
+                                                        type="text"
+                                                        className="gr-input"
+                                                        value={item.name || ''}
+                                                        onBlur={(e) => handleItemFieldChange(item.id, 'name', e.target.value)}
+                                                        onChange={(e) => {
+                                                            const newItems = items.map(i => i.id === item.id ? { ...i, name: e.target.value } : i)
+                                                            setItems(newItems)
+                                                        }}
+                                                        style={{ width: '100%' }}
+                                                    />
+                                                ) : (
+                                                    item.name
+                                                )}
+                                            </span>
                                             <span data-label="Норма на одиницю техніки:">
                                                 {isGod && isEditing ? (
                                                     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>

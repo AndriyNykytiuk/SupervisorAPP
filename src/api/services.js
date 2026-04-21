@@ -385,3 +385,71 @@ export const searchAllTools = async (query) => {
     const { data } = await api.get('/search/tools', { params: { q: query } });
     return data;
 };
+
+// ── Fire Events ──────────────────────────────────────
+export const fetchFireEvents = async () => {
+    const { data } = await api.get('/fire-events');
+    return data;
+};
+
+export const fetchFireEvent = async (id) => {
+    const { data } = await api.get(`/fire-events/${id}`);
+    return data;
+};
+
+export const createFireEvent = async (payload) => {
+    const { data } = await api.post('/fire-events', payload);
+    return data;
+};
+
+export const updateFireEvent = async (id, payload) => {
+    const { data } = await api.put(`/fire-events/${id}`, payload);
+    return data;
+};
+
+export const closeFireEvent = async (id) => {
+    const { data } = await api.put(`/fire-events/${id}/close`);
+    return data;
+};
+
+export const deleteFireEvent = async (id) => {
+    const { data } = await api.delete(`/fire-events/${id}`);
+    return data;
+};
+
+export const addEventTeam = async (eventId, payload) => {
+    const { data } = await api.post(`/fire-events/${eventId}/teams`, payload);
+    return data;
+};
+
+export const updateEventTeam = async (teamId, payload) => {
+    const { data } = await api.put(`/fire-events/teams/${teamId}`, payload);
+    return data;
+};
+
+export const removeEventTeam = async (teamId) => {
+    const { data } = await api.delete(`/fire-events/teams/${teamId}`);
+    return data;
+};
+
+export const fetchFireEventHistory = async (eventId) => {
+    const { data } = await api.get(`/fire-events/${eventId}/history`);
+    return data;
+};
+
+export const fetchAllFireEventHistory = async () => {
+    const { data } = await api.get('/fire-events/history');
+    return data;
+};
+
+// ── Garrison Tools (grouped, cross-brigade) ──────────
+export const fetchGarrisonTools = async () => {
+    const { data } = await api.get('/garrison-tools');
+    return data;
+};
+
+// ── Users by Brigade ─────────────────────────────────
+export const fetchUsersByBrigade = async (brigadeId) => {
+    const { data } = await api.get('/users', { params: { brigadeId } });
+    return data;
+};
