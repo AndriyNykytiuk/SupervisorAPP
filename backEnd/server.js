@@ -46,6 +46,11 @@ import surveysRouter from './routes/surveys.js'
 const app = express()
 const PORT = process.env.PORT || 3000
 
+// Render (and most PaaS) put the app behind a reverse proxy that adds
+// X-Forwarded-For. Without trust proxy, express-rate-limit v7 throws
+// ERR_ERL_UNEXPECTED_X_FORWARDED_FOR on every request → 500.
+app.set('trust proxy', 1)
+
 import fs from 'fs'
 
 // ── Security headers (HSTS, X-Frame-Options, X-Content-Type-Options, etc.) ──
