@@ -48,6 +48,7 @@ const Home = () => {
                             <li><a href="/tools">Відомості ПТО та АРО</a></li>
                             <li><a href="/extenguisLiquids">Вогонегасні речовини</a></li>
                             <li><Link to="/events">Події / пожежі</Link></li>
+                            <li><Link to="/surveys">Форми збору</Link></li>
                         </ul>
                     </div>
                 </div>
@@ -77,7 +78,8 @@ const Home = () => {
             </div>
 
             <div className="home-events-button">
-                <Link to="/events">Події / пожежі →</Link>
+             
+                <Link to="/surveys">Форми збору інформації →</Link>
             </div>
 
             {loading ? (

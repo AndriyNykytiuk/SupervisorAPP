@@ -76,7 +76,7 @@ h1, h2, h3, h4 {
 body {
   min-height: 100vh;
   margin: 0;
-  overflow-x: hidden;
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -105,4 +105,29 @@ a {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--gray-400);
+}
+
+/* ─── react-datepicker overrides ──────────── */
+.react-datepicker-popper {
+  z-index: 2000 !important;
+}
+.react-datepicker-wrapper {
+  width: 100%;
+}
+.react-datepicker__input-container input {
+  width: 100%;
+  padding: .5rem .6rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  font-size: .95rem;
+  color: #0f172a;
+  background: #fff;
+  font-family: inherit;
+}
+.react-datepicker__input-container input:focus {
+  outline: 2px solid #93c5fd;
+  outline-offset: 0;
+}
+.react-datepicker__close-icon::after {
+  background-color: #94a3b8;
 }

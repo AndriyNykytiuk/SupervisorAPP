@@ -65,8 +65,19 @@ const Header = ({ toggleSidebar }) => {
             {/* ─── Top Bar ─── */}
             <div className='header__top'>
                 <div className='header__top-inner'>
-                    <div className='header__brand'>
-                   
+                    <div
+                        className='header__brand'
+                        role='button'
+                        tabIndex={0}
+                        onClick={() => navigate('/')}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                navigate('/');
+                            }
+                        }}
+                        title='На головну'
+                    >
                         <img className='header__logo' src={logopict} alt="ДСНС Logo" />
                         <div className='header__brand-text'>
                             <h1 className='header__title'>Наглядова справа</h1>
@@ -120,7 +131,7 @@ const Header = ({ toggleSidebar }) => {
                             )
                         )}
 
-                        <div className='header__user-info' ref={avatarMenuRef}>
+                        <div className={`header__user-info${isGod ? ' is-god' : ''}`} ref={avatarMenuRef}>
                             <div
                                 className={`header__avatar${isGod ? ' is-god' : ''}`}
                                 onClick={isGod ? () => setShowAvatarMenu((v) => !v) : undefined}

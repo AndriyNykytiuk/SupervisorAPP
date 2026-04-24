@@ -453,3 +453,85 @@ export const fetchUsersByBrigade = async (brigadeId) => {
     const { data } = await api.get('/users', { params: { brigadeId } });
     return data;
 };
+
+// ── Surveys ──────────────────────────────────────────
+export const fetchSurveys = async () => {
+    const { data } = await api.get('/surveys');
+    return data;
+};
+
+export const fetchSurvey = async (id) => {
+    const { data } = await api.get(`/surveys/${id}`);
+    return data;
+};
+
+export const createSurvey = async (payload) => {
+    const { data } = await api.post('/surveys', payload);
+    return data;
+};
+
+export const updateSurvey = async (id, payload) => {
+    const { data } = await api.put(`/surveys/${id}`, payload);
+    return data;
+};
+
+export const closeSurvey = async (id) => {
+    const { data } = await api.put(`/surveys/${id}/close`);
+    return data;
+};
+
+export const deleteSurvey = async (id) => {
+    const { data } = await api.delete(`/surveys/${id}`);
+    return data;
+};
+
+export const upsertSurveyResponse = async (id, answers) => {
+    const { data } = await api.post(`/surveys/${id}/responses`, { answers });
+    return data;
+};
+
+export const fetchSurveyResponses = async (id) => {
+    const { data } = await api.get(`/surveys/${id}/responses`);
+    return data;
+};
+
+export const fetchSurveyAggregate = async (id) => {
+    const { data } = await api.get(`/surveys/${id}/aggregate`);
+    return data;
+};
+
+export const downloadSurveyCsv = async (id) => {
+    let response;
+    try {
+        response = await api.get(`/surveys/${id}/export.csv`, {
+            responseType: 'blob',
+        });
+    } catch (err) {
+        // Backend returned JSON error as a blob — read it back to text so toast shows real reason
+        if (err.response?.data instanceof Blob) {
+            const text = await err.response.data.text();
+            try {
+                const j = JSON.parse(text);
+                throw new Error(j.error || text);
+            } catch {
+                throw new Error(text || `HTTP ${err.response.status}`);
+            }
+        }
+        throw err;
+    }
+    const disposition = response.headers['content-disposition'] || '';
+    // Prefer RFC 5987 filename* (UTF-8) when present; fall back to plain filename=
+    const utf8Match = disposition.match(/filename\*=UTF-8''([^;]+)/i);
+    const plainMatch = disposition.match(/filename="?([^";]+)"?/);
+    const filename = utf8Match
+        ? decodeURIComponent(utf8Match[1])
+        : plainMatch?.[1] || `survey-${id}.csv`;
+    const url = URL.createObjectURL(response.data);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+};

@@ -140,7 +140,7 @@ const Transfercomponent = ({ selectedBrigade }) => {
 
     const handleTransfer = async () => {
         if (!toBrigadeId) {
-            setMessage('Оберіть бригаду призначення')
+            setMessage('Оберіть частину призначення')
             return
         }
 

@@ -4,9 +4,9 @@ import { authorize } from '../middleware/authorize.js'
 
 const router = Router()
 
-// Anyone authenticated can read
-router.get('/', ctrl.getAll)
-router.get('/:id', ctrl.getById)
+// Only GOD / SEMI-GOD can list users and fetch user details
+router.get('/', authorize('GOD', 'SEMI-GOD'), ctrl.getAll)
+router.get('/:id', authorize('GOD', 'SEMI-GOD'), ctrl.getById)
 
 
 

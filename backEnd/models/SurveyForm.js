@@ -1,30 +1,35 @@
 import { DataTypes } from 'sequelize'
 import sequelize from '../config/db.js'
 
-const FireEvent = sequelize.define('FireEvent', {
+const SurveyForm = sequelize.define('SurveyForm', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
     },
-    name: {
+    title: {
         type: DataTypes.STRING,
         allowNull: false,
-    },
-    address: {
-        type: DataTypes.STRING,
-        allowNull: true,
     },
     description: {
         type: DataTypes.TEXT,
         allowNull: true,
     },
-    startTime: {
-        type: DataTypes.DATE,
+    // Array of question objects. Each question:
+    //   { id, order, label, type, required, config }
+    // type ∈ 'number' | 'presence' | 'state' | 'text' | 'photo'
+    // config shape depends on type:
+    //   number   → { unit?: string }
+    //   state    → { options: string[] }
+    //   photo    → { maxFiles?: number }
+    //   presence → {}
+    //   text     → { multiline?: boolean }
+    questions: {
+        type: DataTypes.JSONB,
         allowNull: false,
-        defaultValue: DataTypes.NOW,
+        defaultValue: [],
     },
-    endTime: {
+    deadline: {
         type: DataTypes.DATE,
         allowNull: true,
     },
@@ -41,6 +46,10 @@ const FireEvent = sequelize.define('FireEvent', {
         type: DataTypes.STRING,
         allowNull: true,
     },
+    closedAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
 })
 
-export default FireEvent
+export default SurveyForm

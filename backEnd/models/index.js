@@ -25,6 +25,8 @@ import SpecialTool from './SpecialTool.js'
 import FireEvent from './FireEvent.js'
 import EventTeam from './EventTeam.js'
 import EventHistory from './EventHistory.js'
+import SurveyForm from './SurveyForm.js'
+import SurveyResponse from './SurveyResponse.js'
 
 // ── Associations ───────────────────────────────
 // One Detachment has many Brigades
@@ -145,5 +147,17 @@ EventTeam.belongsTo(User, { foreignKey: 'seniorUserId', as: 'SeniorUser' })
 User.hasMany(FireEvent, { foreignKey: 'createdByUserId' })
 FireEvent.belongsTo(User, { foreignKey: 'createdByUserId', as: 'Creator' })
 
-export { User, Detachment, Brigade, testList, TestItem, TestLinks, toolList, ToolItem, ElectricStations, WaterPumps, HydravlicTool, SwimTools, FoamAgent, Powder, ExtenguisDocumentLink, UsageLiquidsLog, backPackExtenguisher, EquipmentArchive, TransferLog, VehicleType, EquipmentItem, EquipmentAvailability, BrigadeVehicle, SpecialTool, FireEvent, EventTeam, EventHistory }
+// SurveyForm <-> SurveyResponse
+SurveyForm.hasMany(SurveyResponse, { foreignKey: 'surveyFormId', onDelete: 'CASCADE' })
+SurveyResponse.belongsTo(SurveyForm, { foreignKey: 'surveyFormId' })
+
+// SurveyResponse <-> Brigade
+Brigade.hasMany(SurveyResponse, { foreignKey: 'brigadeId' })
+SurveyResponse.belongsTo(Brigade, { foreignKey: 'brigadeId' })
+
+// SurveyResponse <-> User (submitter)
+User.hasMany(SurveyResponse, { foreignKey: 'submittedByUserId' })
+SurveyResponse.belongsTo(User, { foreignKey: 'submittedByUserId', as: 'Submitter' })
+
+export { User, Detachment, Brigade, testList, TestItem, TestLinks, toolList, ToolItem, ElectricStations, WaterPumps, HydravlicTool, SwimTools, FoamAgent, Powder, ExtenguisDocumentLink, UsageLiquidsLog, backPackExtenguisher, EquipmentArchive, TransferLog, VehicleType, EquipmentItem, EquipmentAvailability, BrigadeVehicle, SpecialTool, FireEvent, EventTeam, EventHistory, SurveyForm, SurveyResponse }
 

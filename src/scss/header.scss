@@ -32,6 +32,12 @@
         align-items: center;
         gap: 0.75rem;
         min-width: 0;
+        cursor: pointer;
+        outline: none;
+        transition: opacity 0.15s;
+
+        &:hover { opacity: 0.85; }
+        &:focus-visible { opacity: 0.85; }
     }
 
     &__hamburger {
@@ -411,6 +417,10 @@
 
         &__user-info {
             display: none;
+
+            &.is-god {
+                display: flex;
+            }
         }
 
         &__brigade-badge {

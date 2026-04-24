@@ -8,6 +8,7 @@ const __dirname = path.dirname(__filename)
 
 
 import express from 'express'
+import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import sequelize, { testConnection } from './config/db.js'
 import { authenticate } from './middleware/authenticate.js'
@@ -39,12 +40,31 @@ import searchRouter from './routes/search.js'
 import specialToolsRouter from './routes/specialTools.js'
 import fireEventsRouter from './routes/fireEvents.js'
 import garrisonToolsRouter from './routes/garrisonTools.js'
+import surveysRouter from './routes/surveys.js'
 
 
 const app = express()
 const PORT = process.env.PORT || 3000
 
 import fs from 'fs'
+
+// ── Security headers (HSTS, X-Frame-Options, X-Content-Type-Options, etc.) ──
+app.use(
+    helmet({
+        // Vite-built dist uses inline styles and module scripts — allow them in CSP
+        contentSecurityPolicy: {
+            directives: {
+                defaultSrc: ["'self'"],
+                scriptSrc: ["'self'", "'unsafe-inline'"],
+                styleSrc: ["'self'", "'unsafe-inline'"],
+                imgSrc: ["'self'", 'data:', 'https:'],
+                connectSrc: ["'self'", 'https:'],
+                fontSrc: ["'self'", 'data:', 'https:'],
+            },
+        },
+        crossOriginEmbedderPolicy: false,
+    })
+)
 
 // ── Middleware ──────────────────────────────────
 app.use(express.json({ limit: '1mb' }))
@@ -100,6 +120,7 @@ app.use('/api/search', authenticate, searchRouter)
 app.use('/api/special-tools', authenticate, specialToolsRouter)
 app.use('/api/fire-events', authenticate, fireEventsRouter)
 app.use('/api/garrison-tools', authenticate, garrisonToolsRouter)
+app.use('/api/surveys', authenticate, surveysRouter)
 
 // ── Catch-all: serve index.html for any other route (React routing) ─────
 const indexPath = path.resolve(__dirname, '../dist/index.html')
@@ -117,7 +138,10 @@ if (fs.existsSync(indexPath)) {
 // ── Error handler ──────────────────────────────
 app.use((err, req, res, next) => {
     console.error(err.stack)
-    res.status(500).json({ error: err.message })
+    const isProd = process.env.NODE_ENV === 'production'
+    res.status(500).json({
+        error: isProd ? 'Internal server error' : err.message,
+    })
 })
 
 // ── Запуск ─────────────────────────────────────
@@ -157,11 +181,13 @@ async function start() {
         await EquipmentItem.sync({ alter: true })
         await EquipmentAvailability.sync({ alter: true })
         await BrigadeVehicle.sync({ alter: true })
-        const { SpecialTool, FireEvent, EventTeam, EventHistory } = await import('./models/index.js')
+        const { SpecialTool, FireEvent, EventTeam, EventHistory, SurveyForm, SurveyResponse } = await import('./models/index.js')
         await SpecialTool.sync({ alter: true })
         await FireEvent.sync({ alter: true })
         await EventTeam.sync({ alter: true })
         await EventHistory.sync({ alter: true })
+        await SurveyForm.sync({ alter: true })
+        await SurveyResponse.sync({ alter: true })
         console.log('📦 Tables altered for development environment')
     } else {
         console.log('📦 Tables verified for production (no alter)')

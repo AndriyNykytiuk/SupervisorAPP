@@ -17,6 +17,8 @@ import Home from './Home.jsx'
 import GeneralRequirements from './GeneralRequirements.jsx'
 import EventsPage from './EventsPage.jsx'
 import EventHistoryPage from './EventHistoryPage.jsx'
+import SurveysPage from './SurveysPage.jsx'
+import SurveyPage from './SurveyPage.jsx'
 
 const Dashboard = () => {
     const { selectedBrigade } = useAuth()
@@ -53,6 +55,8 @@ const Dashboard = () => {
                         <Route path="/events" element={<EventsPage />} />
                         <Route path="/events/history" element={<EventHistoryPage />} />
                         <Route path="/events/:eventId/history" element={<EventHistoryPage />} />
+                        <Route path="/surveys" element={<SurveysPage />} />
+                        <Route path="/surveys/:id" element={<SurveyPage />} />
                     </Route>
                 </Routes>
             </div>

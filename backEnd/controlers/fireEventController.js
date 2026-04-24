@@ -70,7 +70,7 @@ export const getEventById = async (req, res, next) => {
 export const createEvent = async (req, res, next) => {
     const t = await sequelize.transaction()
     try {
-        const { name, address, description, latitude, longitude, startTime } = req.body
+        const { name, address, description, startTime } = req.body
         if (!name) {
             await t.rollback()
             return res.status(400).json({ error: 'Поле "назва" обовʼязкове' })
@@ -80,8 +80,6 @@ export const createEvent = async (req, res, next) => {
                 name,
                 address: address || null,
                 description: description || null,
-                latitude: latitude || null,
-                longitude: longitude || null,
                 startTime: startTime || new Date(),
                 status: 'open',
                 createdByUserId: req.user?.id || null,
@@ -114,8 +112,8 @@ export const updateEvent = async (req, res, next) => {
             await t.rollback()
             return res.status(403).json({ error: 'Подія закрита — редагування заборонене' })
         }
-        const { name, address, description, latitude, longitude, startTime } = req.body
-        const allowed = { name, address, description, latitude, longitude, startTime }
+        const { name, address, description, startTime } = req.body
+        const allowed = { name, address, description, startTime }
         await event.update(allowed, { transaction: t })
         await logHistory(t, event.id, req, 'event_updated', allowed)
         await t.commit()

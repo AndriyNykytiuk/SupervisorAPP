@@ -111,6 +111,9 @@ import { EquipmentItem, VehicleType, EquipmentAvailability } from '../models/ind
             if (!items || items.length === 0) {
                 return res.status(400).json({ error: 'items array is required' })
             }
+            if (items.length > 500) {
+                return res.status(400).json({ error: 'Too many items (max 500 per request)' })
+            }
 
             const typeIds = [...new Set(items.map((i) => i.vehicleTypeId).filter(Boolean))]
             const types = await VehicleType.findAll({ where: { id: typeIds }, transaction: t })

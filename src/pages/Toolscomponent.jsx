@@ -73,7 +73,7 @@ const Toolscomponent = ({ selectedBrigade }) => {
 
 
     return (
-        <div>
+        <div  className='toolscomponent-container'>
             <div className='toolscomponent-header' style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h2>Відомості ПТО та АРО</h2>
            

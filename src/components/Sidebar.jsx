@@ -30,6 +30,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                 <NavLink to="/tool-requierments" onClick={() => isOpen && toggleSidebar()}>Потреба ПТО та АРО</NavLink>
                 <NavLink to="/literature" onClick={() => isOpen && toggleSidebar()}>CFBT.UA</NavLink>
                 <NavLink to="/archives" onClick={() => isOpen && toggleSidebar()}>Архів</NavLink>
+                <NavLink to="/surveys" onClick={() => isOpen && toggleSidebar()}>Форми збору</NavLink>
             </div>
 
             <button className="sidebar-logout" onClick={logout} title="Вийти">

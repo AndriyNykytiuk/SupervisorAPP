@@ -116,11 +116,6 @@ const EventsPage = () => {
                                         {ev.endTime && <> → {fmtDate(ev.endTime)}</>}
                                     </p>
                                     {ev.description && <p className="fe-event-desc">{ev.description}</p>}
-                                    {(ev.latitude && ev.longitude) && (
-                                        <p className="fe-event-coords">
-                                            GPS: {ev.latitude}, {ev.longitude}
-                                        </p>
-                                    )}
                                 </div>
                                 <div className="fe-event-actions">
                                     <span className="fe-stat">

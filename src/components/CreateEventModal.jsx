@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { toast } from 'react-toastify'
 import { createFireEvent } from '../api/services.js'
+import DateTimePicker from './ui/DateTimePicker.jsx'
 import '../scss/fireevents.scss'
 
 const CreateEventModal = ({ isOpen, onClose, onCreated }) => {
@@ -8,9 +10,7 @@ const CreateEventModal = ({ isOpen, onClose, onCreated }) => {
         name: '',
         address: '',
         description: '',
-        latitude: '',
-        longitude: '',
-        startTime: new Date().toISOString().slice(0, 16),
+        startTime: new Date(),
     })
     const [saving, setSaving] = useState(false)
 
@@ -30,9 +30,7 @@ const CreateEventModal = ({ isOpen, onClose, onCreated }) => {
                 name: form.name.trim(),
                 address: form.address.trim() || null,
                 description: form.description.trim() || null,
-                latitude: form.latitude ? parseFloat(form.latitude) : null,
-                longitude: form.longitude ? parseFloat(form.longitude) : null,
-                startTime: form.startTime ? new Date(form.startTime).toISOString() : null,
+                startTime: form.startTime ? form.startTime.toISOString() : null,
             }
             const event = await createFireEvent(payload)
             toast.success('Подію створено')
@@ -45,7 +43,7 @@ const CreateEventModal = ({ isOpen, onClose, onCreated }) => {
         }
     }
 
-    return (
+    return createPortal(
         <div className="fe-modal-overlay" onClick={onClose}>
             <div className="fe-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="fe-modal-header">
@@ -72,34 +70,11 @@ const CreateEventModal = ({ isOpen, onClose, onCreated }) => {
                             placeholder="м. Рівне, вул..."
                         />
                     </label>
-                    <div className="fe-form-row">
-                        <label>
-                            Широта (GPS)
-                            <input
-                                type="number"
-                                step="any"
-                                value={form.latitude}
-                                onChange={(e) => update('latitude', e.target.value)}
-                                placeholder="50.6199"
-                            />
-                        </label>
-                        <label>
-                            Довгота (GPS)
-                            <input
-                                type="number"
-                                step="any"
-                                value={form.longitude}
-                                onChange={(e) => update('longitude', e.target.value)}
-                                placeholder="26.2516"
-                            />
-                        </label>
-                    </div>
                     <label>
                         Початок
-                        <input
-                            type="datetime-local"
+                        <DateTimePicker
                             value={form.startTime}
-                            onChange={(e) => update('startTime', e.target.value)}
+                            onChange={(d) => update('startTime', d)}
                         />
                     </label>
                     <label>
@@ -121,7 +96,8 @@ const CreateEventModal = ({ isOpen, onClose, onCreated }) => {
                     </div>
                 </form>
             </div>
-        </div>
+        </div>,
+        document.body
     )
 }
 
