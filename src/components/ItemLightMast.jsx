@@ -155,7 +155,7 @@ const ItemLightMast = ({ selectedBrigade, searchQuery = '', transferBrigades = [
     if (searchQuery && !listNameMatch && !hasMatchingItems) return null
 
     return (
-        <div className='item-specialtool-wrapper' ref={wrapperRef}>
+        <div className='item-specialtool-wrapper lightmast' ref={wrapperRef}>
             <div className='item-header' onClick={() => setIsExpanded(prev => !prev)} style={{ cursor: 'pointer' }}>
                 <div className='item-header-title'>
                     <h2>Світлові мачти - {elements?.length || 0}</h2>

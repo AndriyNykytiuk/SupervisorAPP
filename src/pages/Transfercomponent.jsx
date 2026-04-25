@@ -221,6 +221,7 @@ const Transfercomponent = ({ selectedBrigade }) => {
                 chainSawIds: selectedChainSaws,
                 pneumaticToolIds: selectedPneumaticTools,
                 petrolCutterIds: selectedPetrolCutters,
+                lightMastIds: selectedLightMasts,
                 swimToolTransfers: transferArray,
                 toBrigadeId: Number(toBrigadeId),
             });
@@ -236,6 +237,7 @@ const Transfercomponent = ({ selectedBrigade }) => {
                 (data.chainSaws?.length || 0) +
                 (data.pneumaticTools?.length || 0) +
                 (data.petrolCutters?.length || 0) +
+                (data.lightMasts?.length || 0) +
                 (data.swimTools?.length || 0)
             setMessage(`✅ Передано ${count} об'єктів/категорій`)
             setSelectedTestItems([])
@@ -800,6 +802,63 @@ const Transfercomponent = ({ selectedBrigade }) => {
                     </div>
                 )
             })}
+
+            {/* ── Світлові мачти ── */}
+            {(!searchQuery ||
+                'Світлові мачти'.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                lightMasts.some(i =>
+                    i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    i.brand?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    i.power?.toString().includes(searchQuery.toLowerCase())
+                )
+            ) && (
+                <div className='transfer-wrapper'>
+                    <SectionHeader sectionKey='lightMasts' title='Світлові мачти' />
+                    {isOpen('lightMasts') && (
+                        <>
+                            {lightMasts?.length > 0 && (
+                                <div className='item-header-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.2fr 1fr 0.5fr 0.8fr 1.2fr 0.7fr' }}>
+                                    <span className='transfer-checkbox'></span>
+                                    <span>назва</span>
+                                    <span>марка</span>
+                                    <span>рік</span>
+                                    <span>потужність (Вт)</span>
+                                    <span>місцезнаходження</span>
+                                    <span>подовжувачі</span>
+                                </div>
+                            )}
+                            <div className='item-body'>
+                                {lightMasts?.length > 0 ? (
+                                    lightMasts.filter(i =>
+                                        !searchQuery ||
+                                        'Світлові мачти'.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                        i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                        i.brand?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                        i.power?.toString().includes(searchQuery.toLowerCase())
+                                    ).map((item) => (
+                                        <div key={item.id} className='item-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.2fr 1fr 0.5fr 0.8fr 1.2fr 0.7fr' }}>
+                                            <input
+                                                type='checkbox'
+                                                className='transfer-checkbox'
+                                                checked={selectedLightMasts.includes(item.id)}
+                                                onChange={() => toggleLightMast(item.id)}
+                                            />
+                                            <span title='Назва'>{item.name}</span>
+                                            <span title='Марка'>{item.brand || '—'}</span>
+                                            <span title='Рік'>{item.yearOfPurchase || '—'}</span>
+                                            <span title='Потужність (Вт)'>{item.power || '—'}</span>
+                                            <span title='Місцезнаходження'>{item.placeOfStorage || '—'}</span>
+                                            <span title='Подовжувачі'>{item.extensionCordsCount ?? '—'}</span>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p>Частина такого обладнання поки немає</p>
+                                )}
+                            </div>
+                        </>
+                    )}
+                </div>
+            )}
         </div>
     )
 }

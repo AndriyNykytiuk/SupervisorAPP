@@ -168,11 +168,12 @@ async function start() {
 
     // ── Safe one-time migrations (run on ALL environments) ──────
     try {
-        const { VehicleType, EquipmentItem, EquipmentAvailability, BrigadeVehicle } = await import('./models/index.js')
+        const { VehicleType, EquipmentItem, EquipmentAvailability, BrigadeVehicle, testList } = await import('./models/index.js')
         await VehicleType.sync({ alter: true })
         await EquipmentItem.sync({ alter: true })
         await EquipmentAvailability.sync({ alter: true })
         await BrigadeVehicle.sync({ alter: true })
+        await testList.sync({ alter: true })
         console.log('📦 Core equipment tables successfully synchronized with alter:true')
     } catch (e) {
         console.error('Migration error:', e.message)

@@ -1,6 +1,29 @@
 import { Op } from 'sequelize'
 import { TestItem, testList, Brigade } from '../models/index.js'
 
+// Compute nextTestDate = testDate + intervalMonths (months) when:
+//   - body.testDate is provided AND
+//   - body.nextTestDate is missing/null/empty (user can override by sending it explicitly) AND
+//   - target testList has intervalMonths set.
+// Mutates `body` in place.
+const applyAutoNextTestDate = async (body, fallbackTestListId) => {
+    if (!body || !body.testDate) return
+    const hasManualNext = body.nextTestDate !== undefined && body.nextTestDate !== null && body.nextTestDate !== ''
+    if (hasManualNext) return
+
+    const tlId = body.testListId ?? fallbackTestListId
+    if (!tlId) return
+
+    const list = await testList.findByPk(tlId)
+    if (!list || !list.intervalMonths) return
+
+    const base = new Date(body.testDate)
+    if (Number.isNaN(base.getTime())) return
+    const next = new Date(base)
+    next.setMonth(next.getMonth() + list.intervalMonths)
+    body.nextTestDate = next.toISOString()
+}
+
 // GET /api/test-items — scoped by role
 export const getAll = async (req, res, next) => {
     try {
@@ -226,6 +249,8 @@ export const getByBrigadeAndList = async (req, res, next) => {
 // POST /api/test-items — body must include { name, testListId, brigadeId }
 export const create = async (req, res, next) => {
     try {
+        await applyAutoNextTestDate(req.body)
+
         // GOD: can create for any brigade+list
         if (!req.scope) {
             const item = await TestItem.create(req.body)
@@ -257,6 +282,8 @@ export const update = async (req, res, next) => {
     try {
         const item = await TestItem.findByPk(req.params.id)
         if (!item) return res.status(404).json({ error: 'Test item not found' })
+
+        await applyAutoNextTestDate(req.body, item.testListId)
 
         // GOD: can update any
         if (!req.scope) {
@@ -384,32 +411,54 @@ export const bulkUpdate = async (req, res, next) => {
             return res.status(400).json({ error: 'No valid fields to update' })
         }
 
-        // GOD: can update any
-        if (!req.scope) {
-            await TestItem.update(updatePayload, { where: { id: itemIds } })
-            const updated = await TestItem.findAll({ where: { id: itemIds }, include: [testList, Brigade] })
-            return res.json(updated)
-        }
-
         // SEMI-GOD: read-only
-        if (req.scope.detachmentId && !req.scope.brigadeId) {
+        if (req.scope?.detachmentId && !req.scope.brigadeId) {
             return res.status(403).json({ error: 'Forbidden: SEMI-GOD is read-only' })
         }
 
-        // RW: can update only their brigade's items
-        if (req.scope.brigadeId) {
+        // RW: ownership check
+        if (req.scope?.brigadeId) {
             const items = await TestItem.findAll({ where: { id: itemIds } })
             const allOwned = items.every(item => item.brigadeId === req.scope.brigadeId)
             if (!allOwned) {
                 return res.status(403).json({ error: 'Forbidden: some items do not belong to your brigade' })
             }
-
-            await TestItem.update(updatePayload, { where: { id: itemIds } })
-            const updated = await TestItem.findAll({ where: { id: itemIds }, include: [testList, Brigade] })
-            return res.json(updated)
+        } else if (req.scope) {
+            return res.status(403).json({ error: 'Forbidden: insufficient permissions' })
         }
 
-        return res.status(403).json({ error: 'Forbidden: insufficient permissions' })
+        // Auto-compute nextTestDate per item when testDate is set without explicit nextTestDate
+        const hasManualNext = updatePayload.nextTestDate !== undefined
+            && updatePayload.nextTestDate !== null
+            && updatePayload.nextTestDate !== ''
+        if (updatePayload.testDate && !hasManualNext) {
+            const targets = await TestItem.findAll({ where: { id: itemIds }, attributes: ['id', 'testListId'] })
+            const listIds = [...new Set(targets.map(t => t.testListId).filter(Boolean))]
+            const lists = await testList.findAll({ where: { id: listIds } })
+            const intervalById = new Map(lists.map(l => [l.id, l.intervalMonths]))
+
+            const base = new Date(updatePayload.testDate)
+            const validBase = !Number.isNaN(base.getTime())
+
+            for (const t of targets) {
+                const months = intervalById.get(t.testListId)
+                if (validBase && months) {
+                    const next = new Date(base)
+                    next.setMonth(next.getMonth() + months)
+                    await TestItem.update(
+                        { ...updatePayload, nextTestDate: next.toISOString() },
+                        { where: { id: t.id } }
+                    )
+                } else {
+                    await TestItem.update(updatePayload, { where: { id: t.id } })
+                }
+            }
+        } else {
+            await TestItem.update(updatePayload, { where: { id: itemIds } })
+        }
+
+        const updated = await TestItem.findAll({ where: { id: itemIds }, include: [testList, Brigade] })
+        return res.json(updated)
     } catch (err) {
         next(err)
     }

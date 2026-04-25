@@ -1,13 +1,17 @@
 import { Op } from 'sequelize';
 import sequelize from '../config/db.js';
-import { 
-    ElectricStations, 
-    WaterPumps, 
-    HydravlicTool, 
-    backPackExtenguisher, 
-    ToolItem, 
+import {
+    ElectricStations,
+    WaterPumps,
+    HydravlicTool,
+    backPackExtenguisher,
+    ToolItem,
     SpecialTool,
-    Brigade 
+    ChainSaw,
+    PneumaticTool,
+    PetrolCutter,
+    LightMast,
+    Brigade
 } from '../models/index.js';
 
 export const searchAllTools = async (req, res) => {
@@ -141,6 +145,91 @@ export const searchAllTools = async (req, res) => {
             name: item.name,
             type: 'Спеціальне обладнання',
             characteristic: item.quantity,
+            brigadeId: item.Brigade?.id,
+            brigadeName: item.Brigade?.name,
+            originalId: item.id
+        }));
+
+        const isChainSawMatch = 'бензопили'.includes(qLower) || 'бензопила'.includes(qLower);
+        const chainSaws = await ChainSaw.findAll({
+            where: isChainSawMatch ? {} : {
+                [Op.or]: [
+                    { name: { [Op.iLike]: searchTerm } },
+                    { placeOfStorage: { [Op.iLike]: searchTerm } },
+                    { notes: { [Op.iLike]: searchTerm } }
+                ]
+            },
+            include: [includeBrigade]
+        });
+        chainSaws.forEach(item => results.push({
+            id: `cs_${item.id}`,
+            name: item.name,
+            type: 'Бензопили',
+            characteristic: item.placeOfStorage,
+            brigadeId: item.Brigade?.id,
+            brigadeName: item.Brigade?.name,
+            originalId: item.id
+        }));
+
+        const isPneumaticMatch = 'пневматичний інструмент'.includes(qLower) || 'пневматика'.includes(qLower);
+        const pneumaticTools = await PneumaticTool.findAll({
+            where: isPneumaticMatch ? {} : {
+                [Op.or]: [
+                    { name: { [Op.iLike]: searchTerm } },
+                    { placeOfStorage: { [Op.iLike]: searchTerm } },
+                    { notes: { [Op.iLike]: searchTerm } }
+                ]
+            },
+            include: [includeBrigade]
+        });
+        pneumaticTools.forEach(item => results.push({
+            id: `pt_${item.id}`,
+            name: item.name,
+            type: 'Пневматичний інструмент',
+            characteristic: item.placeOfStorage,
+            brigadeId: item.Brigade?.id,
+            brigadeName: item.Brigade?.name,
+            originalId: item.id
+        }));
+
+        const isPetrolCutterMatch = 'бензорізи'.includes(qLower) || 'бензоріз'.includes(qLower);
+        const petrolCutters = await PetrolCutter.findAll({
+            where: isPetrolCutterMatch ? {} : {
+                [Op.or]: [
+                    { name: { [Op.iLike]: searchTerm } },
+                    { placeOfStorage: { [Op.iLike]: searchTerm } },
+                    { notes: { [Op.iLike]: searchTerm } }
+                ]
+            },
+            include: [includeBrigade]
+        });
+        petrolCutters.forEach(item => results.push({
+            id: `pc_${item.id}`,
+            name: item.name,
+            type: 'Бензорізи',
+            characteristic: item.placeOfStorage,
+            brigadeId: item.Brigade?.id,
+            brigadeName: item.Brigade?.name,
+            originalId: item.id
+        }));
+
+        const isLightMastMatch = 'світлові мачти'.includes(qLower) || 'світлова мачта'.includes(qLower) || 'мачта'.includes(qLower) || 'мачти'.includes(qLower);
+        const lightMasts = await LightMast.findAll({
+            where: isLightMastMatch ? {} : {
+                [Op.or]: [
+                    { name: { [Op.iLike]: searchTerm } },
+                    { brand: { [Op.iLike]: searchTerm } },
+                    { placeOfStorage: { [Op.iLike]: searchTerm } },
+                    sequelize.where(sequelize.cast(sequelize.col('power'), 'varchar'), { [Op.iLike]: searchTerm })
+                ]
+            },
+            include: [includeBrigade]
+        });
+        lightMasts.forEach(item => results.push({
+            id: `lm_${item.id}`,
+            name: item.name,
+            type: 'Світлові мачти',
+            characteristic: [item.brand, item.power ? `${item.power} Вт` : null].filter(Boolean).join(' / ') || null,
             brigadeId: item.Brigade?.id,
             brigadeName: item.Brigade?.name,
             originalId: item.id

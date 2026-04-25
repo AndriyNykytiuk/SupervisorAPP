@@ -21,10 +21,24 @@ export const getById = async (req, res, next) => {
     }
 }
 
+const ALLOWED_FIELDS = ['name', 'intervalMonths']
+
+const pickAllowed = (body) => {
+    const payload = {}
+    for (const field of ALLOWED_FIELDS) {
+        if (body[field] !== undefined) {
+            payload[field] = field === 'intervalMonths'
+                ? (body[field] === null || body[field] === '' ? null : parseInt(body[field], 10))
+                : body[field]
+        }
+    }
+    return payload
+}
+
 // POST /api/test-lists — GOD only
 export const create = async (req, res, next) => {
     try {
-        const list = await testList.create(req.body)
+        const list = await testList.create(pickAllowed(req.body))
         res.status(201).json(list)
     } catch (err) {
         next(err)
@@ -36,7 +50,7 @@ export const update = async (req, res, next) => {
     try {
         const list = await testList.findByPk(req.params.id)
         if (!list) return res.status(404).json({ error: 'Test list not found' })
-        await list.update(req.body)
+        await list.update(pickAllowed(req.body))
         res.json(list)
     } catch (err) {
         next(err)

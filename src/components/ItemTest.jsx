@@ -1,12 +1,28 @@
 import React, { useState } from 'react'
-import { MdUpdate } from "react-icons/md";
+import { MdUpdate, MdSettings } from "react-icons/md";
 import { FaArrowDownWideShort } from "react-icons/fa6";
 import { MdCheckBox, MdCheckBoxOutlineBlank } from "react-icons/md";
-import { createTestItem, updateTestItem, bulkUpdateTestItems, archiveEquipmentItem } from '../api/services.js';
+import { toast } from 'react-toastify'
+import { createTestItem, updateTestItem, bulkUpdateTestItems, archiveEquipmentItem, updateTestList } from '../api/services.js';
+import { useAuth } from '../context/AuthContext.jsx'
 import ArchiveModal from './ArchiveModal.jsx'
 import '../scss/itemtest.scss'
 
+// testDate (YYYY-MM-DD) + months → YYYY-MM-DD; preserves local date semantics.
+const addMonthsToISODate = (isoDateStr, months) => {
+    if (!isoDateStr || !months) return ''
+    const [y, m, d] = isoDateStr.split('-').map(Number)
+    if (!y || !m || !d) return ''
+    const dt = new Date(y, m - 1, d)
+    dt.setMonth(dt.getMonth() + months)
+    const yyyy = dt.getFullYear()
+    const mm = String(dt.getMonth() + 1).padStart(2, '0')
+    const dd = String(dt.getDate()).padStart(2, '0')
+    return `${yyyy}-${mm}-${dd}`
+}
+
 const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }) => {
+    const { user } = useAuth()
     const [showForm, setShowForm] = useState(false)
     const [isExpanded, setIsExpanded] = useState(false)
 
@@ -39,6 +55,34 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
     // ── Archive state ──
     const [itemToArchive, setItemToArchive] = useState(null)
     const [isBulkSaving, setIsBulkSaving] = useState(false)
+
+    // ── GOD interval-settings modal ──
+    const [showIntervalModal, setShowIntervalModal] = useState(false)
+    const [intervalDraft, setIntervalDraft] = useState('')
+    const [isSavingInterval, setIsSavingInterval] = useState(false)
+
+    const openIntervalModal = () => {
+        setIntervalDraft(testList.intervalMonths ?? '')
+        setShowIntervalModal(true)
+    }
+
+    const handleSaveInterval = async (e) => {
+        e.preventDefault()
+        setIsSavingInterval(true)
+        try {
+            const raw = String(intervalDraft).trim()
+            const value = raw === '' ? null : parseInt(raw, 10)
+            await updateTestList(testList.id, { intervalMonths: value })
+            toast.success('Інтервал збережено')
+            setShowIntervalModal(false)
+            onItemCreated()
+        } catch (err) {
+            toast.error(err.response?.data?.error || 'Помилка збереження інтервалу')
+            console.error('Failed to update testList interval:', err)
+        } finally {
+            setIsSavingInterval(false)
+        }
+    }
 
     const handleCreate = async (e) => {
         e.preventDefault()
@@ -124,11 +168,21 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
     }
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value })
+        const { name, value } = e.target
+        const next = { ...formData, [name]: value }
+        if (name === 'testDate' && testList.intervalMonths) {
+            next.nextTestDate = addMonthsToISODate(value, testList.intervalMonths)
+        }
+        setFormData(next)
     }
 
     const handleEditChange = (e) => {
-        setEditFormData({ ...editFormData, [e.target.name]: e.target.value })
+        const { name, value } = e.target
+        const next = { ...editFormData, [name]: value }
+        if (name === 'testDate' && testList.intervalMonths) {
+            next.nextTestDate = addMonthsToISODate(value, testList.intervalMonths)
+        }
+        setEditFormData(next)
     }
 
     const handleEditClick = (item) => {
@@ -173,7 +227,12 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
     }
 
     const handleBulkChange = (e) => {
-        setBulkFormData({ ...bulkFormData, [e.target.name]: e.target.value })
+        const { name, value } = e.target
+        const next = { ...bulkFormData, [name]: value }
+        if (name === 'testDate' && testList.intervalMonths) {
+            next.nextTestDate = addMonthsToISODate(value, testList.intervalMonths)
+        }
+        setBulkFormData(next)
     }
 
     const handleBulkSubmit = async (e) => {
@@ -247,11 +306,23 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
             <div className='item-header' onClick={() => setIsExpanded(!isExpanded)} style={{ cursor: 'pointer' }}>
                 <div className='item-header-title'>
                     <div className='item-header-title-add' style={{ flex: 1, userSelect: 'none' }}>
-                        <h2>{testList.name} - {testList.TestItems?.length} шт.</h2>
-                       
+                        <h2>
+                            {testList.name} - {testList.TestItems?.length} шт.
+                            {testList.intervalMonths ? <span style={{ fontSize: '0.75em', fontWeight: 400, marginLeft: '0.5rem', color: 'var(--gray-600)' }}>(інтервал: {testList.intervalMonths} міс)</span> : null}
+                        </h2>
                     </div>
 
                     <div className='item-header-actions'>
+                        {user?.role === 'GOD' && (
+                            <button
+                                type='button'
+                                title='Налаштувати інтервал випробувань'
+                                onClick={(e) => { e.stopPropagation(); openIntervalModal(); }}
+                                style={{ background: 'transparent', border: 'none', color: 'var(--accent)', cursor: 'pointer', padding: '0.25rem', display: 'flex', alignItems: 'center' }}
+                            >
+                                <MdSettings size={20} />
+                            </button>
+                        )}
                         {isExpanded && testList.TestItems?.length > 0 && (
                             <h3 className={`bulk-select-btn ${isSelecting ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); toggleSelectMode(); }}>
                                 {isSelecting ? '✕ Скасувати' : '☑ Обрати'}
@@ -355,6 +426,35 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
 
                             <button type='submit' disabled={isBulkSaving}>
                                 {isBulkSaving ? 'Збереження...' : `Оновити ${selectedIds.length} елементів`}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {showIntervalModal && (
+                <div className='modal-overlay' onClick={() => setShowIntervalModal(false)}>
+                    <div className='modal-content' onClick={(e) => e.stopPropagation()} style={{ maxWidth: '480px' }}>
+                        <div className='modal-header'>
+                            <h3>Інтервал для «{testList.name}»</h3>
+                            <button className='close-btn' onClick={() => setShowIntervalModal(false)}>✕</button>
+                        </div>
+                        <form className='add-form' onSubmit={handleSaveInterval}>
+                            <label>Періодичність випробувань (місяці):</label>
+                            <input
+                                type='number'
+                                min='0'
+                                step='1'
+                                value={intervalDraft}
+                                onChange={(e) => setIntervalDraft(e.target.value)}
+                                placeholder='напр. 12'
+                                autoFocus
+                            />
+                            <p style={{ fontSize: '0.85rem', color: 'var(--gray-600)', margin: '0.25rem 0 0.75rem' }}>
+                                Коли встановлено — поле «наступне випробування» автоматично заповнюється при зміні дати випробування. Залиште порожнім, щоб вимкнути авто-розрахунок.
+                            </p>
+                            <button type='submit' disabled={isSavingInterval}>
+                                {isSavingInterval ? 'Збереження...' : 'Зберегти'}
                             </button>
                         </form>
                     </div>

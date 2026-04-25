@@ -49,14 +49,22 @@
     .action-buttons-wrap { display: flex; justify-content: center; gap: 0.5rem; }
     .update-btn { @include btn-update; }
     .delete-btn { @include btn-delete; }
-    
-    .edit-form { 
-        @include edit-form; 
+
+    .edit-form {
+        @include edit-form;
         display: grid;
         grid-template-columns: 2fr 1fr 1fr 1fr 0.8fr;
         gap: 0.5rem;
-        input { min-width: 40px; padding: 0.3rem;} 
+        input { min-width: 40px; padding: 0.3rem;}
         .edit-actions { display: flex; flex-direction: column; gap: 0.5rem; max-width: 140px; }
+    }
+
+    &.lightmast {
+        .item-header .item-header-row,
+        .item-row,
+        .edit-form {
+            grid-template-columns: 1.4fr 1fr 0.7fr 1fr 1.2fr 0.9fr 0.8fr;
+        }
     }
 
     @include mobile-card-layout;

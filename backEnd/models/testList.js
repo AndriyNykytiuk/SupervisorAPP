@@ -11,6 +11,10 @@ const testList = sequelize.define('testList', {
         type: DataTypes.STRING,
         allowNull: false,
     },
+    intervalMonths: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
 })
 
 export default testList

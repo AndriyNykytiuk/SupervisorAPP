@@ -48,6 +48,12 @@ export const fetchWastedTestItems = async () => {
     return data;
 };
 
+// ── Test Lists ───────────────────────────────────────
+export const updateTestList = async (id, payload) => {
+    const { data } = await api.put(`/test-lists/${id}`, payload);
+    return data;
+};
+
 // ── Test Links ───────────────────────────────────────
 export const fetchTestLinksByBrigade = async (brigadeId) => {
     const { data } = await api.get(`/test-links/brigade/${brigadeId}`);
