@@ -291,6 +291,111 @@ export const deleteSpecialTool = async (id) => {
     return data;
 };
 
+// ── Chain Saws ───────────────────────────────────────
+export const fetchChainSawsByBrigade = async (brigadeId) => {
+    const { data } = await api.get(`/chain-saws/brigade/${brigadeId}`);
+    return data;
+};
+
+export const createChainSaw = async (payload) => {
+    const { data } = await api.post('/chain-saws', payload);
+    return data;
+};
+
+export const updateChainSaw = async (id, payload) => {
+    const { data } = await api.put(`/chain-saws/${id}`, payload);
+    return data;
+};
+
+export const deleteChainSaw = async (id) => {
+    const { data } = await api.delete(`/chain-saws/${id}`);
+    return data;
+};
+
+// ── Pneumatic Tools ──────────────────────────────────
+export const fetchPneumaticToolsByBrigade = async (brigadeId) => {
+    const { data } = await api.get(`/pneumatic-tools/brigade/${brigadeId}`);
+    return data;
+};
+
+export const createPneumaticTool = async (payload) => {
+    const { data } = await api.post('/pneumatic-tools', payload);
+    return data;
+};
+
+export const updatePneumaticTool = async (id, payload) => {
+    const { data } = await api.put(`/pneumatic-tools/${id}`, payload);
+    return data;
+};
+
+export const deletePneumaticTool = async (id) => {
+    const { data } = await api.delete(`/pneumatic-tools/${id}`);
+    return data;
+};
+
+// ── Petrol Cutters ───────────────────────────────────
+export const fetchPetrolCuttersByBrigade = async (brigadeId) => {
+    const { data } = await api.get(`/petrol-cutters/brigade/${brigadeId}`);
+    return data;
+};
+
+export const createPetrolCutter = async (payload) => {
+    const { data } = await api.post('/petrol-cutters', payload);
+    return data;
+};
+
+export const updatePetrolCutter = async (id, payload) => {
+    const { data } = await api.put(`/petrol-cutters/${id}`, payload);
+    return data;
+};
+
+export const deletePetrolCutter = async (id) => {
+    const { data } = await api.delete(`/petrol-cutters/${id}`);
+    return data;
+};
+
+// ── Light Masts ──────────────────────────────────────
+export const fetchLightMastsByBrigade = async (brigadeId) => {
+    const { data } = await api.get(`/light-masts/brigade/${brigadeId}`);
+    return data;
+};
+
+export const createLightMast = async (payload) => {
+    const { data } = await api.post('/light-masts', payload);
+    return data;
+};
+
+export const updateLightMast = async (id, payload) => {
+    const { data } = await api.put(`/light-masts/${id}`, payload);
+    return data;
+};
+
+export const deleteLightMast = async (id) => {
+    const { data } = await api.delete(`/light-masts/${id}`);
+    return data;
+};
+
+// ── Fire Extenguishers ───────────────────────────────
+export const fetchFireExtenguishersByBrigade = async (brigadeId) => {
+    const { data } = await api.get(`/fire-extenguishers/brigade/${brigadeId}`);
+    return data;
+};
+
+export const createFireExtenguisher = async (payload) => {
+    const { data } = await api.post('/fire-extenguishers', payload);
+    return data;
+};
+
+export const updateFireExtenguisher = async (id, payload) => {
+    const { data } = await api.put(`/fire-extenguishers/${id}`, payload);
+    return data;
+};
+
+export const deleteFireExtenguisher = async (id) => {
+    const { data } = await api.delete(`/fire-extenguishers/${id}`);
+    return data;
+};
+
 // ── Generic Datas ────────────────────────────────────
 export const fetchGenericDatas = async () => {
     const { data } = await api.get('/generic-datas');

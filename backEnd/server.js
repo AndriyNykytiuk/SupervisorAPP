@@ -41,6 +41,11 @@ import specialToolsRouter from './routes/specialTools.js'
 import fireEventsRouter from './routes/fireEvents.js'
 import garrisonToolsRouter from './routes/garrisonTools.js'
 import surveysRouter from './routes/surveys.js'
+import chainSawsRouter from './routes/chainSaws.js'
+import pneumaticToolsRouter from './routes/pneumaticTools.js'
+import petrolCuttersRouter from './routes/petrolCutters.js'
+import fireExtenguishersRouter from './routes/fireExtenguishers.js'
+import lightMastsRouter from './routes/lightMasts.js'
 
 
 const app = express()
@@ -126,6 +131,11 @@ app.use('/api/special-tools', authenticate, specialToolsRouter)
 app.use('/api/fire-events', authenticate, fireEventsRouter)
 app.use('/api/garrison-tools', authenticate, garrisonToolsRouter)
 app.use('/api/surveys', authenticate, surveysRouter)
+app.use('/api/chain-saws', authenticate, chainSawsRouter)
+app.use('/api/pneumatic-tools', authenticate, pneumaticToolsRouter)
+app.use('/api/petrol-cutters', authenticate, petrolCuttersRouter)
+app.use('/api/fire-extenguishers', authenticate, fireExtenguishersRouter)
+app.use('/api/light-masts', authenticate, lightMastsRouter)
 
 // ── Catch-all: serve index.html for any other route (React routing) ─────
 const indexPath = path.resolve(__dirname, '../dist/index.html')
@@ -186,13 +196,18 @@ async function start() {
         await EquipmentItem.sync({ alter: true })
         await EquipmentAvailability.sync({ alter: true })
         await BrigadeVehicle.sync({ alter: true })
-        const { SpecialTool, FireEvent, EventTeam, EventHistory, SurveyForm, SurveyResponse } = await import('./models/index.js')
+        const { SpecialTool, FireEvent, EventTeam, EventHistory, SurveyForm, SurveyResponse, ChainSaw, PneumaticTool, PetrolCutter, FireExtenguisher, LightMast } = await import('./models/index.js')
         await SpecialTool.sync({ alter: true })
         await FireEvent.sync({ alter: true })
         await EventTeam.sync({ alter: true })
         await EventHistory.sync({ alter: true })
         await SurveyForm.sync({ alter: true })
         await SurveyResponse.sync({ alter: true })
+        await ChainSaw.sync({ alter: true })
+        await PneumaticTool.sync({ alter: true })
+        await PetrolCutter.sync({ alter: true })
+        await FireExtenguisher.sync({ alter: true })
+        await LightMast.sync({ alter: true })
         console.log('📦 Tables altered for development environment')
     } else {
         console.log('📦 Tables verified for production (no alter)')

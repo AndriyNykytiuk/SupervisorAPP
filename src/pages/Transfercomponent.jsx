@@ -17,6 +17,10 @@ const Transfercomponent = ({ selectedBrigade }) => {
     const [swimTools, setSwimTools] = useState([])
     const [specialTools, setSpecialTools] = useState([])
     const [backPackExtenguishers, setBackPackExtenguishers] = useState([])
+    const [chainSaws, setChainSaws] = useState([])
+    const [pneumaticTools, setPneumaticTools] = useState([])
+    const [petrolCutters, setPetrolCutters] = useState([])
+    const [lightMasts, setLightMasts] = useState([])
     const [selectedTestItems, setSelectedTestItems] = useState([])
     const [selectedToolItems, setSelectedToolItems] = useState([])
     const [selectedElectricStations, setSelectedElectricStations] = useState([])
@@ -24,6 +28,10 @@ const Transfercomponent = ({ selectedBrigade }) => {
     const [selectedHydravlicTools, setSelectedHydravlicTools] = useState([])
     const [selectedSpecialTools, setSelectedSpecialTools] = useState([])
     const [selectedBackPackExtenguishers, setSelectedBackPackExtenguishers] = useState([])
+    const [selectedChainSaws, setSelectedChainSaws] = useState([])
+    const [selectedPneumaticTools, setSelectedPneumaticTools] = useState([])
+    const [selectedPetrolCutters, setSelectedPetrolCutters] = useState([])
+    const [selectedLightMasts, setSelectedLightMasts] = useState([])
     const [swimToolTransfers, setSwimToolTransfers] = useState({})
     const [toBrigadeId, setToBrigadeId] = useState('')
     const [brigades, setBrigades] = useState([])
@@ -49,6 +57,10 @@ const Transfercomponent = ({ selectedBrigade }) => {
             setSwimTools(data.swimTools || [])
             setSpecialTools(data.specialTools || [])
             setBackPackExtenguishers(data.backPackExtenguishers || [])
+            setChainSaws(data.chainSaws || [])
+            setPneumaticTools(data.pneumaticTools || [])
+            setPetrolCutters(data.petrolCutters || [])
+            setLightMasts(data.lightMasts || [])
             setSelectedTestItems([])
             setSelectedToolItems([])
             setSelectedElectricStations([])
@@ -56,6 +68,10 @@ const Transfercomponent = ({ selectedBrigade }) => {
             setSelectedHydravlicTools([])
             setSelectedSpecialTools([])
             setSelectedBackPackExtenguishers([])
+            setSelectedChainSaws([])
+            setSelectedPneumaticTools([])
+            setSelectedPetrolCutters([])
+            setSelectedLightMasts([])
             setSwimToolTransfers({})
         } catch (err) {
             console.error('Failed to fetch transfer data:', err)
@@ -128,6 +144,30 @@ const Transfercomponent = ({ selectedBrigade }) => {
         )
     }
 
+    const toggleChainSaw = (id) => {
+        setSelectedChainSaws((prev) =>
+            prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+        )
+    }
+
+    const togglePneumaticTool = (id) => {
+        setSelectedPneumaticTools((prev) =>
+            prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+        )
+    }
+
+    const togglePetrolCutter = (id) => {
+        setSelectedPetrolCutters((prev) =>
+            prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+        )
+    }
+
+    const toggleLightMast = (id) => {
+        setSelectedLightMasts((prev) =>
+            prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+        )
+    }
+
     const handleSwimToolChange = (id, field, value) => {
         setSwimToolTransfers((prev) => ({
             ...prev,
@@ -159,6 +199,10 @@ const Transfercomponent = ({ selectedBrigade }) => {
             selectedHydravlicTools.length === 0 &&
             selectedSpecialTools.length === 0 &&
             selectedBackPackExtenguishers.length === 0 &&
+            selectedChainSaws.length === 0 &&
+            selectedPneumaticTools.length === 0 &&
+            selectedPetrolCutters.length === 0 &&
+            selectedLightMasts.length === 0 &&
             transferArray.length === 0
         ) {
             setMessage('Оберіть елементи для передачі')
@@ -174,6 +218,9 @@ const Transfercomponent = ({ selectedBrigade }) => {
                 hydravlicToolIds: selectedHydravlicTools,
                 specialToolIds: selectedSpecialTools,
                 backPackExtenguisherIds: selectedBackPackExtenguishers,
+                chainSawIds: selectedChainSaws,
+                pneumaticToolIds: selectedPneumaticTools,
+                petrolCutterIds: selectedPetrolCutters,
                 swimToolTransfers: transferArray,
                 toBrigadeId: Number(toBrigadeId),
             });
@@ -186,6 +233,9 @@ const Transfercomponent = ({ selectedBrigade }) => {
                 (data.hydravlicTools?.length || 0) +
                 (data.specialTools?.length || 0) +
                 (data.backPackExtenguishers?.length || 0) +
+                (data.chainSaws?.length || 0) +
+                (data.pneumaticTools?.length || 0) +
+                (data.petrolCutters?.length || 0) +
                 (data.swimTools?.length || 0)
             setMessage(`✅ Передано ${count} об'єктів/категорій`)
             setSelectedTestItems([])
@@ -195,6 +245,10 @@ const Transfercomponent = ({ selectedBrigade }) => {
             setSelectedHydravlicTools([])
             setSelectedSpecialTools([])
             setSelectedBackPackExtenguishers([])
+            setSelectedChainSaws([])
+            setSelectedPneumaticTools([])
+            setSelectedPetrolCutters([])
+            setSelectedLightMasts([])
             setSwimToolTransfers({})
             setToBrigadeId('')
             fetchData()
@@ -367,47 +421,52 @@ const Transfercomponent = ({ selectedBrigade }) => {
             ))}
 
             {/* ── Електростанції ── */}
-            {electricStations?.length > 0 &&
-                (!searchQuery ||
-                    'Електростанції/Генератори'.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    electricStations.some(i => 
-                        i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        i.powerOf?.toString().includes(searchQuery.toLowerCase())
-                    )
-                ) && (
+            {(!searchQuery ||
+                'Електростанції/Генератори'.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                electricStations.some(i =>
+                    i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    i.powerOf?.toString().includes(searchQuery.toLowerCase())
+                )
+            ) && (
                     <div className='transfer-wrapper'>
                         <SectionHeader sectionKey='electricStations' title='Електростанції/Генератори' />
                         {isOpen('electricStations') && (
                             <>
-                                <div className='item-header-row electric-station-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.5fr 0.5fr 0.8fr 1.5fr 1.5fr' }}>
-                                    <span className='transfer-checkbox'></span>
-                                    <span>назва обладнання</span>
-                                    <span>рік закупівлі</span>
-                                    <span>потужність (кВт)</span>
-                                    <span>місце зберігання</span>
-                                    <span>примітки</span>
-                                </div>
+                                {electricStations?.length > 0 && (
+                                    <div className='item-header-row electric-station-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.5fr 0.5fr 0.8fr 1.5fr 1.5fr' }}>
+                                        <span className='transfer-checkbox'></span>
+                                        <span>назва обладнання</span>
+                                        <span>рік закупівлі</span>
+                                        <span>потужність (кВт)</span>
+                                        <span>місце зберігання</span>
+                                        <span>примітки</span>
+                                    </div>
+                                )}
                                 <div className='item-body'>
-                                    {electricStations.filter(i =>
-                                        !searchQuery ||
-                                        'Електростанції/Генератори'.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                        i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                        i.powerOf?.toString().includes(searchQuery.toLowerCase())
-                                    ).map((item) => (
-                                        <div key={item.id} className='item-row electric-station-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.5fr 0.5fr 0.8fr 1.5fr 1.5fr' }}>
-                                            <input
-                                                type='checkbox'
-                                                className='transfer-checkbox'
-                                                checked={selectedElectricStations.includes(item.id)}
-                                                onChange={() => toggleElectricStation(item.id)}
-                                            />
-                                            <span title="Назва">{item.name}</span>
-                                            <span title="Рік закупівлі">{item.yaerOfPurchase || '—'}</span>
-                                            <span title="Потужність (кВт)">{item.powerOf || '—'}</span>
-                                            <span title="Місце зберігання">{item.placeOfStorage || '—'}</span>
-                                            <span title="Примітки">{item.notes || '—'}</span>
-                                        </div>
-                                    ))}
+                                    {electricStations?.length > 0 ? (
+                                        electricStations.filter(i =>
+                                            !searchQuery ||
+                                            'Електростанції/Генератори'.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                            i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                            i.powerOf?.toString().includes(searchQuery.toLowerCase())
+                                        ).map((item) => (
+                                            <div key={item.id} className='item-row electric-station-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.5fr 0.5fr 0.8fr 1.5fr 1.5fr' }}>
+                                                <input
+                                                    type='checkbox'
+                                                    className='transfer-checkbox'
+                                                    checked={selectedElectricStations.includes(item.id)}
+                                                    onChange={() => toggleElectricStation(item.id)}
+                                                />
+                                                <span title="Назва">{item.name}</span>
+                                                <span title="Рік закупівлі">{item.yaerOfPurchase || '—'}</span>
+                                                <span title="Потужність (кВт)">{item.powerOf || '—'}</span>
+                                                <span title="Місце зберігання">{item.placeOfStorage || '—'}</span>
+                                                <span title="Примітки">{item.notes || '—'}</span>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p>Частина такого обладнання поки немає</p>
+                                    )}
                                 </div>
                             </>
                         )}
@@ -415,47 +474,52 @@ const Transfercomponent = ({ selectedBrigade }) => {
                 )}
 
             {/* ── Мотопомпи ── */}
-            {waterPumps?.length > 0 &&
-                (!searchQuery ||
-                    'Мотопомпи'.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    waterPumps.some(i => 
-                        i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        i.powerOf?.toString().includes(searchQuery.toLowerCase())
-                    )
-                ) && (
+            {(!searchQuery ||
+                'Мотопомпи'.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                waterPumps.some(i =>
+                    i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    i.powerOf?.toString().includes(searchQuery.toLowerCase())
+                )
+            ) && (
                     <div className='transfer-wrapper'>
                         <SectionHeader sectionKey='waterPumps' title='Мотопомпи' />
                         {isOpen('waterPumps') && (
                             <>
-                                <div className='item-header-row electric-station-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.5fr 0.5fr 0.8fr 1.5fr 1.5fr' }}>
-                                    <span className='transfer-checkbox'></span>
-                                    <span>назва обладнання</span>
-                                    <span>рік закупівлі</span>
-                                    <span>потужність</span>
-                                    <span>місце зберігання</span>
-                                    <span>примітки</span>
-                                </div>
+                                {waterPumps?.length > 0 && (
+                                    <div className='item-header-row electric-station-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.5fr 0.5fr 0.8fr 1.5fr 1.5fr' }}>
+                                        <span className='transfer-checkbox'></span>
+                                        <span>назва обладнання</span>
+                                        <span>рік закупівлі</span>
+                                        <span>потужність</span>
+                                        <span>місце зберігання</span>
+                                        <span>примітки</span>
+                                    </div>
+                                )}
                                 <div className='item-body'>
-                                    {waterPumps.filter(i =>
-                                        !searchQuery ||
-                                        'Мотопомпи'.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                        i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                        i.powerOf?.toString().includes(searchQuery.toLowerCase())
-                                    ).map((item) => (
-                                        <div key={item.id} className='item-row electric-station-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.5fr 0.5fr 0.8fr 1.5fr 1.5fr' }}>
-                                            <input
-                                                type='checkbox'
-                                                className='transfer-checkbox'
-                                                checked={selectedWaterPumps.includes(item.id)}
-                                                onChange={() => toggleWaterPump(item.id)}
-                                            />
-                                            <span title="Назва">{item.name}</span>
-                                            <span title="Рік закупівлі">{item.yearOfPurchase || '—'}</span>
-                                            <span title="Потужність">{item.powerOf || '—'}</span>
-                                            <span title="Місце зберігання">{item.placeOfStorage || '—'}</span>
-                                            <span title="Примітки">{item.notes || '—'}</span>
-                                        </div>
-                                    ))}
+                                    {waterPumps?.length > 0 ? (
+                                        waterPumps.filter(i =>
+                                            !searchQuery ||
+                                            'Мотопомпи'.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                            i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                            i.powerOf?.toString().includes(searchQuery.toLowerCase())
+                                        ).map((item) => (
+                                            <div key={item.id} className='item-row electric-station-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.5fr 0.5fr 0.8fr 1.5fr 1.5fr' }}>
+                                                <input
+                                                    type='checkbox'
+                                                    className='transfer-checkbox'
+                                                    checked={selectedWaterPumps.includes(item.id)}
+                                                    onChange={() => toggleWaterPump(item.id)}
+                                                />
+                                                <span title="Назва">{item.name}</span>
+                                                <span title="Рік закупівлі">{item.yearOfPurchase || '—'}</span>
+                                                <span title="Потужність">{item.powerOf || '—'}</span>
+                                                <span title="Місце зберігання">{item.placeOfStorage || '—'}</span>
+                                                <span title="Примітки">{item.notes || '—'}</span>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p>Частина такого обладнання поки немає</p>
+                                    )}
                                 </div>
                             </>
                         )}
@@ -463,47 +527,52 @@ const Transfercomponent = ({ selectedBrigade }) => {
                 )}
 
             {/* ── Гідравлічний інструмент ── */}
-            {hydravlicTools?.length > 0 &&
-                (!searchQuery ||
-                    'Гідравлічний'.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    hydravlicTools.some(i => 
-                        i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        i.typeOfStern?.toLowerCase().includes(searchQuery.toLowerCase())
-                    )
-                ) && (
+            {(!searchQuery ||
+                'Гідравлічний'.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                hydravlicTools.some(i =>
+                    i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    i.typeOfStern?.toLowerCase().includes(searchQuery.toLowerCase())
+                )
+            ) && (
                     <div className='transfer-wrapper'>
                         <SectionHeader sectionKey='hydravlicTools' title='Гідравлічний інструмент' />
                         {isOpen('hydravlicTools') && (
                             <>
-                                <div className='item-header-row hydravlic-tool-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.5fr 0.5fr 0.8fr 1.5fr 1.5fr' }}>
-                                    <span className='transfer-checkbox'></span>
-                                    <span>назва обладнання</span>
-                                    <span>рік закупівлі</span>
-                                    <span>тип приводу</span>
-                                    <span>місце зберігання</span>
-                                    <span>примітки</span>
-                                </div>
+                                {hydravlicTools?.length > 0 && (
+                                    <div className='item-header-row hydravlic-tool-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.5fr 0.5fr 0.8fr 1.5fr 1.5fr' }}>
+                                        <span className='transfer-checkbox'></span>
+                                        <span>назва обладнання</span>
+                                        <span>рік закупівлі</span>
+                                        <span>тип приводу</span>
+                                        <span>місце зберігання</span>
+                                        <span>примітки</span>
+                                    </div>
+                                )}
                                 <div className='item-body'>
-                                    {hydravlicTools.filter(i =>
-                                        !searchQuery ||
-                                        'Гідравлічний'.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                        i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                        i.typeOfStern?.toLowerCase().includes(searchQuery.toLowerCase())
-                                    ).map((item) => (
-                                        <div key={item.id} className='item-row hydravlic-tool-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.5fr 0.5fr 0.8fr 1.5fr 1.5fr' }}>
-                                            <input
-                                                type='checkbox'
-                                                className='transfer-checkbox'
-                                                checked={selectedHydravlicTools.includes(item.id)}
-                                                onChange={() => toggleHydravlicTool(item.id)}
-                                            />
-                                            <span title="Назва">{item.name}</span>
-                                            <span title="Рік закупівлі">{item.yaerOfPurchase || '—'}</span>
-                                            <span title="Тип приводу">{item.typeOfStern || '—'}</span>
-                                            <span title="Місце зберігання">{item.placeOfStorage || '—'}</span>
-                                            <span title="Примітки">{item.notes || '—'}</span>
-                                        </div>
-                                    ))}
+                                    {hydravlicTools?.length > 0 ? (
+                                        hydravlicTools.filter(i =>
+                                            !searchQuery ||
+                                            'Гідравлічний'.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                            i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                            i.typeOfStern?.toLowerCase().includes(searchQuery.toLowerCase())
+                                        ).map((item) => (
+                                            <div key={item.id} className='item-row hydravlic-tool-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.5fr 0.5fr 0.8fr 1.5fr 1.5fr' }}>
+                                                <input
+                                                    type='checkbox'
+                                                    className='transfer-checkbox'
+                                                    checked={selectedHydravlicTools.includes(item.id)}
+                                                    onChange={() => toggleHydravlicTool(item.id)}
+                                                />
+                                                <span title="Назва">{item.name}</span>
+                                                <span title="Рік закупівлі">{item.yaerOfPurchase || '—'}</span>
+                                                <span title="Тип приводу">{item.typeOfStern || '—'}</span>
+                                                <span title="Місце зберігання">{item.placeOfStorage || '—'}</span>
+                                                <span title="Примітки">{item.notes || '—'}</span>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p>Частина такого обладнання поки немає</p>
+                                    )}
                                 </div>
                             </>
                         )}
@@ -511,45 +580,50 @@ const Transfercomponent = ({ selectedBrigade }) => {
                 )}
 
             {/* ── Спеціальне обладнання ── */}
-            {specialTools?.length > 0 &&
-                (!searchQuery ||
-                    'Спеціальне обладнання'.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    specialTools.some(i => 
-                        i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        i.quantity?.toString().includes(searchQuery.toLowerCase())
-                    )
-                ) && (
+            {(!searchQuery ||
+                'Спеціальне обладнання'.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                specialTools.some(i =>
+                    i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    i.quantity?.toString().includes(searchQuery.toLowerCase())
+                )
+            ) && (
                     <div className='transfer-wrapper'>
                         <SectionHeader sectionKey='specialTools' title='Спеціальне обладнання' />
                         {isOpen('specialTools') && (
                             <>
-                                <div className='item-header-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.5fr 0.5fr 1.5fr 1.5fr' }}>
-                                    <span className='transfer-checkbox'></span>
-                                    <span>назва обладнання</span>
-                                    <span>кількість</span>
-                                    <span>місце зберігання</span>
-                                    <span>примітки</span>
-                                </div>
+                                {specialTools?.length > 0 && (
+                                    <div className='item-header-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.5fr 0.5fr 1.5fr 1.5fr' }}>
+                                        <span className='transfer-checkbox'></span>
+                                        <span>назва обладнання</span>
+                                        <span>кількість</span>
+                                        <span>місце зберігання</span>
+                                        <span>примітки</span>
+                                    </div>
+                                )}
                                 <div className='item-body'>
-                                    {specialTools.filter(i =>
-                                        !searchQuery ||
-                                        'Спеціальне обладнання'.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                        i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                        i.quantity?.toString().includes(searchQuery.toLowerCase())
-                                    ).map((item) => (
-                                        <div key={item.id} className='item-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.5fr 0.5fr 1.5fr 1.5fr' }}>
-                                            <input
-                                                type='checkbox'
-                                                className='transfer-checkbox'
-                                                checked={selectedSpecialTools.includes(item.id)}
-                                                onChange={() => toggleSpecialTool(item.id)}
-                                            />
-                                            <span title="Назва">{item.name}</span>
-                                            <span title="Кількість">{item.quantity ?? 0}</span>
-                                            <span title="Місце зберігання">{item.placeOfStorage || '—'}</span>
-                                            <span title="Примітки">{item.notes || '—'}</span>
-                                        </div>
-                                    ))}
+                                    {specialTools?.length > 0 ? (
+                                        specialTools.filter(i =>
+                                            !searchQuery ||
+                                            'Спеціальне обладнання'.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                            i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                            i.quantity?.toString().includes(searchQuery.toLowerCase())
+                                        ).map((item) => (
+                                            <div key={item.id} className='item-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.5fr 0.5fr 1.5fr 1.5fr' }}>
+                                                <input
+                                                    type='checkbox'
+                                                    className='transfer-checkbox'
+                                                    checked={selectedSpecialTools.includes(item.id)}
+                                                    onChange={() => toggleSpecialTool(item.id)}
+                                                />
+                                                <span title="Назва">{item.name}</span>
+                                                <span title="Кількість">{item.quantity ?? 0}</span>
+                                                <span title="Місце зберігання">{item.placeOfStorage || '—'}</span>
+                                                <span title="Примітки">{item.notes || '—'}</span>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p>Частина такого обладнання поки немає</p>
+                                    )}
                                 </div>
                             </>
                         )}
@@ -557,45 +631,50 @@ const Transfercomponent = ({ selectedBrigade }) => {
                 )}
 
             {/* ── Ранцеві вогнегасники ── */}
-            {backPackExtenguishers?.length > 0 &&
-                (!searchQuery ||
-                    'Ранцеві вогнегасники'.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    backPackExtenguishers.some(i => 
-                        i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        i.volumeOfWater?.toString().includes(searchQuery.toLowerCase())
-                    )
-                ) && (
+            {(!searchQuery ||
+                'Ранцеві вогнегасники'.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                backPackExtenguishers.some(i =>
+                    i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    i.volumeOfWater?.toString().includes(searchQuery.toLowerCase())
+                )
+            ) && (
                     <div className='transfer-wrapper'>
                         <SectionHeader sectionKey='backPackExtenguishers' title='Ранцеві вогнегасники' />
                         {isOpen('backPackExtenguishers') && (
                             <>
-                                <div className='item-header-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.5fr 0.5fr 1.5fr 1.5fr' }}>
-                                    <span className='transfer-checkbox'></span>
-                                    <span>назва</span>
-                                    <span>кількість</span>
-                                    <span>місце зберігання</span>
-                                    <span>примітки</span>
-                                </div>
+                                {backPackExtenguishers?.length > 0 && (
+                                    <div className='item-header-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.5fr 0.5fr 1.5fr 1.5fr' }}>
+                                        <span className='transfer-checkbox'></span>
+                                        <span>назва</span>
+                                        <span>кількість</span>
+                                        <span>місце зберігання</span>
+                                        <span>примітки</span>
+                                    </div>
+                                )}
                                 <div className='item-body'>
-                                    {backPackExtenguishers.filter(i =>
-                                        !searchQuery ||
-                                        'Ранцеві вогнегасники'.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                        i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                        i.volumeOfWater?.toString().includes(searchQuery.toLowerCase())
-                                    ).map((item) => (
-                                        <div key={item.id} className='item-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.5fr 0.5fr 1.5fr 1.5fr' }}>
-                                            <input
-                                                type='checkbox'
-                                                className='transfer-checkbox'
-                                                checked={selectedBackPackExtenguishers.includes(item.id)}
-                                                onChange={() => toggleBackPackExtenguisher(item.id)}
-                                            />
-                                            <span title="Назва">{item.name}</span>
-                                            <span title="Кількість">{item.quantity ?? 0}</span>
-                                            <span title="Місце зберігання">{item.placeOfStorage || '—'}</span>
-                                            <span title="Примітки">{item.notes || '—'}</span>
-                                         </div>
-                                    ))}
+                                    {backPackExtenguishers?.length > 0 ? (
+                                        backPackExtenguishers.filter(i =>
+                                            !searchQuery ||
+                                            'Ранцеві вогнегасники'.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                            i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                            i.volumeOfWater?.toString().includes(searchQuery.toLowerCase())
+                                        ).map((item) => (
+                                            <div key={item.id} className='item-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.5fr 0.5fr 1.5fr 1.5fr' }}>
+                                                <input
+                                                    type='checkbox'
+                                                    className='transfer-checkbox'
+                                                    checked={selectedBackPackExtenguishers.includes(item.id)}
+                                                    onChange={() => toggleBackPackExtenguisher(item.id)}
+                                                />
+                                                <span title="Назва">{item.name}</span>
+                                                <span title="Кількість">{item.quantity ?? 0}</span>
+                                                <span title="Місце зберігання">{item.placeOfStorage || '—'}</span>
+                                                <span title="Примітки">{item.notes || '—'}</span>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p>Частина такого обладнання поки немає</p>
+                                    )}
                                 </div>
                             </>
                         )}
@@ -603,59 +682,124 @@ const Transfercomponent = ({ selectedBrigade }) => {
                 )}
 
             {/* ── Засоби порятунку на воді ── */}
-            {swimTools?.length > 0 &&
-                (!searchQuery || 'Засоби порятунку на воді'.toLowerCase().includes(searchQuery.toLowerCase())) && (
+            {(!searchQuery || 'Засоби порятунку на воді'.toLowerCase().includes(searchQuery.toLowerCase())) && (
                     <div className='transfer-wrapper'>
                         <SectionHeader sectionKey='swimTools' title='Засоби порятунку на воді (введіть кількість для передачі)' />
                         {isOpen('swimTools') && (
                             <>
-                                <div className='item-header-row swim-tool-row' style={{ gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr' }}>
-                                    <span title="Рятувальні човни">РЯТ. ЧОВНИ</span>
-                                    <span title="Моторні рятувальні човни">МОТОР. ЧОВНИ</span>
-                                    <span title="Рятувальні круги">КРУГИ</span>
-                                    <span title="Рятувальні мотузки">МОТУЗКИ</span>
-                                    <span title="Кінець Александрова">КІН. АЛЕКС.</span>
-                                    <span title="Рятувальні сани">САНИ</span>
-                                    <span title="Рятувальні жилети">ЖИЛЕТИ</span>
-                                    <span title="Сухі гідрокостюми">ГІДРОКОСТЮМИ</span>
-                                </div>
-                                <div className='item-body'>
-                                    {swimTools.map((item) => {
-                                        const renderTransferInput = (field, maxVal) => {
-                                            if (!maxVal || maxVal <= 0) return '0';
-                                            return (
-                                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-                                                    <input
-                                                        type='number'
-                                                        min='0'
-                                                        max={maxVal}
-                                                        value={swimToolTransfers[item.id]?.[field] || ''}
-                                                        onChange={(e) => handleSwimToolChange(item.id, field, e.target.value)}
-                                                        style={{ width: '40px', padding: '2px', textAlign: 'center', border: '1px solid #ccc', borderRadius: '4px' }}
-                                                    />
-                                                    <span style={{ fontSize: '0.7em', color: '#666' }}>з {maxVal}</span>
-                                                </div>
-                                            );
-                                        };
+                                {swimTools?.length > 0 ? (
+                                    <>
+                                        <div className='item-header-row swim-tool-row' style={{ gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr' }}>
+                                            <span title="Рятувальні човни">РЯТ. ЧОВНИ</span>
+                                            <span title="Моторні рятувальні човни">МОТОР. ЧОВНИ</span>
+                                            <span title="Рятувальні круги">КРУГИ</span>
+                                            <span title="Рятувальні мотузки">МОТУЗКИ</span>
+                                            <span title="Кінець Александрова">КІН. АЛЕКС.</span>
+                                            <span title="Рятувальні сани">САНИ</span>
+                                            <span title="Рятувальні жилети">ЖИЛЕТИ</span>
+                                            <span title="Сухі гідрокостюми">ГІДРОКОСТЮМИ</span>
+                                        </div>
+                                        <div className='item-body'>
+                                            {swimTools.map((item) => {
+                                                const renderTransferInput = (field, maxVal) => {
+                                                    if (!maxVal || maxVal <= 0) return '0';
+                                                    return (
+                                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+                                                            <input
+                                                                type='number'
+                                                                min='0'
+                                                                max={maxVal}
+                                                                value={swimToolTransfers[item.id]?.[field] || ''}
+                                                                onChange={(e) => handleSwimToolChange(item.id, field, e.target.value)}
+                                                                style={{ width: '40px', padding: '2px', textAlign: 'center', border: '1px solid #ccc', borderRadius: '4px' }}
+                                                            />
+                                                            <span style={{ fontSize: '0.7em', color: '#666' }}>з {maxVal}</span>
+                                                        </div>
+                                                    );
+                                                };
 
-                                        return (
-                                            <div key={item.id} className='item-row swim-tool-row' style={{ gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr' }}>
-                                                <span title="Рятувальні човни">{renderTransferInput('lifeBoat', item.lifeBoat)}</span>
-                                                <span title="Моторні рятувальні човни">{renderTransferInput('motorLifeBoat', item.motorLifeBoat)}</span>
-                                                <span title="Рятувальні круги">{renderTransferInput('lifeBouy', item.lifeBouy)}</span>
-                                                <span title="Рятувальні мотузки">{renderTransferInput('lifeRoup', item.lifeRoup)}</span>
-                                                <span title="Кінець Александрова">{renderTransferInput('lifePath', item.lifePath)}</span>
-                                                <span title="Рятувальні сани">{renderTransferInput('rescueSlad', item.rescueSlad)}</span>
-                                                <span title="Рятувальні жилети">{renderTransferInput('lifeJacket', item.lifeJacket)}</span>
-                                                <span title="Сухі гідрокостюми">{renderTransferInput('drySuits', item.drySuits)}</span>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
+                                                return (
+                                                    <div key={item.id} className='item-row swim-tool-row' style={{ gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr' }}>
+                                                        <span title="Рятувальні човни">{renderTransferInput('lifeBoat', item.lifeBoat)}</span>
+                                                        <span title="Моторні рятувальні човни">{renderTransferInput('motorLifeBoat', item.motorLifeBoat)}</span>
+                                                        <span title="Рятувальні круги">{renderTransferInput('lifeBouy', item.lifeBouy)}</span>
+                                                        <span title="Рятувальні мотузки">{renderTransferInput('lifeRoup', item.lifeRoup)}</span>
+                                                        <span title="Кінець Александрова">{renderTransferInput('lifePath', item.lifePath)}</span>
+                                                        <span title="Рятувальні сани">{renderTransferInput('rescueSlad', item.rescueSlad)}</span>
+                                                        <span title="Рятувальні жилети">{renderTransferInput('lifeJacket', item.lifeJacket)}</span>
+                                                        <span title="Сухі гідрокостюми">{renderTransferInput('drySuits', item.drySuits)}</span>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className='item-body'>
+                                        <p>Частина такого обладнання поки немає</p>
+                                    </div>
+                                )}
                             </>
                         )}
                     </div>
                 )}
+
+            {/* ── Бензопили / Пневматичний інструмент / Бензорізи (однаковий шаблон) ── */}
+            {[
+                { sectionKey: 'chainSaws', title: 'Бензопили', items: chainSaws, selected: selectedChainSaws, toggle: toggleChainSaw },
+                { sectionKey: 'pneumaticTools', title: 'Пневматичний інструмент', items: pneumaticTools, selected: selectedPneumaticTools, toggle: togglePneumaticTool },
+                { sectionKey: 'petrolCutters', title: 'Бензорізи', items: petrolCutters, selected: selectedPetrolCutters, toggle: togglePetrolCutter },
+            ].map(({ sectionKey, title, items, selected, toggle }) => {
+                const matchesSearch = !searchQuery ||
+                    title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    items.some(i =>
+                        i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        i.yearOfPurchase?.toString().includes(searchQuery.toLowerCase())
+                    )
+                if (!matchesSearch) return null
+                return (
+                    <div key={sectionKey} className='transfer-wrapper'>
+                        <SectionHeader sectionKey={sectionKey} title={title} />
+                        {isOpen(sectionKey) && (
+                            <>
+                                {items?.length > 0 && (
+                                    <div className='item-header-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.5fr 0.5fr 1.5fr 1.5fr' }}>
+                                        <span className='transfer-checkbox'></span>
+                                        <span>назва</span>
+                                        <span>рік отримання</span>
+                                        <span>місцезнаходження</span>
+                                        <span>примітки</span>
+                                    </div>
+                                )}
+                                <div className='item-body'>
+                                    {items?.length > 0 ? (
+                                        items.filter(i =>
+                                            !searchQuery ||
+                                            title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                            i.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                            i.yearOfPurchase?.toString().includes(searchQuery.toLowerCase())
+                                        ).map((item) => (
+                                            <div key={item.id} className='item-row tool-transfer-row' style={{ gridTemplateColumns: '0.1fr 1.5fr 0.5fr 1.5fr 1.5fr' }}>
+                                                <input
+                                                    type='checkbox'
+                                                    className='transfer-checkbox'
+                                                    checked={selected.includes(item.id)}
+                                                    onChange={() => toggle(item.id)}
+                                                />
+                                                <span title='Назва'>{item.name}</span>
+                                                <span title='Рік отримання'>{item.yearOfPurchase || '—'}</span>
+                                                <span title='Місцезнаходження'>{item.placeOfStorage || '—'}</span>
+                                                <span title='Примітки'>{item.notes || '—'}</span>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p>Частина такого обладнання поки немає</p>
+                                    )}
+                                </div>
+                            </>
+                        )}
+                    </div>
+                )
+            })}
         </div>
     )
 }

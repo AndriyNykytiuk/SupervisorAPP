@@ -4,6 +4,7 @@ import useApi from '../hooks/useApi.js';
 import LoadingSpinner from './ui/LoadingSpinner.jsx';
 import ErrorMessage from './ui/ErrorMessage.jsx';
 import ItemTest from './ItemTest';
+import FireExtenguisher from './FireExtenguisher.jsx';
 import Testorderschedulelinks from './Testorderschedulelinks';
 import { MdOutlinePublishedWithChanges } from "react-icons/md";
 import SearchBar from './ui/SearchBar.jsx';
@@ -111,6 +112,8 @@ const Testcomponent = ({ selectedBrigade }) => {
             ).sort((a, b) => a.id - b.id).map((list) => (
                 <ItemTest key={list.id} testList={list} selectedBrigade={selectedBrigade} onItemCreated={refetch} searchQuery={searchQuery} />
             ))}
+
+            <FireExtenguisher selectedBrigade={selectedBrigade} searchQuery={searchQuery} />
         </div>
     );
 };

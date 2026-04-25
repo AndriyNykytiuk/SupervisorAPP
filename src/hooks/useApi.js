@@ -25,7 +25,13 @@ export default function useApi(apiFn, deps = [], { skip = false } = {}) {
         } catch (err) {
             const errorMsg = err?.response?.data?.error || err.message || 'Unknown error';
             setError(errorMsg);
-            toast.error(`Помилка: ${errorMsg}`);
+            // Suppress toast for auth errors (no/expired JWT) — the axios interceptor
+            // already handles logout, no need to spam the login screen with toasts.
+            const status = err?.response?.status;
+            const isAuthError = status === 401 || !localStorage.getItem('token');
+            if (!isAuthError) {
+                toast.error(`Помилка: ${errorMsg}`);
+            }
         } finally {
             setLoading(false);
         }

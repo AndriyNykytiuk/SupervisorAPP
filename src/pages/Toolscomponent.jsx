@@ -1,5 +1,18 @@
 import React, { useState, useEffect } from 'react'
-import { fetchToolItemsByBrigade, searchAllTools, fetchTransferBrigades } from '../api/services.js';
+import {
+    fetchToolItemsByBrigade,
+    searchAllTools,
+    fetchTransferBrigades,
+    fetchChainSawsByBrigade,
+    createChainSaw,
+    updateChainSaw,
+    fetchPneumaticToolsByBrigade,
+    createPneumaticTool,
+    updatePneumaticTool,
+    fetchPetrolCuttersByBrigade,
+    createPetrolCutter,
+    updatePetrolCutter,
+} from '../api/services.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import useApi from '../hooks/useApi.js';
 import LoadingSpinner from '../components/ui/LoadingSpinner.jsx';
@@ -11,6 +24,8 @@ import ItemHydravlicTool from '../components/ItemHydravlicTool.jsx'
 import ItemSwimTool from '../components/ItemSwimTool.jsx'
 import BackPackExtenguisher from '../components/backPackExtenguisher.jsx'
 import ItemSpecialTool from '../components/ItemSpecialTool.jsx'
+import ItemSimpleTool from '../components/ItemSimpleTool.jsx'
+import ItemLightMast from '../components/ItemLightMast.jsx'
 import '../scss/toolscomponent.scss'
 import SearchBar from '../components/ui/SearchBar.jsx'
 
@@ -175,6 +190,44 @@ const Toolscomponent = ({ selectedBrigade }) => {
             <ItemSwimTool selectedBrigade={selectedBrigade} searchQuery={searchQuery} transferBrigades={transferBrigades} />
             <BackPackExtenguisher selectedBrigade={selectedBrigade} searchQuery={searchQuery} transferBrigades={transferBrigades} />
             <ItemSpecialTool selectedBrigade={selectedBrigade} searchQuery={searchQuery} transferBrigades={transferBrigades} />
+            <ItemSimpleTool
+                selectedBrigade={selectedBrigade}
+                searchQuery={searchQuery}
+                title='Бензопили'
+                equipmentType='ChainSaw'
+                fetchFn={fetchChainSawsByBrigade}
+                createFn={createChainSaw}
+                updateFn={updateChainSaw}
+                transferBrigades={transferBrigades}
+                transferKey='chainSawIds'
+            />
+            <ItemSimpleTool
+                selectedBrigade={selectedBrigade}
+                searchQuery={searchQuery}
+                title='Пневматичний інструмент'
+                equipmentType='PneumaticTool'
+                fetchFn={fetchPneumaticToolsByBrigade}
+                createFn={createPneumaticTool}
+                updateFn={updatePneumaticTool}
+                transferBrigades={transferBrigades}
+                transferKey='pneumaticToolIds'
+            />
+            <ItemSimpleTool
+                selectedBrigade={selectedBrigade}
+                searchQuery={searchQuery}
+                title='Бензорізи'
+                equipmentType='PetrolCutter'
+                fetchFn={fetchPetrolCuttersByBrigade}
+                createFn={createPetrolCutter}
+                updateFn={updatePetrolCutter}
+                transferBrigades={transferBrigades}
+                transferKey='petrolCutterIds'
+            />
+            <ItemLightMast
+                selectedBrigade={selectedBrigade}
+                searchQuery={searchQuery}
+                transferBrigades={transferBrigades}
+            />
 
             {(toolLists || []).filter(list =>
                 !searchQuery ||

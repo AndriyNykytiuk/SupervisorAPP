@@ -1,4 +1,4 @@
-import { TestItem, testList, ToolItem, toolList, Brigade, Detachment, ElectricStations, WaterPumps, HydravlicTool, SwimTools, TransferLog, backPackExtenguisher, SpecialTool } from '../models/index.js'
+import { TestItem, testList, ToolItem, toolList, Brigade, Detachment, ElectricStations, WaterPumps, HydravlicTool, SwimTools, TransferLog, backPackExtenguisher, SpecialTool, ChainSaw, PneumaticTool, PetrolCutter, LightMast } from '../models/index.js'
 import { Op } from 'sequelize'
 import sequelize from '../config/db.js'
 
@@ -65,6 +65,14 @@ export const getAllByBrigade = async (req, res, next) => {
             where: { brigadeId }
         })
 
+        // Fetch Chain Saws / Pneumatic Tools / Petrol Cutters
+        const chainSaws = await ChainSaw.findAll({ where: { brigadeId } })
+        const pneumaticTools = await PneumaticTool.findAll({ where: { brigadeId } })
+        const petrolCutters = await PetrolCutter.findAll({ where: { brigadeId } })
+
+        // Fetch Light Masts
+        const lightMasts = await LightMast.findAll({ where: { brigadeId } })
+
         res.json({
             brigadeId: parseInt(brigadeId),
             testLists,
@@ -75,6 +83,10 @@ export const getAllByBrigade = async (req, res, next) => {
             swimTools,
             backPackExtenguishers,
             specialTools,
+            chainSaws,
+            pneumaticTools,
+            petrolCutters,
+            lightMasts,
         })
     } catch (err) {
         next(err)
@@ -83,7 +95,7 @@ export const getAllByBrigade = async (req, res, next) => {
 
 // PUT /api/transfer — move test items + tool items to another brigade
 export const transferItems = async (req, res, next) => {
-    const { testItemIds, toolItemIds, electricStationIds, waterPumpIds, hydravlicToolIds, swimToolTransfers, backPackExtenguisherIds, specialToolIds, toBrigadeId } = req.body
+    const { testItemIds, toolItemIds, electricStationIds, waterPumpIds, hydravlicToolIds, swimToolTransfers, backPackExtenguisherIds, specialToolIds, chainSawIds, pneumaticToolIds, petrolCutterIds, lightMastIds, toBrigadeId } = req.body
 
     if (!toBrigadeId) {
         return res.status(400).json({ error: 'toBrigadeId is required' })
@@ -245,6 +257,35 @@ export const transferItems = async (req, res, next) => {
                     include: [Brigade],
                     transaction: t,
                 })
+            }
+
+            // Generic transfer for ChainSaw / PneumaticTool / PetrolCutter / LightMast
+            const simpleTransfers = [
+                { ids: chainSawIds, Model: ChainSaw, type: 'ChainSaw', resultKey: 'chainSaws' },
+                { ids: pneumaticToolIds, Model: PneumaticTool, type: 'PneumaticTool', resultKey: 'pneumaticTools' },
+                { ids: petrolCutterIds, Model: PetrolCutter, type: 'PetrolCutter', resultKey: 'petrolCutters' },
+                { ids: lightMastIds, Model: LightMast, type: 'LightMast', resultKey: 'lightMasts' },
+            ]
+            for (const { ids, Model, type, resultKey } of simpleTransfers) {
+                if (ids && ids.length > 0) {
+                    const items = await Model.findAll({ where: { id: ids }, include: [Brigade], transaction: t })
+                    for (const item of items) {
+                        await TransferLog.create({
+                            itemName: item.name || `${type} #${item.id}`,
+                            equipmentType: type,
+                            fromBrigadeId: item.brigadeId,
+                            toBrigadeId,
+                            quantity: 1,
+                            details: item.toJSON(),
+                        }, { transaction: t })
+                    }
+                    await Model.update({ brigadeId: toBrigadeId }, { where: { id: ids }, transaction: t })
+                    result[resultKey] = await Model.findAll({
+                        where: { id: ids },
+                        include: [Brigade],
+                        transaction: t,
+                    })
+                }
             }
 
             // Transfer swim tools line-by-line quantities
