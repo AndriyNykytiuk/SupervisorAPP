@@ -56,6 +56,10 @@ const GeneralRequirements = ({ selectedBrigade }) => {
     const [newItemWarehouseRule, setNewItemWarehouseRule] = useState('exact')
     const [newItemWarehousePercent, setNewItemWarehousePercent] = useState('')
 
+    // ── Add-type modal ──
+    const [showAddTypeModal, setShowAddTypeModal] = useState(false)
+    const [isCreatingType, setIsCreatingType] = useState(false)
+
     // ── PDF Export ─────────────────────────────────
     const exportSummaryToPdf = () => {
         if (!summaryData?.rows?.length) return
@@ -389,12 +393,14 @@ const GeneralRequirements = ({ selectedBrigade }) => {
     }
 
     // ── Vehicle Type CRUD ───────────────────────────
-    const handleAddType = async () => {
+    const handleAddType = async (e) => {
+        if (e?.preventDefault) e.preventDefault()
         if (!newTypeName.trim()) return
         if (!selectedBrigade) {
             toast.error('Оберіть частину')
             return
         }
+        setIsCreatingType(true)
         try {
             const payload = { name: newTypeName.trim() }
             if (newTypeCloneFromId) payload.cloneFromId = Number(newTypeCloneFromId)
@@ -402,6 +408,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
             setNewTypeName('')
             setNewTypeVehicleCount('')
             setNewTypeCloneFromId('')
+            setShowAddTypeModal(false)
             if (created?.clonedCount > 0) {
                 toast.success(`Тип додано (клоновано позицій: ${created.clonedCount})`)
             } else {
@@ -410,6 +417,8 @@ const GeneralRequirements = ({ selectedBrigade }) => {
             loadVehicleTypes()
         } catch (err) {
             toast.error('Помилка при додаванні типу')
+        } finally {
+            setIsCreatingType(false)
         }
     }
 
@@ -496,6 +505,74 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                 <h2 className="gd-title-wrapp" style={{ margin: 0, padding: '1rem 0', color: 'var(--navy)' }}>Потреба ПТО та АРО</h2>
             </div>
 
+            {showAddTypeModal && (
+                <div
+                    onClick={() => !isCreatingType && setShowAddTypeModal(false)}
+                    style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}
+                >
+                    <div
+                        onClick={(e) => e.stopPropagation()}
+                        style={{ background: '#fff', borderRadius: '8px', width: '100%', maxWidth: '460px', boxShadow: '0 10px 30px rgba(0,0,0,0.2)', overflow: 'hidden' }}
+                    >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.25rem', borderBottom: '1px solid var(--gray-200, #e5e7eb)', background: 'var(--navy)', color: '#fff' }}>
+                            <h3 style={{ margin: 0, fontSize: '1.05rem' }}>Додати тип автомобіля</h3>
+                            <button
+                                type='button'
+                                onClick={() => !isCreatingType && setShowAddTypeModal(false)}
+                                style={{ background: 'transparent', color: '#fff', border: 'none', fontSize: '1.2rem', cursor: 'pointer' }}
+                            >
+                                ✕
+                            </button>
+                        </div>
+                        <form onSubmit={handleAddType} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '1.25rem' }}>
+                            <label style={{ fontSize: '0.9rem', color: 'var(--navy)', fontWeight: 600 }}>Новий тип</label>
+                            <input
+                                type='text'
+                                autoFocus
+                                value={newTypeName}
+                                onChange={(e) => setNewTypeName(e.target.value)}
+                                placeholder='напр. Автоцистерни'
+                                style={{ padding: '0.6rem 0.8rem', border: '1px solid var(--gray-300, #d1d5db)', borderRadius: '6px', fontSize: '0.95rem', outline: 'none' }}
+                            />
+
+                            <label style={{ fontSize: '0.9rem', color: 'var(--navy)', fontWeight: 600 }}>Створити на основі</label>
+                            <select
+                                value={newTypeCloneFromId}
+                                onChange={(e) => setNewTypeCloneFromId(e.target.value)}
+                                title='Позиції скопіюються з нульовими кількостями'
+                                style={{ padding: '0.6rem 0.8rem', border: '1px solid var(--gray-300, #d1d5db)', borderRadius: '6px', fontSize: '0.95rem', background: '#fff', outline: 'none' }}
+                            >
+                                <option value=''>— з порожньою таблицею —</option>
+                                {vehicleTypes.map((t) => (
+                                    <option key={t.id} value={t.id}>{t.name}</option>
+                                ))}
+                            </select>
+                            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--gray-600, #6b7280)' }}>
+                                Якщо обрано існуючий тип — позиції скопіюються з нульовими кількостями.
+                            </p>
+
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.5rem' }}>
+                                <button
+                                    type='button'
+                                    onClick={() => setShowAddTypeModal(false)}
+                                    disabled={isCreatingType}
+                                    style={{ padding: '0.55rem 1rem', background: 'var(--gray-200, #e5e7eb)', color: 'var(--navy)', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
+                                >
+                                    Скасувати
+                                </button>
+                                <button
+                                    type='submit'
+                                    disabled={isCreatingType || !newTypeName.trim()}
+                                    style={{ padding: '0.55rem 1.2rem', background: 'var(--navy)', color: '#fff', border: '1px solid var(--gold, #f5c842)', borderRadius: '6px', cursor: isCreatingType || !newTypeName.trim() ? 'not-allowed' : 'pointer', fontWeight: 700, opacity: isCreatingType || !newTypeName.trim() ? 0.6 : 1 }}
+                                >
+                                    {isCreatingType ? 'Створення...' : 'Створити'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             {!selectedBrigade && !showSummaryModal ? (
                 <p style={{ padding: '3rem', textAlign: 'center', fontSize: '1.2rem', color: '#7f8c8d' }}>Оберіть частину для перегляду потреби</p>
             ) : (
@@ -516,39 +593,17 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                         </div>
 
                         {isGod && isEditing && (
-                            <div className="gr-type-add">
-                                <input
-                                    type="text"
-                                    value={newTypeName}
-                                    onChange={(e) => setNewTypeName(e.target.value)}
-                                    placeholder="Новий тип..."
-                                    onKeyDown={(e) => e.key === 'Enter' && handleAddType()}
-                                />
-                                <input
-                                    type="number"
-                                    value={newTypeVehicleCount}
-                                    onChange={(e) => setNewTypeVehicleCount(e.target.value)}
-                                    placeholder="К-сть авто"
-                                    min="0"
-                                    className="gr-input-small"
-                                />
-                                <select
-                                    value={newTypeCloneFromId}
-                                    onChange={(e) => setNewTypeCloneFromId(e.target.value)}
-                                    className="gr-clone-select"
-                                    title="Створити на основі існуючого типу (позиції скопіюються з нульовими кількостями)"
-                                >
-                                    <option value="">Створити на основі...</option>
-                                    {vehicleTypes.map((t) => (
-                                        <option key={t.id} value={t.id}>
-                                            {t.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                <button className="gr-btn-add" onClick={handleAddType} title="Додати тип">
-                                    <span>Додати тип</span>
-                                </button>
-                            </div>
+                            <button
+                                className="gr-btn-add"
+                                onClick={() => {
+                                    setNewTypeName('')
+                                    setNewTypeCloneFromId('')
+                                    setShowAddTypeModal(true)
+                                }}
+                                title="Додати тип"
+                            >
+                                <span>Додати тип</span>
+                            </button>
                         )}
 
                         {isGod && selectedType && isEditing && (
@@ -659,33 +714,46 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                     <span>Загальна потреба</span>
                                 </div>
 
-                                {summaryData?.rows?.filter(r => r.name.toLowerCase().includes(searchQuery.toLowerCase())).map((row, index) => (
-                                    <div key={row.id} className="gr-content-row" style={{ gridTemplateColumns: `0.4fr 3.5fr ${summaryData?.columns?.map(() => 'minmax(100px, 1.5fr)').join(' ')} 0.8fr` }}>
-                                        <span data-label="№:">{index + 1}</span>
-                                        <span data-label="Найменування:" className="gr-item-name">{row.name}</span>
-                                        {summaryData?.columns?.map(c => <span data-label={`${c}:`} key={c}>{row[c] || 0}</span>)}
-                                        <span data-label="Загальна потреба:" className="gr-total-need">{row.total}</span>
-                                    </div>
-                                ))}
+                                {(() => {
+                                    const visibleRows = summaryData?.rows?.filter(r => r.name.toLowerCase().includes(searchQuery.toLowerCase())) || []
+                                    const visibleTotals = (summaryData?.columns || []).reduce((acc, c) => {
+                                        acc[c] = visibleRows.reduce((sum, r) => sum + (Number(r[c]) || 0), 0)
+                                        return acc
+                                    }, {})
+                                    const visibleGrandTotal = visibleRows.reduce((sum, r) => sum + (Number(r.total) || 0), 0)
 
-                                {summaryData?.rows?.filter(r => r.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
-                                    <div className="gr-empty">Немає даних</div>
-                                )}
+                                    return (
+                                        <>
+                                            {visibleRows.map((row, index) => (
+                                                <div key={row.id} className="gr-content-row" style={{ gridTemplateColumns: `0.4fr 3.5fr ${summaryData?.columns?.map(() => 'minmax(100px, 1.5fr)').join(' ')} 0.8fr` }}>
+                                                    <span data-label="№:">{index + 1}</span>
+                                                    <span data-label="Найменування:" className="gr-item-name">{row.name}</span>
+                                                    {summaryData?.columns?.map(c => <span data-label={`${c}:`} key={c}>{row[c] || 0}</span>)}
+                                                    <span data-label="Загальна потреба:" className="gr-total-need">{row.total}</span>
+                                                </div>
+                                            ))}
 
-                                {summaryData?.rows?.length > 0 && (
-                                    <div className="gr-content-row" style={{ gridTemplateColumns: `0.4fr 3.5fr ${summaryData?.columns?.map(() => 'minmax(100px, 1.5fr)').join(' ')} 0.8fr`, background: 'var(--gray-50)', fontWeight: 'bold' }}>
-                                        <span data-label=""></span>
-                                        <span data-label="Найменування:" className="gr-item-name">Всього</span>
-                                        {summaryData?.columns?.map(c => <span data-label={`${c}:`} key={c}>{summaryData?.colTotals?.[c] || 0}</span>)}
-                                        <span data-label="Загальна потреба:" className="gr-total-need">{summaryData?.colTotals?.total || 0}</span>
-                                    </div>
-                                )}
+                                            {visibleRows.length === 0 && (
+                                                <div className="gr-empty">Немає даних</div>
+                                            )}
+
+                                            {visibleRows.length > 0 && (
+                                                <div className="gr-content-row" style={{ gridTemplateColumns: `0.4fr 3.5fr ${summaryData?.columns?.map(() => 'minmax(100px, 1.5fr)').join(' ')} 0.8fr`, background: 'var(--gray-50)', fontWeight: 'bold' }}>
+                                                    <span data-label=""></span>
+                                                    <span data-label="Найменування:" className="gr-item-name">Всього</span>
+                                                    {summaryData?.columns?.map(c => <span data-label={`${c}:`} key={c}>{visibleTotals[c] || 0}</span>)}
+                                                    <span data-label="Загальна потреба:" className="gr-total-need">{visibleGrandTotal}</span>
+                                                </div>
+                                            )}
+                                        </>
+                                    )
+                                })()}
                             </div>
                         </div>
                     ) : (
                         <>
                             {/* ── Table ── */}
-                            <div className="gr-table-wrapper">
+                            <div className={`gr-table-wrapper${isGod && isEditing ? ' gr-table-wrapper--scrollable' : ''}`}>
                                 <div className="gr-content-title">
                                     <span>№</span>
                                     <span>Найменування</span>
