@@ -174,6 +174,14 @@ async function start() {
         await EquipmentAvailability.sync({ alter: true })
         await BrigadeVehicle.sync({ alter: true })
         await testList.sync({ alter: true })
+
+        // Idempotent additive: Users.detachmentId for SEMI-GOD direct binding.
+        // Raw SQL (not User.sync alter) to avoid touching the role ENUM.
+        await sequelize.query(`
+            ALTER TABLE "Users"
+            ADD COLUMN IF NOT EXISTS "detachmentId" INTEGER
+            REFERENCES "Detachments"(id) ON UPDATE CASCADE ON DELETE SET NULL
+        `)
         console.log('📦 Core equipment tables successfully synchronized with alter:true')
     } catch (e) {
         console.error('Migration error:', e.message)

@@ -42,6 +42,10 @@ Brigade.belongsTo(Detachment, { foreignKey: 'detachmentId' })
 Brigade.hasMany(User, { foreignKey: 'brigadeId' })
 User.belongsTo(Brigade, { foreignKey: 'brigadeId' })
 
+// One Detachment has many Users (used for SEMI-GOD direct binding)
+Detachment.hasMany(User, { foreignKey: 'detachmentId' })
+User.belongsTo(Detachment, { foreignKey: 'detachmentId' })
+
 // One Brigade has many TestItems
 Brigade.hasMany(TestItem, { foreignKey: 'brigadeId' })
 TestItem.belongsTo(Brigade, { foreignKey: 'brigadeId' })

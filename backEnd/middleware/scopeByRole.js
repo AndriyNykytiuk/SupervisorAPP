@@ -19,20 +19,33 @@ export async function scopeByRole(req, res, next) {
             },
         })
 
-        if (!user || !user.Brigade) {
+        if (!user) {
+            return res.status(403).json({ error: 'User not found. Contact admin.' })
+        }
+
+        // SEMI-GOD: prefer direct user.detachmentId; fall back to brigade's detachmentId
+        // for legacy users that were anchored via a brigade.
+        if (role === 'SEMI-GOD') {
+            const detachmentId = user.detachmentId ?? user.Brigade?.detachmentId
+            if (!detachmentId) {
+                return res.status(403).json({
+                    error: 'SEMI-GOD user is not assigned to any detachment. Contact admin.',
+                })
+            }
+            req.scope = { detachmentId }
+            return next()
+        }
+
+        // RW (and RO if kept) — must have a brigade
+        if (!user.Brigade) {
             return res.status(403).json({
                 error: 'User is not assigned to any brigade. Contact admin.',
             })
         }
 
-        const brigadeId = user.Brigade.id
-        const detachmentId = user.Brigade.detachmentId
-
-        if (role === 'SEMI-GOD') {
-            req.scope = { detachmentId }
-        } else {
-            // RW (and RO if kept)
-            req.scope = { brigadeId, detachmentId }
+        req.scope = {
+            brigadeId: user.Brigade.id,
+            detachmentId: user.Brigade.detachmentId,
         }
 
         next()
