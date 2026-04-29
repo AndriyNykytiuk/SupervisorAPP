@@ -144,7 +144,8 @@ const GeneralRequirements = ({ selectedBrigade }) => {
             const warehouseRequired = item.warehouse_required || 0
             let calculatedWarehouseNorm = warehouseRequired
             if (item.warehouse_rule === 'percent_of_actual' && item.warehouse_percent) {
-                calculatedWarehouseNorm = Math.ceil(actualCount * (item.warehouse_percent / 100))
+                // % \u0432\u0456\u0434 \u043d\u043e\u0440\u043c\u0438 = % \u0432\u0456\u0434 (\u043d\u043e\u0440\u043c\u0430 \u043d\u0430 1 \u0430\u0432\u0442\u043e \u00d7 \u043a\u0456\u043b\u044c\u043a\u0456\u0441\u0442\u044c \u0430\u0432\u0442\u043e)
+                calculatedWarehouseNorm = Math.ceil(totalRequired * (item.warehouse_percent / 100))
             }
             const warehouseActual = item.warehouse_actual || 0
             const warehouseShortage = calculatedWarehouseNorm - warehouseActual
@@ -784,7 +785,8 @@ const GeneralRequirements = ({ selectedBrigade }) => {
 
                                     let calculatedWarehouseNorm = warehouseRequired
                                     if (item.warehouse_rule === 'percent_of_actual' && item.warehouse_percent) {
-                                        calculatedWarehouseNorm = Math.ceil(actualCount * (item.warehouse_percent / 100))
+                                        // % від норми = % від (норма на 1 авто × кількість авто)
+                                        calculatedWarehouseNorm = Math.ceil(totalRequired * (item.warehouse_percent / 100))
                                     }
                                     const warehouseActual = item.warehouse_actual || 0
                                     const warehouseShortage = calculatedWarehouseNorm - warehouseActual
@@ -868,21 +870,40 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                             <span data-label="Не комплект:" className={vehicleShortage > 0 ? 'gr-shortage' : ''}>{vehicleShortage > 0 ? vehicleShortage : '—'}</span>
                                             <span data-label="Резерв частини (норма):">
                                                 {isGod && isEditing ? (
-                                                    <input
-                                                        type="number"
-                                                        min="0"
-                                                        className="gr-input"
-                                                        value={item.warehouse_rule === 'percent_of_actual' ? (warehousePercent || '') : (warehouseRequired || '')}
-                                                        onBlur={(e) => {
-                                                            const field = item.warehouse_rule === 'percent_of_actual' ? 'warehouse_percent' : 'warehouse_required'
-                                                            handleItemFieldChange(item.id, field, Number(e.target.value) || 0, totalNeed)
-                                                        }}
-                                                        onChange={(e) => {
-                                                            const field = item.warehouse_rule === 'percent_of_actual' ? 'warehouse_percent' : 'warehouse_required'
-                                                            const newItems = items.map(i => i.id === item.id ? { ...i, [field]: Number(e.target.value) || 0 } : i)
-                                                            setItems(newItems)
-                                                        }}
-                                                    />
+                                                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                                        <select
+                                                            value={item.warehouse_rule || 'exact'}
+                                                            onChange={(e) => {
+                                                                const newRule = e.target.value
+                                                                handleItemFieldChange(item.id, 'warehouse_rule', newRule, totalNeed)
+                                                                const newItems = items.map(i => i.id === item.id ? { ...i, warehouse_rule: newRule } : i)
+                                                                setItems(newItems)
+                                                            }}
+                                                            className="gr-select-rule"
+                                                            style={{ maxWidth: '110px', fontSize: '0.85rem' }}
+                                                        >
+                                                            <option value="exact">Точно</option>
+                                                            <option value="min">Мінімум</option>
+                                                            <option value="percent_of_actual">% від норми</option>
+                                                        </select>
+                                                        <input
+                                                            type="number"
+                                                            min="0"
+                                                            max={item.warehouse_rule === 'percent_of_actual' ? 100 : undefined}
+                                                            className="gr-input"
+                                                            value={item.warehouse_rule === 'percent_of_actual' ? (warehousePercent || '') : (warehouseRequired || '')}
+                                                            onBlur={(e) => {
+                                                                const field = item.warehouse_rule === 'percent_of_actual' ? 'warehouse_percent' : 'warehouse_required'
+                                                                handleItemFieldChange(item.id, field, Number(e.target.value) || 0, totalNeed)
+                                                            }}
+                                                            onChange={(e) => {
+                                                                const field = item.warehouse_rule === 'percent_of_actual' ? 'warehouse_percent' : 'warehouse_required'
+                                                                const newItems = items.map(i => i.id === item.id ? { ...i, [field]: Number(e.target.value) || 0 } : i)
+                                                                setItems(newItems)
+                                                            }}
+                                                            style={{ maxWidth: '60px' }}
+                                                        />
+                                                    </div>
                                                 ) : (
                                                     item.warehouse_rule === 'percent_of_actual' ? `${warehousePercent}%` :
                                                         item.warehouse_rule === 'min' ? `не менше ${warehouseRequired}` : warehouseRequired
@@ -965,7 +986,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                         >
                                             <option value="exact">Точно</option>
                                             <option value="min">Мінімум</option>
-                                            <option value="percent_of_actual">% від наявного</option>
+                                            <option value="percent_of_actual">% від норми</option>
                                         </select>
                                         {newItemWarehouseRule === 'percent_of_actual' && (
                                             <input
