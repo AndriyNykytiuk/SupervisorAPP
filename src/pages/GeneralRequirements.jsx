@@ -373,15 +373,15 @@ const GeneralRequirements = ({ selectedBrigade }) => {
         }
     }, [selectedType, selectedBrigade])
 
-    const loadData = async () => {
-        setLoading(true)
+    const loadData = async ({ silent = false } = {}) => {
+        if (!silent) setLoading(true)
         try {
             const itemsData = await fetchEquipmentItems(selectedType, selectedBrigade)
             setItems(itemsData)
         } catch (err) {
             console.error('Failed to load data:', err)
         } finally {
-            setLoading(false)
+            if (!silent) setLoading(false)
         }
     }
 
@@ -464,7 +464,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
             setNewItemWarehouseRule('exact')
             setNewItemWarehousePercent('')
             toast.success('Позицію додано')
-            loadData()
+            loadData({ silent: true })
         } catch (err) {
             toast.error('Помилка при додаванні позиції')
         }
@@ -475,13 +475,15 @@ const GeneralRequirements = ({ selectedBrigade }) => {
         try {
             await deleteEquipmentItem(id)
             toast.success('Позицію видалено')
-            loadData()
+            loadData({ silent: true })
         } catch (err) {
             toast.error('Помилка при видаленні позиції')
         }
     }
 
     // ── Inline field update for EquipmentItem ───────
+    // No refetch here — local state was already updated optimistically in onChange.
+    // Silent re-sync only if backend recalculates derived fields server-side.
     const handleItemFieldChange = async (itemId, field, value, totalNeedValue) => {
         try {
             const payload = { [field]: value, brigadeId: selectedBrigade }
@@ -489,9 +491,10 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                 payload.total_need = totalNeedValue
             }
             await updateEquipmentItem(itemId, payload)
-            loadData()
         } catch (err) {
             toast.error('Помилка при оновленні')
+            // Revert by silent reload only on failure
+            loadData({ silent: true })
         }
     }
 

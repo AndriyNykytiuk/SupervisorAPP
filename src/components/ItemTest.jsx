@@ -75,7 +75,7 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
             await updateTestList(testList.id, { intervalMonths: value })
             toast.success('Інтервал збережено')
             setShowIntervalModal(false)
-            onItemCreated()
+            onItemCreated({ silent: true })
         } catch (err) {
             toast.error(err.response?.data?.error || 'Помилка збереження інтервалу')
             console.error('Failed to update testList interval:', err)
@@ -139,7 +139,7 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
                 quantity: 1
             })
             setShowForm(false)
-            onItemCreated()
+            onItemCreated({ silent: true })
         } catch (err) {
             console.error('Failed to create item:', err)
         }
@@ -161,7 +161,7 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
             });
 
             setEditingItemId(null)
-            onItemCreated() // refetch the updated data
+            onItemCreated({ silent: true }) // refetch the updated data
         } catch (err) {
             console.error('Failed to update item:', err)
         }
@@ -256,7 +256,7 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
             setIsSelecting(false)
             setSelectedIds([])
             setBulkFormData({ testDate: '', result: 'pass', nextTestDate: '', linkName: '', link: '' })
-            onItemCreated()
+            onItemCreated({ silent: true })
         } catch (err) {
             console.error('Failed to bulk update:', err)
         } finally {
@@ -284,7 +284,7 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
             })
 
             // Refresh the list after successful archiving
-            onItemCreated()
+            onItemCreated({ silent: true })
 
             // Re-fetch all data to make sure badges/counts update correctly
             if (testList.id) {

@@ -71,7 +71,7 @@ const ItemTool = ({ toolList, selectedBrigade, onItemCreated, searchQuery = '', 
             setFormData(initialFormState)
             setShowForm(false)
             toast.success('Обладнання успішно додано!');
-            onItemCreated()
+            onItemCreated({ silent: true })
         } catch (err) {
             toast.error(err.response?.data?.error || 'Помилка при збереженні')
             console.error('Failed to create tool item:', err)
@@ -101,7 +101,7 @@ const ItemTool = ({ toolList, selectedBrigade, onItemCreated, searchQuery = '', 
             }
 
             setEditingItemId(null)
-            onItemCreated()
+            onItemCreated({ silent: true })
         } catch (err) {
             toast.error(err.response?.data?.error || 'Помилка при оновленні чи передачі')
             console.error('Failed to update tool item:', err)
@@ -141,7 +141,7 @@ const ItemTool = ({ toolList, selectedBrigade, onItemCreated, searchQuery = '', 
             })
 
             // Оновити список
-            onItemCreated()
+            onItemCreated({ silent: true })
 
             // Якщо був відкритий режим редагування - закрити його
             if (editingItemId === itemToArchive.id) {

@@ -16,8 +16,12 @@ export default function useApi(apiFn, deps = [], { skip = false } = {}) {
     const [loading, setLoading] = useState(!skip);
     const [error, setError] = useState(null);
 
-    const refetch = useCallback(async () => {
-        setLoading(true);
+    const refetch = useCallback(async (opts) => {
+        // Pass { silent: true } from a child (e.g. after a save) to keep the existing
+        // data on screen while re-syncing — avoids the full-page spinner flash that
+        // would otherwise unmount item cards and reset scroll/expanded state.
+        const silent = opts && typeof opts === 'object' && opts.silent === true;
+        if (!silent) setLoading(true);
         setError(null);
         try {
             const result = await apiFn();
@@ -33,7 +37,7 @@ export default function useApi(apiFn, deps = [], { skip = false } = {}) {
                 toast.error(`Помилка: ${errorMsg}`);
             }
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     }, deps); // eslint-disable-line react-hooks/exhaustive-deps
 
