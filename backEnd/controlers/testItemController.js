@@ -1,13 +1,22 @@
 import { Op } from 'sequelize'
 import { TestItem, testList, Brigade } from '../models/index.js'
 
+// Failed equipment never has a next test date — enforce server-side regardless of input.
+const enforceFailHasNoNextDate = (body) => {
+    if (body && body.result === 'fail') {
+        body.nextTestDate = null
+    }
+}
+
 // Compute nextTestDate = testDate + intervalMonths (months) when:
 //   - body.testDate is provided AND
+//   - body.result is not 'fail' (failed items don't get a next date) AND
 //   - body.nextTestDate is missing/null/empty (user can override by sending it explicitly) AND
 //   - target testList has intervalMonths set.
 // Mutates `body` in place.
 const applyAutoNextTestDate = async (body, fallbackTestListId) => {
     if (!body || !body.testDate) return
+    if (body.result === 'fail') return
     const hasManualNext = body.nextTestDate !== undefined && body.nextTestDate !== null && body.nextTestDate !== ''
     if (hasManualNext) return
 
@@ -249,6 +258,7 @@ export const getByBrigadeAndList = async (req, res, next) => {
 // POST /api/test-items — body must include { name, testListId, brigadeId }
 export const create = async (req, res, next) => {
     try {
+        enforceFailHasNoNextDate(req.body)
         await applyAutoNextTestDate(req.body)
 
         // GOD: can create for any brigade+list
@@ -283,6 +293,7 @@ export const update = async (req, res, next) => {
         const item = await TestItem.findByPk(req.params.id)
         if (!item) return res.status(404).json({ error: 'Test item not found' })
 
+        enforceFailHasNoNextDate(req.body)
         await applyAutoNextTestDate(req.body, item.testListId)
 
         // GOD: can update any
@@ -427,11 +438,16 @@ export const bulkUpdate = async (req, res, next) => {
             return res.status(403).json({ error: 'Forbidden: insufficient permissions' })
         }
 
+        // Failed items never get a next date — force null and skip auto-compute.
+        if (updatePayload.result === 'fail') {
+            updatePayload.nextTestDate = null
+        }
+
         // Auto-compute nextTestDate per item when testDate is set without explicit nextTestDate
         const hasManualNext = updatePayload.nextTestDate !== undefined
             && updatePayload.nextTestDate !== null
             && updatePayload.nextTestDate !== ''
-        if (updatePayload.testDate && !hasManualNext) {
+        if (updatePayload.result !== 'fail' && updatePayload.testDate && !hasManualNext) {
             const targets = await TestItem.findAll({ where: { id: itemIds }, attributes: ['id', 'testListId'] })
             const listIds = [...new Set(targets.map(t => t.testListId).filter(Boolean))]
             const lists = await testList.findAll({ where: { id: listIds } })

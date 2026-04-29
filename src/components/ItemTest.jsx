@@ -167,11 +167,19 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
         }
     }
 
+    const recomputeNextDate = (state) => {
+        if (state.result === 'fail') return ''
+        if (testList.intervalMonths && state.testDate) {
+            return addMonthsToISODate(state.testDate, testList.intervalMonths)
+        }
+        return state.nextTestDate
+    }
+
     const handleChange = (e) => {
         const { name, value } = e.target
         const next = { ...formData, [name]: value }
-        if (name === 'testDate' && testList.intervalMonths) {
-            next.nextTestDate = addMonthsToISODate(value, testList.intervalMonths)
+        if (name === 'testDate' || name === 'result') {
+            next.nextTestDate = recomputeNextDate(next)
         }
         setFormData(next)
     }
@@ -179,8 +187,8 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
     const handleEditChange = (e) => {
         const { name, value } = e.target
         const next = { ...editFormData, [name]: value }
-        if (name === 'testDate' && testList.intervalMonths) {
-            next.nextTestDate = addMonthsToISODate(value, testList.intervalMonths)
+        if (name === 'testDate' || name === 'result') {
+            next.nextTestDate = recomputeNextDate(next)
         }
         setEditFormData(next)
     }
@@ -229,8 +237,8 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
     const handleBulkChange = (e) => {
         const { name, value } = e.target
         const next = { ...bulkFormData, [name]: value }
-        if (name === 'testDate' && testList.intervalMonths) {
-            next.nextTestDate = addMonthsToISODate(value, testList.intervalMonths)
+        if (name === 'testDate' || name === 'result') {
+            next.nextTestDate = recomputeNextDate(next)
         }
         setBulkFormData(next)
     }
@@ -371,7 +379,7 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
                             </select>
 
                             <label>Наступне випробування:</label>
-                            <input type='date' name='nextTestDate' value={formData.nextTestDate} onChange={handleChange} />
+                            <input type='date' name='nextTestDate' value={formData.nextTestDate} onChange={handleChange} disabled={formData.result === 'fail'} title={formData.result === 'fail' ? 'Непридатне обладнання — наступне випробування не призначається' : undefined} />
 
                             <input type='text' name='linkName' placeholder='Назва документу' value={formData.linkName} onChange={handleChange} />
                             <input type='url' name='link' placeholder='Посилання на документ' value={formData.link} onChange={handleChange} />
@@ -419,7 +427,7 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
                             </select>
 
                             <label>Наступне випробування:</label>
-                            <input type='date' name='nextTestDate' value={bulkFormData.nextTestDate} onChange={handleBulkChange} />
+                            <input type='date' name='nextTestDate' value={bulkFormData.nextTestDate} onChange={handleBulkChange} disabled={bulkFormData.result === 'fail'} title={bulkFormData.result === 'fail' ? 'Непридатне обладнання — наступне випробування не призначається' : undefined} />
 
                             <input type='text' name='linkName' placeholder='Назва документу' value={bulkFormData.linkName} onChange={handleBulkChange} />
                             <input type='url' name='link' placeholder='Посилання на документ' value={bulkFormData.link} onChange={handleBulkChange} />
@@ -474,7 +482,7 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
                                         <option value="pass">Придатний</option>
                                         <option value="fail">Непридатний</option>
                                     </select>
-                                    <input type='date' name='nextTestDate' value={editFormData.nextTestDate} onChange={handleEditChange} />
+                                    <input type='date' name='nextTestDate' value={editFormData.nextTestDate} onChange={handleEditChange} disabled={editFormData.result === 'fail'} title={editFormData.result === 'fail' ? 'Непридатне обладнання — наступне випробування не призначається' : undefined} />
                                     <div className='link-box'>
                                         <input type='text' name='linkName' placeholder='Назва документу' value={editFormData.linkName} onChange={handleEditChange}></input>
                                         <input type='url' name='link' placeholder='Посилання на документ' value={editFormData.link} onChange={handleEditChange} />
