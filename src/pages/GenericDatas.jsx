@@ -5,7 +5,7 @@ import { TfiPrinter } from "react-icons/tfi";
 import useApi from '../hooks/useApi.js';
 import LoadingSpinner from '../components/ui/LoadingSpinner.jsx';
 import ErrorMessage from '../components/ui/ErrorMessage.jsx';
-import ClosesTestitem from '../components/ClosesTestitem.jsx';
+import UpcomingTestsGrouped from '../components/UpcomingTestsGrouped.jsx';
 import Wastedtestitem from '../components/Wastedtestitem.jsx';
 import TotalElectricStations from '../components/TotalElectricStations.jsx';
 import TotalWaterPump from '../components/TotalWaterPump.jsx';
@@ -182,15 +182,7 @@ const GenericDatas = () => {
                             <div className='gd-header-title'>
                                 <h2> Найближчі випробування {getScopeTitle()}</h2>
                             </div>
-                            <div className='gd-item-header-row'>
-                                <span>назва обладнання</span>
-                                <span>інвентарний номер</span>
-                                <span>дата до коли треба випробувати</span>
-                                <span>приналежність</span>
-                            </div>
-                            {upcoming.map(item => (
-                                <ClosesTestitem key={item.id} item={item} />
-                            ))}
+                            <UpcomingTestsGrouped items={upcoming} />
                         </>
                     ) : (
                         <p style={{ textAlign: 'center', padding: '1rem', color: 'green' }}>На найближчі 10 днів випробувань не заплановано.</p>

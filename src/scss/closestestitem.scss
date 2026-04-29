@@ -64,6 +64,59 @@
     font-weight: 600;
 }
 
+/* ── Upcoming tests grouped by testList ── */
+.upcoming-grouped {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+}
+
+.upcoming-group {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-xs);
+    overflow: hidden;
+}
+
+.upcoming-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.7rem 1rem;
+    background: var(--navy);
+    color: white;
+    cursor: pointer;
+    user-select: none;
+    transition: background var(--transition);
+
+    h3 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: white;
+    }
+
+    .count {
+        font-weight: 400;
+        opacity: 0.85;
+    }
+
+    .chevron {
+        font-size: 0.85rem;
+        opacity: 0.85;
+    }
+
+    &:hover {
+        background: color-mix(in srgb, var(--navy) 88%, white 12%);
+    }
+}
+
+.upcoming-group-body {
+    padding: 0.4rem 0.8rem 0.8rem;
+}
+
 @media (max-width: 768px) {
     .item-wrapp {
         padding: 0.85rem;
