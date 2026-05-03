@@ -1,0 +1,9 @@
+.liquids-container {
+  display: flex;
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .liquids-container {
+    flex-direction: column;
+  }
+}/*# sourceMappingURL=extenguisliquids.css.map */

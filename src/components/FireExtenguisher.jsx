@@ -10,7 +10,7 @@ import {
 import ArchiveModal from './ArchiveModal.jsx'
 import '../scss/itemtest.scss'
 
-const EXTINGUISHER_TYPES = ['ВП-2(з)', 'ВП-5(з)']
+const EXTINGUISHER_TYPES = ['ВП-2(з)', 'ВП-5(з)','ВВК-1.4']
 
 const initialFormState = {
     inventoryNumber: '',

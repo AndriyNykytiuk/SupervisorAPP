@@ -1,0 +1,320 @@
+.used-liquids-wrapper {
+  margin-top: 2rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-200);
+  background-color: var(--white);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition);
+}
+.used-liquids-wrapper:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.add-record-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+  color: var(--white);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all var(--transition);
+  box-shadow: var(--shadow-xs);
+  font-size: 0.88rem;
+}
+.add-record-btn:hover {
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+@media (max-width: 800px) {
+  .add-record-btn {
+    display: none;
+  }
+}
+
+.records-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 24rem;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.empty-records {
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  background-color: var(--gray-50);
+  text-align: center;
+  color: var(--gray-500);
+  font-style: italic;
+}
+
+.record-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+  position: relative;
+  transition: all var(--transition);
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  background-color: var(--white);
+}
+.record-card:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.record-field {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.field-label {
+  font-weight: 600;
+  color: var(--gray-500);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.field-value {
+  font-weight: 500;
+  color: var(--gray-700);
+}
+.field-value.highlight {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--navy);
+}
+
+.record-divider {
+  width: 1px;
+  background-color: var(--gray-200);
+  height: 2.5rem;
+}
+
+.delete-btn {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  font-size: 1.35rem;
+  color: var(--gray-400);
+  cursor: pointer;
+  transition: all var(--transition);
+  padding: 0.2rem;
+  border-radius: var(--radius-sm);
+}
+.delete-btn:hover {
+  color: var(--danger-dark);
+  background: var(--fail-bg);
+}
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1rem;
+}
+
+.modal-content {
+  background-color: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 0;
+  max-width: 32rem;
+  width: 100%;
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+  animation: fadeInModal 0.25s ease-out;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #1a2e44 0%, var(--navy) 100%);
+}
+
+.modal-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--white);
+  margin: 0;
+}
+
+.close-btn {
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.7);
+  transition: all var(--transition);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm);
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+}
+.close-btn:hover {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 1rem;
+}
+
+.input-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--gray-600);
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.form-input,
+.form-select {
+  width: 100%;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.75rem;
+  outline: none;
+  box-sizing: border-box;
+  transition: all var(--transition-fast);
+  background-color: var(--white);
+  font-size: 0.95rem;
+}
+.form-input:focus,
+.form-select:focus {
+  border-color: var(--gold);
+  box-shadow: var(--shadow-gold);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0 1.5rem 1.5rem;
+}
+
+.cancel-btn {
+  flex: 1;
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--gray-300);
+  color: var(--gray-700);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  cursor: pointer;
+  background-color: transparent;
+  transition: all var(--transition);
+}
+.cancel-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.cancel-btn:hover:not(:disabled) {
+  background-color: var(--gray-100);
+}
+
+.save-btn {
+  flex: 1;
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  color: var(--gold);
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+  border: none;
+  transition: all var(--transition);
+  box-shadow: var(--shadow-xs);
+}
+.save-btn:disabled {
+  background: var(--gray-400);
+  cursor: not-allowed;
+  color: var(--white);
+}
+.save-btn:hover:not(:disabled) {
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+/* Totals styles */
+.totals-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+@media (max-width: 800px) {
+  .totals-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.totals-card {
+  margin: 0;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  background-color: var(--white);
+  box-shadow: var(--shadow-xs);
+  transition: all var(--transition);
+}
+.totals-card:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.totals-label {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.totals-value {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--success);
+}
+
+@keyframes fadeInModal {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}/*# sourceMappingURL=usedextenguisliquids.css.map */

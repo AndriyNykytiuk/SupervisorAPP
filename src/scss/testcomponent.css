@@ -1,0 +1,39 @@
+.testcomponent-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition);
+}
+.testcomponent-header h2 {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+.testcomponent-header:hover {
+  box-shadow: var(--shadow-md);
+}
+.testcomponent-header .btn-box {
+  display: flex;
+  padding: 0.85rem 1.5rem;
+  width: 100%;
+  justify-content: space-between;
+}
+
+@media screen and (max-width: 768px) {
+  .testcomponent-header .btn-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.6rem;
+    gap: 1rem;
+  }
+  .testcomponent-header .edit-button {
+    display: none;
+  }
+}/*# sourceMappingURL=testcomponent.css.map */

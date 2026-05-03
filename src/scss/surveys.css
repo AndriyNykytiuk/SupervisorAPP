@@ -1,0 +1,542 @@
+@charset "UTF-8";
+/* ─── Surveys (data collection forms) ──────────────── */
+.sv-page {
+  padding: 1rem 1.25rem 3rem;
+}
+.sv-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+.sv-page-header h2 {
+  margin: 0;
+  color: var(--navy, #0f172a);
+}
+
+.sv-back-link {
+  display: inline-block;
+  color: #64748b;
+  text-decoration: none;
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+.sv-back-link:hover {
+  color: var(--navy, #0f172a);
+}
+
+.sv-muted {
+  color: #64748b;
+  font-style: italic;
+}
+
+.sv-tabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 1rem;
+}
+
+.sv-tab {
+  background: transparent;
+  border: none;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  color: #64748b;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+.sv-tab:hover {
+  color: var(--navy, #0f172a);
+}
+.sv-tab.active {
+  color: var(--navy, #0f172a);
+  border-bottom-color: #2563eb;
+}
+
+/* ─── List cards ─── */
+.sv-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sv-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  border-left: 4px solid #2563eb;
+  transition: transform 0.1s;
+}
+.sv-card:hover {
+  transform: translateY(-1px);
+}
+.sv-card.status-closed {
+  border-left-color: #94a3b8;
+  opacity: 0.85;
+}
+.sv-card.answered {
+  border-left-color: #10b981;
+}
+
+.sv-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.sv-card-header h3 {
+  margin: 0 0 0.35rem;
+  color: var(--navy, #0f172a);
+}
+
+.sv-card-meta {
+  color: #64748b;
+  font-size: 0.88rem;
+  margin: 0;
+}
+
+.sv-card-desc {
+  margin: 0.5rem 0 0;
+  color: #475569;
+  font-size: 0.92rem;
+}
+
+.sv-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.sv-badge {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.sv-badge.sv-badge-pending {
+  background: #fef3c7;
+  color: #b45309;
+}
+.sv-badge.sv-badge-done {
+  background: #dcfce7;
+  color: #15803d;
+}
+.sv-badge.sv-badge-closed {
+  background: #e2e8f0;
+  color: #475569;
+}
+.sv-badge.sv-badge-count {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+.sv-badge.sv-badge-overdue {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* ─── Buttons (reuse .fe-* tones) ─── */
+.sv-btn {
+  padding: 0.45rem 0.85rem;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.15s, border-color 0.15s;
+}
+.sv-btn-sm {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.82rem;
+}
+.sv-btn-primary {
+  background: #2563eb;
+  color: #fff;
+}
+.sv-btn-primary:hover {
+  background: #1d4ed8;
+}
+.sv-btn-secondary {
+  background: #f1f5f9;
+  color: #334155;
+  border-color: #e2e8f0;
+}
+.sv-btn-secondary:hover {
+  background: #e2e8f0;
+}
+.sv-btn-warning {
+  background: #f59e0b;
+  color: #fff;
+}
+.sv-btn-warning:hover {
+  background: #d97706;
+}
+.sv-btn-danger {
+  background: #dc2626;
+  color: #fff;
+}
+.sv-btn-danger:hover {
+  background: #b91c1c;
+}
+.sv-btn-ghost {
+  background: transparent;
+  color: #64748b;
+}
+.sv-btn-ghost:hover {
+  color: #0f172a;
+}
+.sv-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ─── Modal ─── */
+.sv-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 3rem 1rem;
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.sv-modal {
+  background: #fff;
+  width: 100%;
+  max-width: 720px;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 6rem);
+}
+
+.sv-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+.sv-modal-header h3 {
+  margin: 0;
+}
+
+.sv-close {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  color: #64748b;
+  cursor: pointer;
+}
+.sv-close:hover {
+  color: #0f172a;
+}
+
+.sv-form {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  overflow-y: auto;
+}
+.sv-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.88rem;
+  color: #334155;
+  font-weight: 500;
+}
+.sv-form input[type=text],
+.sv-form input[type=number],
+.sv-form input[type=datetime-local],
+.sv-form textarea,
+.sv-form select {
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  font-size: 0.95rem;
+  color: #0f172a;
+  background: #fff;
+  font-family: inherit;
+}
+.sv-form input[type=text]:focus,
+.sv-form input[type=number]:focus,
+.sv-form input[type=datetime-local]:focus,
+.sv-form textarea:focus,
+.sv-form select:focus {
+  outline: 2px solid #93c5fd;
+  outline-offset: 0;
+}
+.sv-form textarea {
+  resize: vertical;
+}
+
+.sv-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* ─── Question builder ─── */
+.sv-q-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sv-q-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  padding: 0.8rem;
+}
+.sv-q-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.sv-q-card-head strong {
+  color: #0f172a;
+  font-size: 0.88rem;
+}
+.sv-q-card-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+@media (max-width: 640px) {
+  .sv-q-card-body {
+    grid-template-columns: 1fr;
+  }
+}
+.sv-q-card-full {
+  grid-column: 1/-1;
+}
+
+.sv-q-add {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 0.6rem 0 0;
+  border-top: 1px dashed #cbd5e1;
+}
+
+.sv-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 5px;
+  background: #e2e8f0;
+  color: #334155;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+/* ─── Fill form ─── */
+.sv-fill-question {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 0.8rem;
+}
+.sv-fill-question .sv-fill-label {
+  display: block;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 0.55rem;
+}
+.sv-fill-question .sv-fill-label .sv-required {
+  color: #dc2626;
+  margin-left: 0.15rem;
+}
+.sv-fill-question .sv-fill-hint {
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+.sv-fill-question input[type=text],
+.sv-fill-question input[type=number],
+.sv-fill-question textarea,
+.sv-fill-question select {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+.sv-fill-question .sv-state-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.sv-fill-question .sv-state-option {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.88rem;
+  color: #334155;
+  transition: all 0.15s;
+}
+.sv-fill-question .sv-state-option.active {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+.sv-fill-question .sv-presence {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.sv-fill-question .sv-presence button {
+  padding: 0.4rem 1rem;
+  border-radius: 7px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.sv-fill-question .sv-presence button.active.yes {
+  background: #10b981;
+  color: #fff;
+  border-color: #10b981;
+}
+.sv-fill-question .sv-presence button.active.no {
+  background: #94a3b8;
+  color: #fff;
+  border-color: #94a3b8;
+}
+.sv-fill-question .sv-photo-stub {
+  padding: 0.8rem;
+  background: #f1f5f9;
+  border: 1px dashed #cbd5e1;
+  border-radius: 7px;
+  color: #64748b;
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+/* ─── Detail / dashboard ─── */
+.sv-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 1rem;
+}
+@media (max-width: 960px) {
+  .sv-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sv-panel {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  padding: 1rem 1.25rem;
+}
+.sv-panel h4 {
+  margin: 0 0 0.75rem;
+  color: var(--navy, #0f172a);
+  font-size: 1rem;
+}
+
+.sv-progress {
+  height: 10px;
+  border-radius: 5px;
+  background: #e2e8f0;
+  overflow: hidden;
+  margin-bottom: 0.4rem;
+}
+.sv-progress-bar {
+  height: 100%;
+  background: #2563eb;
+  transition: width 0.3s;
+}
+
+.sv-brigades {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.sv-brigades li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  background: #f8fafc;
+  font-size: 0.88rem;
+}
+.sv-brigades li.answered {
+  background: #dcfce7;
+}
+.sv-brigades li.not-answered {
+  background: #fef3c7;
+}
+.sv-brigades li .sv-brigade-who {
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+.sv-agg-q {
+  padding: 0.75rem 0;
+  border-bottom: 1px dashed #e2e8f0;
+}
+.sv-agg-q:last-child {
+  border-bottom: none;
+}
+.sv-agg-q .sv-agg-title {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  margin-bottom: 0.4rem;
+}
+.sv-agg-q .sv-agg-title strong {
+  color: #0f172a;
+}
+.sv-agg-q .sv-agg-title .sv-agg-type {
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+}
+.sv-agg-q .sv-agg-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.8rem;
+  font-size: 0.88rem;
+  color: #334155;
+}
+.sv-agg-q .sv-agg-stats span strong {
+  color: #0f172a;
+}
+.sv-agg-q .sv-agg-rows {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+}/*# sourceMappingURL=surveys.css.map */

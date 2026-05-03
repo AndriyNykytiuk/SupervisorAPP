@@ -1,0 +1,93 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: rgb(239, 240, 244);
+  padding: 1.5rem;
+  position: relative;
+}
+.login-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 20%, rgba(252, 215, 0, 0.06) 0%, transparent 50%), radial-gradient(circle at 70% 80%, rgba(252, 215, 0, 0.04) 0%, transparent 50%);
+}
+.login-container form {
+  position: relative;
+  background: rgb(38, 69, 100);
+  backdrop-filter: blur(12px);
+  padding: 2.5rem 2rem;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.login-container form h2 {
+  text-align: center;
+  color: var(--gold);
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 0.25rem;
+  letter-spacing: -0.3px;
+}
+.login-container form input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  font-size: 0.95rem;
+  transition: all var(--transition);
+  outline: none;
+}
+.login-container form input::-moz-placeholder {
+  color: var(--gray-400);
+}
+.login-container form input::placeholder {
+  color: var(--gray-400);
+}
+.login-container form input:focus {
+  border-color: var(--gold);
+  box-shadow: var(--shadow-gold);
+}
+.login-container form button {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--gold);
+  color: var(--navy);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  box-shadow: var(--shadow-sm);
+  letter-spacing: 0.3px;
+}
+.login-container form button:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+.login-container form button:active {
+  transform: translateY(0);
+}
+.login-container form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+.login-container form .error {
+  color: var(--danger);
+  font-size: 0.85rem;
+  text-align: center;
+  background: var(--fail-bg);
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--fail-border);
+}/*# sourceMappingURL=login.css.map */

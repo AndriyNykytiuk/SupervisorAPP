@@ -1,0 +1,59 @@
+@charset "UTF-8";
+.waste-test-item {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  padding: 0.85rem 1.5rem;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: var(--white);
+  margin-bottom: 0.6rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.9rem;
+  box-shadow: var(--shadow-xs);
+  transition: all var(--transition);
+}
+.waste-test-item:hover {
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .waste-test-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 1rem;
+    text-align: right;
+    border-radius: var(--radius-lg);
+  }
+  .waste-test-item > div {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .waste-test-item > div::before {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-right: 1rem;
+    text-align: left;
+  }
+  .waste-test-item > div:nth-child(1)::before {
+    content: "Обладнання:";
+  }
+  .waste-test-item > div:nth-child(2)::before {
+    content: "Інв. номер:";
+  }
+  .waste-test-item > div:nth-child(3)::before {
+    content: "Протерміновано:";
+  }
+  .waste-test-item > div:nth-child(4)::before {
+    content: "Підрозділ:";
+  }
+}/*# sourceMappingURL=wastedtestitem.css.map */

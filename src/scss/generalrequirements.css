@@ -1,0 +1,406 @@
+@charset "UTF-8";
+/* ─── General Requirements Page ─── */
+.gr-page {
+  animation: fadeIn 0.3s ease-in-out;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* ─── Selector Bar ─── */
+.gr-select-wrapp {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+}
+.gr-select-wrapp .gr-type-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--navy);
+}
+.gr-select-wrapp .gr-type-selector select {
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  padding: 0.4rem 0.8rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--navy);
+  background: var(--white);
+  cursor: pointer;
+  min-width: 160px;
+}
+.gr-select-wrapp .gr-type-add {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.gr-select-wrapp .gr-type-add input {
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  padding: 0.4rem 0.6rem;
+  font-size: 0.9rem;
+  min-width: 140px;
+}
+
+.gr-btn-add {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.8rem;
+  background: var(--navy);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.gr-btn-add:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+.gr-btn-delete-type {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.8rem;
+  background: var(--danger, #ef4444);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.gr-btn-delete-type:hover {
+  opacity: 0.8;
+}
+
+/* ─── Table ─── */
+.gr-table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+}
+.gr-table-wrapper.gr-table-wrapper--scrollable {
+  max-height: calc(100vh - 24rem);
+  overflow-y: auto;
+}
+.gr-table-wrapper.gr-table-wrapper--scrollable .gr-content-title {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.gr-content-title {
+  display: grid;
+  grid-template-columns: 0.4fr 3.5fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.5fr;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.7rem 0.8rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: white;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  background: var(--navy);
+  border-bottom: 2px solid var(--gold);
+}
+
+.gr-content-row {
+  display: grid;
+  grid-template-columns: 0.4fr 3.5fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.5fr;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.85rem;
+  color: var(--navy);
+  text-align: center;
+  border-bottom: 1px solid var(--gray-100);
+  transition: background 0.15s;
+}
+.gr-content-row:hover {
+  background: var(--gray-50);
+}
+.gr-content-row .gr-item-name {
+  text-align: left;
+  font-weight: 500;
+}
+
+/* ─── No actions column for non-GOD ─── */
+.gr-content-title:not(:has(> :nth-child(11))),
+.gr-content-row:not(:has(> :nth-child(11))) {
+  grid-template-columns: 0.4fr 3.5fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr;
+}
+
+/* ─── Inputs ─── */
+.gr-input {
+  width: 60px;
+  padding: 0.25rem 0.4rem;
+  text-align: center;
+  border: 1px solid var(--gray-300);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--navy);
+  transition: border-color 0.2s;
+}
+.gr-input:focus {
+  outline: none;
+  font-weight: 700;
+  font-size: 1rem;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(252, 215, 0, 0.2);
+}
+.gr-input:disabled {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  cursor: default;
+}
+
+/* ─── Highlighted values ─── */
+.gr-shortage {
+  color: var(--danger, #ef4444);
+  font-weight: 700;
+}
+
+.gr-total-need {
+  color: #b91c1c;
+  font-weight: 700;
+  background: rgba(239, 68, 68, 0.08);
+  border-radius: 4px;
+  padding: 0.15rem 0.3rem;
+}
+
+/* ─── Vehicle count ─── */
+.gr-vehicle-count {
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  color: var(--navy);
+  font-size: 0.9rem;
+}
+
+/* ─── Search ─── */
+.gr-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.8rem;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  color: var(--gray-500);
+}
+.gr-search input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 0.9rem;
+  color: var(--navy);
+}
+.gr-search input::-moz-placeholder {
+  color: var(--gray-400);
+}
+.gr-search input::placeholder {
+  color: var(--gray-400);
+}
+
+/* ─── Edit toggle ─── */
+.gr-btn-edit-toggle {
+  display: flex;
+  align-items: center;
+  padding: 0.4rem 0.6rem;
+  background: var(--gold);
+  color: var(--navy);
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.gr-btn-edit-toggle:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+/* ─── Add item form ─── */
+.gr-add-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+.gr-add-item h4 {
+  margin: 0 0 0.6rem 0;
+  color: var(--navy);
+  font-size: 0.95rem;
+}
+.gr-add-item .gr-add-form {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  align-items: center;
+}
+.gr-add-item .gr-add-form input {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  min-width: 100px;
+  height: 100%;
+}
+.gr-add-item .gr-add-form input:first-child {
+  flex: 1;
+  max-width: 650px;
+  max-height: 40px;
+  height: 100%;
+}
+.gr-add-item .gr-add-form input::-moz-placeholder {
+  color: var(--gray-500);
+  font-size: 0.7rem;
+  height: 100%;
+}
+.gr-add-item .gr-add-form input::placeholder {
+  color: var(--gray-500);
+  font-size: 0.7rem;
+  height: 100%;
+}
+.gr-add-item .gr-add-form input[type=number] {
+  min-width: 100px;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  min-width: 100px;
+  height: 100%;
+}
+
+/* ─── Empty state ─── */
+.gr-empty {
+  text-align: center;
+  color: var(--gray-500);
+  padding: 2rem;
+  font-size: 0.9rem;
+}
+
+/* ─── Small input / rule select ─── */
+.gr-input-small {
+  width: 70px;
+  padding: 0.3rem 0.4rem;
+  text-align: center;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+}
+
+.gr-clone-select {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  background: var(--white);
+  color: var(--navy);
+  cursor: pointer;
+  max-width: 200px;
+}
+
+.gr-select-rule {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  background: var(--white);
+  color: var(--navy);
+  cursor: pointer;
+}
+
+.gr-search-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+/* ─── Mobile ─── */
+@media (max-width: 768px) {
+  .gr-search-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .gr-select-wrapp {
+    flex-wrap: wrap;
+    align-items: stretch;
+  }
+  .gr-content-title {
+    display: none;
+  }
+  .gr-search {
+    width: 100%;
+  }
+  .gr-content-row {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 0.3rem;
+    padding: 0.8rem;
+    border-bottom: 2px solid var(--gray-200);
+  }
+  .gr-content-row span {
+    display: block;
+    width: 100%;
+    display: flex;
+    padding: 0rem 1rem;
+    justify-content: space-between;
+    align-items: flex-start;
+    text-align: center;
+    word-break: break-word;
+  }
+  .gr-content-row span::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--gray-500);
+    margin-right: 0.5rem;
+    text-align: left;
+  }
+  .gr-add-item .gr-add-item-form {
+    flex-direction: column;
+  }
+  .gr-add-item .gr-add-item-form input {
+    width: 100% !important;
+    min-width: 100% !important;
+  }
+  .gr-item-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .gr-vehicle-count {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .print-btn {
+    display: none !important;
+  }
+}/*# sourceMappingURL=generalrequirements.css.map */

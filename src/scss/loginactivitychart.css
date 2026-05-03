@@ -1,0 +1,127 @@
+.login-activity-section {
+  margin-bottom: 2rem;
+}
+.login-activity-section .login-activity-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 1.25rem;
+}
+.login-activity-section .login-activity-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .login-activity-section .login-activity-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.login-activity-section .chart-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--gray-200);
+}
+.login-activity-section .chart-card .chart-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 0.5rem;
+}
+.login-activity-section .chart-card .chart-stats .stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+.login-activity-section .chart-card .chart-stats .stat-item .stat-number {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.login-activity-section .chart-card .chart-stats .stat-item .stat-label {
+  font-size: 0.8rem;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+.login-activity-section .chart-card .chart-stats .stat-item.stat-active .stat-number {
+  color: #2a9d8f;
+}
+.login-activity-section .chart-card .chart-stats .stat-item.stat-inactive .stat-number {
+  color: #e63946;
+}
+.login-activity-section .missing-card {
+  background: white;
+  height: 100%;
+  overflow-y: auto;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--gray-200);
+}
+.login-activity-section .missing-card h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.login-activity-section .missing-card h4 .badge-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  background: #e63946;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: 99px;
+  padding: 0 0.4rem;
+}
+.login-activity-section .missing-card .missing-table-scroll {
+  max-height: 280px;
+  overflow-y: auto;
+  border-radius: 8px;
+  border: 1px solid var(--gray-200);
+}
+.login-activity-section .missing-card .missing-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.login-activity-section .missing-card .missing-table th, .login-activity-section .missing-card .missing-table td {
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  font-size: 0.85rem;
+  border-bottom: 1px solid var(--gray-100);
+}
+.login-activity-section .missing-card .missing-table th {
+  background: var(--navy);
+  color: white;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.login-activity-section .missing-card .missing-table tr:hover {
+  background: var(--gray-50);
+}
+.login-activity-section .missing-card .missing-table .fw-bold {
+  font-weight: 600;
+  color: var(--navy);
+}
+.login-activity-section .missing-card .missing-table .text-muted {
+  color: var(--gray-500);
+}
+.login-activity-section .missing-card .all-updated {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #2a9d8f;
+  font-weight: 600;
+  font-size: 1.05rem;
+}/*# sourceMappingURL=loginactivitychart.css.map */
