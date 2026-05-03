@@ -402,6 +402,16 @@ export const deleteFireExtenguisher = async (id) => {
     return data;
 };
 
+export const fetchUpcomingFireExtenguishers = async () => {
+    const { data } = await api.get('/fire-extenguishers/upcoming');
+    return data;
+};
+
+export const fetchWastedFireExtenguishers = async () => {
+    const { data } = await api.get('/fire-extenguishers/wasted');
+    return data;
+};
+
 // ── Generic Datas ────────────────────────────────────
 export const fetchGenericDatas = async () => {
     const { data } = await api.get('/generic-datas');

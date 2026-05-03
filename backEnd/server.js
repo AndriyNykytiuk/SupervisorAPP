@@ -61,15 +61,17 @@ import fs from 'fs'
 // ── Security headers (HSTS, X-Frame-Options, X-Content-Type-Options, etc.) ──
 app.use(
     helmet({
-        // Vite-built dist uses inline styles and module scripts — allow them in CSP
+        // Vite-built dist uses inline styles and module scripts — allow them in CSP.
+        // styleSrc must whitelist Google Fonts CSS host (the @import in src/index.css)
+        // — fontSrc already allows the underlying gstatic font files via 'https:'.
         contentSecurityPolicy: {
             directives: {
                 defaultSrc: ["'self'"],
                 scriptSrc: ["'self'", "'unsafe-inline'"],
-                styleSrc: ["'self'", "'unsafe-inline'"],
+                styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
                 imgSrc: ["'self'", 'data:', 'https:'],
                 connectSrc: ["'self'", 'https:'],
-                fontSrc: ["'self'", 'data:', 'https:'],
+                fontSrc: ["'self'", 'data:', 'https://fonts.gstatic.com'],
             },
         },
         crossOriginEmbedderPolicy: false,

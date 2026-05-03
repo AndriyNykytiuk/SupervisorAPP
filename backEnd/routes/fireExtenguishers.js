@@ -6,6 +6,8 @@ import { scopeByRole } from '../middleware/scopeByRole.js'
 const router = Router()
 
 router.get('/', scopeByRole, ctrl.getAll)
+router.get('/upcoming', scopeByRole, ctrl.getUpcoming)
+router.get('/wasted', scopeByRole, ctrl.getWasted)
 router.get('/brigade/:brigadeId', ctrl.getByBrigade)
 router.get('/:id', scopeByRole, ctrl.getById)
 

@@ -1,5 +1,5 @@
 import { Op } from 'sequelize'
-import { TestItem, testList, Brigade, FoamAgent, Powder, UsageLiquidsLog, Detachment, ElectricStations, WaterPumps, HydravlicTool } from '../models/index.js'
+import { TestItem, testList, Brigade, FoamAgent, Powder, UsageLiquidsLog, Detachment, ElectricStations, WaterPumps, HydravlicTool, FireExtenguisher } from '../models/index.js'
 
 export const getGenericDatas = async (req, res, next) => {
     try {
@@ -44,13 +44,44 @@ export const getGenericDatas = async (req, res, next) => {
         })
 
         const upcomingTests = await TestItem.findAll({
-            where: { 
-                ...testWhereClause, 
-                nextTestDate: { [Op.between]: [today, inTenDays] } 
+            where: {
+                ...testWhereClause,
+                nextTestDate: { [Op.between]: [today, inTenDays] }
             },
             include: [{ model: testList }, ...includeBrigadeWithDetachment],
             order: [['nextTestDate', 'ASC']]
         })
+
+        // Fire extinguishers also have a maintenance/test schedule — fold them
+        // into the same upcoming/wasted lists so the UI groups them as one.
+        const extWhere = brigadeIds ? { brigadeId: brigadeIds } : {}
+        const wastedExt = await FireExtenguisher.findAll({
+            where: { ...extWhere, nextMaintenanceDate: { [Op.lt]: today } },
+            include: includeBrigadeWithDetachment,
+            order: [['nextMaintenanceDate', 'ASC']]
+        })
+        const upcomingExt = await FireExtenguisher.findAll({
+            where: { ...extWhere, nextMaintenanceDate: { [Op.between]: [today, inTenDays] } },
+            include: includeBrigadeWithDetachment,
+            order: [['nextMaintenanceDate', 'ASC']]
+        })
+
+        // Reshape extinguisher rows to look like TestItem so the frontend can
+        // render them through UpcomingTestsGrouped/Wastedtestitem unchanged.
+        const extToTestShape = (e) => {
+            const json = e.toJSON ? e.toJSON() : e
+            return {
+                id: `ext_${json.id}`,
+                name: json.extinguisherType,
+                inventoryNumber: json.inventoryNumber,
+                nextTestDate: json.nextMaintenanceDate,
+                Brigade: json.Brigade,
+                testListId: 'fire-extenguisher',
+                testList: { id: 'fire-extenguisher', name: 'Вогнегасники' },
+            }
+        }
+        const wastedAll = [...wastedTests, ...wastedExt.map(extToTestShape)]
+        const upcomingAll = [...upcomingTests, ...upcomingExt.map(extToTestShape)]
 
         const liquidWhereClause = brigadeIds ? { brigadeId: brigadeIds } : {}
         
@@ -93,7 +124,7 @@ export const getGenericDatas = async (req, res, next) => {
         }
 
         res.json({
-            tests: { wasted: wastedTests, upcoming: upcomingTests },
+            tests: { wasted: wastedAll, upcoming: upcomingAll },
             totalLiquids: { foam: foamAgents, powder: powders },
             usedLiquids: usedLiquids,
             detachments: detachments,
