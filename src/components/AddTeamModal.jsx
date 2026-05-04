@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { toast } from 'react-toastify'
 import {
     fetchTransferBrigades,
-    fetchUsersByBrigade,
+    fetchUsersByDetachment,
     fetchGarrisonTools,
     addEventTeam,
     updateEventTeam,
@@ -21,7 +21,7 @@ const emptyForm = {
     notes: '',
 }
 
-const AddTeamModal = ({ isOpen, eventId, team, onClose, onSaved }) => {
+const AddTeamModal = ({ isOpen, eventId, team, onClose, onSaved, allowedBrigades }) => {
     const isEdit = !!team
     const [form, setForm] = useState(emptyForm)
     const [equipment, setEquipment] = useState([]) // [{id, name, category, quantity, brigadeId, brigadeName}]
@@ -31,12 +31,28 @@ const AddTeamModal = ({ isOpen, eventId, team, onClose, onSaved }) => {
     const [toolSearch, setToolSearch] = useState('')
     const [saving, setSaving] = useState(false)
     const [showToolPicker, setShowToolPicker] = useState(false)
+    const brigadeDetachmentMap = useRef({}) // { brigadeId → detachmentId }
 
     useEffect(() => {
         if (!isOpen) return
-        fetchTransferBrigades().then(setBrigades).catch(() => setBrigades([]))
+        fetchTransferBrigades()
+            .then((detachments) => {
+                const map = {}
+                ;(detachments || []).forEach((det) => {
+                    ;(det.Brigades || []).forEach((b) => { map[b.id] = det.id })
+                })
+                brigadeDetachmentMap.current = map
+
+                if (allowedBrigades?.length > 0) {
+                    setBrigades(allowedBrigades)
+                } else {
+                    const flat = (detachments || []).flatMap((det) => det.Brigades || [])
+                    setBrigades(flat)
+                }
+            })
+            .catch(() => setBrigades([]))
         fetchGarrisonTools().then(setToolGroups).catch(() => setToolGroups([]))
-    }, [isOpen])
+    }, [isOpen, allowedBrigades])
 
     useEffect(() => {
         if (!isOpen) return
@@ -64,9 +80,12 @@ const AddTeamModal = ({ isOpen, eventId, team, onClose, onSaved }) => {
             setUsers([])
             return
         }
-        fetchUsersByBrigade(form.brigadeId)
-            .then(setUsers)
-            .catch(() => setUsers([]))
+        const detachmentId = brigadeDetachmentMap.current[Number(form.brigadeId)]
+        if (detachmentId) {
+            fetchUsersByDetachment(detachmentId).then(setUsers).catch(() => setUsers([]))
+        } else {
+            setUsers([])
+        }
     }, [form.brigadeId])
 
     const update = (field, val) => setForm((f) => ({ ...f, [field]: val }))

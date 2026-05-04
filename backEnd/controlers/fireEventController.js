@@ -114,8 +114,19 @@ export const updateEvent = async (req, res, next) => {
         }
         const { name, address, description, startTime } = req.body
         const allowed = { name, address, description, startTime }
+
+        const changes = {}
+        const fields = ['name', 'address', 'description', 'startTime']
+        for (const key of fields) {
+            const oldVal = event[key] ?? null
+            const newVal = allowed[key] ?? null
+            if (String(oldVal) !== String(newVal)) {
+                changes[key] = { from: oldVal, to: newVal }
+            }
+        }
+
         await event.update(allowed, { transaction: t })
-        await logHistory(t, event.id, req, 'event_updated', allowed)
+        await logHistory(t, event.id, req, 'event_updated', { changes })
         await t.commit()
         const full = await loadFullEvent(event.id)
         res.json(full)

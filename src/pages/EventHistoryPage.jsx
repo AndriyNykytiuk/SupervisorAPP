@@ -13,7 +13,7 @@ import '../scss/fireevents.scss'
 const ACTION_LABELS = {
     event_created: { text: 'Створено подію', color: '#2563eb' },
     event_updated: { text: 'Оновлено подію', color: '#0891b2' },
-    event_closed: { text: 'Закрито подію', color: '#dc2626' },
+    event_closed: { text: 'Подію ліквідовано', color: '#dc2626' },
     team_added: { text: 'Додано команду', color: '#16a34a' },
     team_removed: { text: 'Видалено команду', color: '#dc2626' },
     team_count_changed: { text: 'Змінено кількість людей', color: '#d97706' },
@@ -22,18 +22,45 @@ const ACTION_LABELS = {
 
 const fmtDate = (d) =>
     new Date(d).toLocaleString('uk-UA', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit',
     })
+
+const FIELD_LABELS = {
+    name: 'Назва',
+    address: 'Адреса',
+    description: 'Опис',
+    startTime: 'Початок',
+}
+
+const fmtVal = (key, val) => {
+    if (val === null || val === undefined || val === '') return '—'
+    if (key === 'startTime') return fmtDate(val)
+    return String(val)
+}
 
 const renderDetails = (action, details) => {
     if (!details) return null
     switch (action) {
         case 'event_created':
             return `${details.name}${details.address ? ` · ${details.address}` : ''}`
+        case 'event_updated': {
+            const changes = details.changes || {}
+            const entries = Object.entries(changes)
+            if (entries.length === 0) return null
+            return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                    {entries.map(([key, { from, to }]) => (
+                        <span key={key} style={{ fontSize: '.83rem' }}>
+                            <strong style={{ color: '#475569' }}>{FIELD_LABELS[key] || key}:</strong>{' '}
+                            <span style={{ color: '#dc2626', textDecoration: 'line-through' }}>{fmtVal(key, from)}</span>
+                            {' → '}
+                            <span style={{ color: '#16a34a' }}>{fmtVal(key, to)}</span>
+                        </span>
+                    ))}
+                </div>
+            )
+        }
         case 'team_added':
             return `${details.brigadeName || ''}${details.locationName ? ` · ${details.locationName}` : ''} · ${details.peopleCount ?? 0} ос.`
         case 'team_removed':

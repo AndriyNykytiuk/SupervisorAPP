@@ -8,6 +8,7 @@ import {
     archiveEquipmentItem,
 } from '../api/services.js'
 import ArchiveModal from './ArchiveModal.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
 import '../scss/itemtest.scss'
 
 const EXTINGUISHER_TYPES = ['ВП-2(з)', 'ВП-5(з)','ВП-6(з)','ВВК-1.4']
@@ -19,6 +20,7 @@ const initialFormState = {
     nextMaintenanceDate: '',
     inspectionConclusion: '',
     maintenanceOrganization: '',
+    decommissionYear: '',
 }
 
 const formatDate = (dateString) => {
@@ -27,6 +29,8 @@ const formatDate = (dateString) => {
 }
 
 const FireExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
+    const { user } = useAuth()
+    const canEdit = user?.role === 'GOD' || user?.role === 'RW'
     const [items, setItems] = useState([])
     const [showForm, setShowForm] = useState(false)
     const [isExpanded, setIsExpanded] = useState(false)
@@ -34,6 +38,7 @@ const FireExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
     const [editingItemId, setEditingItemId] = useState(null)
     const [editFormData, setEditFormData] = useState({})
     const [itemToArchive, setItemToArchive] = useState(null)
+    const [sortByDecommission, setSortByDecommission] = useState(false)
 
     const fetchData = async () => {
         if (!selectedBrigade) return
@@ -64,6 +69,7 @@ const FireExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
         nextMaintenanceDate: data.nextMaintenanceDate || null,
         inspectionConclusion: data.inspectionConclusion || null,
         maintenanceOrganization: data.maintenanceOrganization || null,
+        decommissionYear: data.decommissionYear ? parseInt(data.decommissionYear, 10) : null,
     })
 
     const handleCreate = async (e) => {
@@ -92,6 +98,7 @@ const FireExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
             nextMaintenanceDate: item.nextMaintenanceDate ? item.nextMaintenanceDate.split('T')[0] : '',
             inspectionConclusion: item.inspectionConclusion || '',
             maintenanceOrganization: item.maintenanceOrganization || '',
+            decommissionYear: item.decommissionYear ?? '',
         })
     }
 
@@ -141,7 +148,13 @@ const FireExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
         i.extinguisherType?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         i.location?.toLowerCase().includes(searchQuery.toLowerCase())
 
-    const filtered = items.filter(matchesSearch).sort((a, b) => a.id - b.id)
+    const currentYear = new Date().getFullYear()
+    const filtered = items.filter(matchesSearch).sort((a, b) => {
+        if (!sortByDecommission) return a.id - b.id
+        const da = a.decommissionYear ? Math.abs(a.decommissionYear - currentYear) : Infinity
+        const db = b.decommissionYear ? Math.abs(b.decommissionYear - currentYear) : Infinity
+        return da - db
+    })
 
     return (
         <div className='item-wrapper'>
@@ -152,9 +165,18 @@ const FireExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
                     </div>
                     <div className='item-header-actions'>
                         {isExpanded && (
-                            <h3 className='add-btn' onClick={(e) => { e.stopPropagation(); setShowForm(!showForm) }}>
-                                {showForm ? '✕' : '+ додати'}
-                            </h3>
+                            <>
+                                <h3
+                                    className='add-btn'
+                                    onClick={(e) => { e.stopPropagation(); setSortByDecommission(s => !s) }}
+                                    style={{ fontSize: '0.8rem', opacity: sortByDecommission ? 1 : 0.5 }}
+                                >
+                                    {sortByDecommission ? '↑ рік списання' : 'сортувати за роком списання'}
+                                </h3>
+                                <h3 className='add-btn' onClick={(e) => { e.stopPropagation(); setShowForm(!showForm) }}>
+                                    {showForm ? '✕' : '+ додати'}
+                                </h3>
+                            </>
                         )}
                     </div>
                 </div>
@@ -166,6 +188,7 @@ const FireExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
                         <span>наступне ТО</span>
                         <span>висновки</span>
                         <span>організація ТО</span>
+                        <span>рік списання</span>
                         <span>оновити</span>
                     </div>
                 )}
@@ -197,6 +220,13 @@ const FireExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
 
                             <input type='text' name='maintenanceOrganization' placeholder='Організація ТО' value={formData.maintenanceOrganization} onChange={handleChange} />
 
+                            {canEdit && (
+                                <>
+                                    <label>Рік списання:</label>
+                                    <input type='number' name='decommissionYear' placeholder='Рік списання' value={formData.decommissionYear} onChange={handleChange} min='1900' max='2100' />
+                                </>
+                            )}
+
                             <button type='submit'>Створити</button>
                         </form>
                     </div>
@@ -219,6 +249,17 @@ const FireExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
                                     <input type='date' name='nextMaintenanceDate' value={editFormData.nextMaintenanceDate} onChange={handleEditChange} />
                                     <input type='text' name='inspectionConclusion' placeholder='Висновки' value={editFormData.inspectionConclusion} onChange={handleEditChange} />
                                     <input type='text' name='maintenanceOrganization' placeholder='Організація ТО' value={editFormData.maintenanceOrganization} onChange={handleEditChange} />
+                                    {canEdit && (
+                                        <input
+                                            type='number'
+                                            name='decommissionYear'
+                                            placeholder='Рік списання'
+                                            value={editFormData.decommissionYear}
+                                            onChange={handleEditChange}
+                                            min='1900'
+                                            max='2100'
+                                        />
+                                    )}
 
                                     <div className='edit-actions'>
                                         <button type='submit' className='save-btn'>Зберегти</button>
@@ -241,6 +282,7 @@ const FireExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
                                     <span style={{ flex: '1' }} title='Наступне ТО'>{formatDate(item.nextMaintenanceDate)}</span>
                                     <span style={{ flex: '1.2' }} title='Висновки'>{item.inspectionConclusion || '—'}</span>
                                     <span style={{ flex: '1' }} title='Організація ТО'>{item.maintenanceOrganization || '—'}</span>
+                                    <span style={{ flex: '0.6' }} title='Рік списання'>{item.decommissionYear || '—'}</span>
                                     <button className='update-btn' onClick={() => handleEditClick(item)}>
                                         <MdUpdate />
                                     </button>

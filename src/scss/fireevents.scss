@@ -515,6 +515,122 @@
     border-radius: 4px;
 }
 
+/* ─── Consolidated unit picker ─── */
+.fe-consolidated-section {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: .75rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+.fe-consolidated-header {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    font-weight: 600;
+    font-size: .9rem;
+    color: var(--navy, #0f172a);
+}
+
+.fe-consolidated-badge {
+    background: #dc2626;
+    color: #fff;
+    border-radius: 999px;
+    font-size: .75rem;
+    font-weight: 600;
+    padding: .15rem .55rem;
+}
+
+.fe-detachment-list {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+}
+
+.fe-detachment-item {
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.fe-detachment-row {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .5rem .7rem;
+    cursor: pointer;
+    user-select: none;
+    transition: background .1s;
+
+    &:hover { background: #f1f5f9; }
+}
+
+.fe-detachment-arrow { font-size: .8rem; color: #94a3b8; flex-shrink: 0; }
+
+.fe-detachment-name { flex: 1; font-weight: 500; font-size: .88rem; color: #0f172a; }
+
+.fe-detachment-count {
+    font-size: .78rem;
+    color: #dc2626;
+    font-weight: 600;
+    background: #fee2e2;
+    border-radius: 999px;
+    padding: .1rem .45rem;
+}
+
+.fe-select-all-btn {
+    background: transparent;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    font-size: .75rem;
+    color: #64748b;
+    padding: .15rem .45rem;
+    cursor: pointer;
+    transition: all .1s;
+
+    &:hover {
+        background: #f1f5f9;
+        border-color: #94a3b8;
+        color: #0f172a;
+    }
+}
+
+.fe-brigade-list {
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+    padding: .4rem .7rem .6rem 1.6rem;
+    border-top: 1px solid #f1f5f9;
+}
+
+.fe-brigade-checkbox {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
+    gap: .45rem;
+    font-size: .85rem !important;
+    font-weight: 400 !important;
+    color: #334155 !important;
+    cursor: pointer;
+    padding: .2rem 0;
+
+    input[type="checkbox"] {
+        width: 15px;
+        height: 15px;
+        cursor: pointer;
+        accent-color: var(--navy, #0f172a);
+        border: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+    }
+
+    &:hover { color: #0f172a !important; }
+}
+
 /* ─── Header avatar button (GOD trigger) ─── */
 .header__avatar.is-god {
     cursor: pointer;

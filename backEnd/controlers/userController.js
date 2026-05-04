@@ -1,14 +1,21 @@
 import bcrypt from 'bcrypt'
-import { User } from '../models/index.js'
+import { Op } from 'sequelize'
+import { User, Brigade } from '../models/index.js'
 
 const SALT_ROUNDS = 10
 
-// GET /api/users  (supports ?brigadeId=123 filter)
+// GET /api/users  (supports ?brigadeId=123 and ?detachmentId=123 filters)
 export const getAll = async (req, res, next) => {
     try {
         const where = {}
         if (req.query.brigadeId) {
             where.brigadeId = Number(req.query.brigadeId)
+        } else if (req.query.detachmentId) {
+            const brigades = await Brigade.findAll({
+                where: { detachmentId: Number(req.query.detachmentId) },
+                attributes: ['id'],
+            })
+            where.brigadeId = { [Op.in]: brigades.map((b) => b.id) }
         }
         const users = await User.findAll({
             where,

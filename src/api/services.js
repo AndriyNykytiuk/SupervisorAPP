@@ -575,6 +575,11 @@ export const fetchUsersByBrigade = async (brigadeId) => {
     return data;
 };
 
+export const fetchUsersByDetachment = async (detachmentId) => {
+    const { data } = await api.get('/users', { params: { detachmentId } });
+    return data;
+};
+
 // ── Surveys ──────────────────────────────────────────
 export const fetchSurveys = async () => {
     const { data } = await api.get('/surveys');

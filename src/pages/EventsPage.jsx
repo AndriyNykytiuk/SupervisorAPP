@@ -6,6 +6,7 @@ import useApi from '../hooks/useApi.js'
 import LoadingSpinner from '../components/ui/LoadingSpinner.jsx'
 import ErrorMessage from '../components/ui/ErrorMessage.jsx'
 import AddTeamModal from '../components/AddTeamModal.jsx'
+import EditEventModal from '../components/EditEventModal.jsx'
 import {
     fetchFireEvents,
     closeFireEvent,
@@ -31,8 +32,9 @@ const EventsPage = () => {
     const { data: events, loading, error, refetch } = useApi(() => fetchFireEvents(), [])
 
     const [tab, setTab] = useState('open') // 'open' | 'closed'
-    const [addTeamFor, setAddTeamFor] = useState(null) // eventId or null
-    const [editTeam, setEditTeam] = useState(null) // {team, eventId}
+    const [addTeamFor, setAddTeamFor] = useState(null)
+    const [editTeam, setEditTeam] = useState(null)
+    const [editEvent, setEditEvent] = useState(null) // event object
 
     const filtered = (events || []).filter((e) => e.status === tab)
 
@@ -127,8 +129,20 @@ const EventsPage = () => {
                                     {isGod && ev.status === 'open' && (
                                         <>
                                             <button
+                                                className="fe-btn fe-btn-secondary fe-btn-sm"
+                                                onClick={() => setEditEvent(ev)}
+                                            >
+                                                Редагувати
+                                            </button>
+                                            <button
                                                 className="fe-btn fe-btn-primary fe-btn-sm"
-                                                onClick={() => setAddTeamFor(ev.id)}
+                                                onClick={() => setAddTeamFor({
+                                                    eventId: ev.id,
+                                                    allowedBrigades: (ev.EventTeams || []).map((t) => ({
+                                                        id: t.brigadeId,
+                                                        name: t.Brigade?.name || '',
+                                                    })),
+                                                })}
                                             >
                                                 + Команда
                                             </button>
@@ -136,7 +150,7 @@ const EventsPage = () => {
                                                 className="fe-btn fe-btn-warning fe-btn-sm"
                                                 onClick={() => handleClose(ev)}
                                             >
-                                                Закрити
+                                                Ліквідація
                                             </button>
                                         </>
                                     )}
@@ -236,7 +250,8 @@ const EventsPage = () => {
 
             <AddTeamModal
                 isOpen={!!addTeamFor}
-                eventId={addTeamFor}
+                eventId={addTeamFor?.eventId}
+                allowedBrigades={addTeamFor?.allowedBrigades}
                 onClose={() => setAddTeamFor(null)}
                 onSaved={() => refetch()}
             />
@@ -246,6 +261,11 @@ const EventsPage = () => {
                 team={editTeam?.team}
                 onClose={() => setEditTeam(null)}
                 onSaved={() => refetch()}
+            />
+            <EditEventModal
+                event={editEvent}
+                onClose={() => setEditEvent(null)}
+                onSaved={() => { refetch(); setEditEvent(null) }}
             />
         </div>
     )
