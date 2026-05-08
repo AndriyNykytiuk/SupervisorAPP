@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { fetchArchivedEquipment, fetchTransferLogs, fetchTransferBrigades } from '../api/services.js';
+import { toast } from 'react-toastify';
+import { fetchArchivedEquipment, fetchTransferLogs, fetchTransferBrigades, openInternalDocumentLink } from '../api/services.js';
 
 import '../scss/archivepage.scss';
 
@@ -144,7 +145,18 @@ const ArchivePage = () => {
                                         <td className="archive-danger">{item.writeOffReason}</td>
                                         <td>
                                             {item.documentLink ? (
-                                                <a href={item.documentLink} target="_blank" rel="noreferrer" className="archive-link">{item.actNumber}</a>
+                                                /^\/api\/equipment-documents\/\d+\/download/.test(item.documentLink) ? (
+                                                    <button
+                                                        type='button'
+                                                        className="archive-link"
+                                                        style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', cursor: 'pointer' }}
+                                                        onClick={() => openInternalDocumentLink(item.documentLink).catch(() => toast.error('Не вдалося відкрити документ'))}
+                                                    >
+                                                        {item.actNumber}
+                                                    </button>
+                                                ) : (
+                                                    <a href={item.documentLink} target="_blank" rel="noreferrer" className="archive-link">{item.actNumber}</a>
+                                                )
                                             ) : (
                                                 <span className="archive-act">{item.actNumber}</span>
                                             )}

@@ -287,9 +287,12 @@ const ItemSpecialTool = ({ selectedBrigade, searchQuery = '', transferBrigades =
                 ))}
             </div>
             
-            <ArchiveModal 
+            <ArchiveModal
                 isOpen={!!itemToArchive}
                 itemName={itemToArchive?.name}
+                equipmentType='SpecialTool'
+                equipmentId={itemToArchive?.id}
+                brigadeId={selectedBrigade}
                 onClose={() => setItemToArchive(null)}
                 onConfirm={handleConfirmArchive}
             />

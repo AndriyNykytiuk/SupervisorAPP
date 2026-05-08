@@ -302,9 +302,12 @@ const ItemWaterPump = ({ selectedBrigade, searchQuery = '', transferBrigades = [
                 ))}
             </div>
             
-            <ArchiveModal 
+            <ArchiveModal
                 isOpen={!!itemToArchive}
                 itemName={itemToArchive?.name}
+                equipmentType='WaterPumps'
+                equipmentId={itemToArchive?.id}
+                brigadeId={selectedBrigade}
                 onClose={() => setItemToArchive(null)}
                 onConfirm={handleConfirmArchive}
             />

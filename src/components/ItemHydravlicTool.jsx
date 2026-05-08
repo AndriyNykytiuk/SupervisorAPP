@@ -316,6 +316,9 @@ const ItemHydravlicTool = ({ selectedBrigade, searchQuery = '', transferBrigades
             <ArchiveModal
                 isOpen={!!itemToArchive}
                 itemName={itemToArchive?.name}
+                equipmentType='HydravlicTool'
+                equipmentId={itemToArchive?.id}
+                brigadeId={selectedBrigade}
                 onClose={() => setItemToArchive(null)}
                 onConfirm={handleConfirmArchive}
             />

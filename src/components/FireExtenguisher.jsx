@@ -8,6 +8,7 @@ import {
     archiveEquipmentItem,
 } from '../api/services.js'
 import ArchiveModal from './ArchiveModal.jsx'
+import DocumentUploader from './DocumentUploader.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import '../scss/itemtest.scss'
 
@@ -264,6 +265,12 @@ const FireExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
                                     <div className='edit-actions'>
                                         <button type='submit' className='save-btn'>Зберегти</button>
                                         <button type='button' className='cancel-btn' onClick={handleCancelEdit}>відмінити</button>
+                                        <DocumentUploader
+                                            equipmentType='FireExtenguisher'
+                                            equipmentId={item.id}
+                                            brigadeId={selectedBrigade}
+                                            canEdit={canEdit}
+                                        />
                                         <button
                                             type='button'
                                             className='archive-btn'
@@ -298,6 +305,9 @@ const FireExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
             <ArchiveModal
                 isOpen={!!itemToArchive}
                 itemName={itemToArchive ? `Вогнегасник ${itemToArchive.extinguisherType}${itemToArchive.inventoryNumber ? ` (${itemToArchive.inventoryNumber})` : ''}` : ''}
+                equipmentType='FireExtenguisher'
+                equipmentId={itemToArchive?.id}
+                brigadeId={selectedBrigade}
                 onClose={() => setItemToArchive(null)}
                 onConfirm={handleConfirmArchive}
             />

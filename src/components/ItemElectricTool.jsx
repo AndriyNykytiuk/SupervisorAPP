@@ -310,6 +310,9 @@ const ItemElectricTool = ({ selectedBrigade, searchQuery = '', transferBrigades 
             <ArchiveModal
                 isOpen={!!itemToArchive}
                 itemName={itemToArchive?.name}
+                equipmentType='ElectricStations'
+                equipmentId={itemToArchive?.id}
+                brigadeId={selectedBrigade}
                 onClose={() => setItemToArchive(null)}
                 onConfirm={handleConfirmArchive}
             />

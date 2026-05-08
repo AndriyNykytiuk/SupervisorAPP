@@ -46,6 +46,7 @@ import pneumaticToolsRouter from './routes/pneumaticTools.js'
 import petrolCuttersRouter from './routes/petrolCutters.js'
 import fireExtenguishersRouter from './routes/fireExtenguishers.js'
 import lightMastsRouter from './routes/lightMasts.js'
+import equipmentDocumentsRouter from './routes/equipmentDocuments.js'
 
 
 const app = express()
@@ -138,6 +139,7 @@ app.use('/api/pneumatic-tools', authenticate, pneumaticToolsRouter)
 app.use('/api/petrol-cutters', authenticate, petrolCuttersRouter)
 app.use('/api/fire-extenguishers', authenticate, fireExtenguishersRouter)
 app.use('/api/light-masts', authenticate, lightMastsRouter)
+app.use('/api/equipment-documents', authenticate, equipmentDocumentsRouter)
 
 // ── Catch-all: serve index.html for any other route (React routing) ─────
 const indexPath = path.resolve(__dirname, '../dist/index.html')
@@ -170,12 +172,13 @@ async function start() {
 
     // ── Safe one-time migrations (run on ALL environments) ──────
     try {
-        const { VehicleType, EquipmentItem, EquipmentAvailability, BrigadeVehicle, testList } = await import('./models/index.js')
+        const { VehicleType, EquipmentItem, EquipmentAvailability, BrigadeVehicle, testList, EquipmentDocument } = await import('./models/index.js')
         await VehicleType.sync({ alter: true })
         await EquipmentItem.sync({ alter: true })
         await EquipmentAvailability.sync({ alter: true })
         await BrigadeVehicle.sync({ alter: true })
         await testList.sync({ alter: true })
+        await EquipmentDocument.sync({ alter: true })
 
         // Idempotent additive: Users.detachmentId for SEMI-GOD direct binding.
         // Raw SQL (not User.sync alter) to avoid touching the role ENUM.
@@ -207,7 +210,7 @@ async function start() {
         await EquipmentItem.sync({ alter: true })
         await EquipmentAvailability.sync({ alter: true })
         await BrigadeVehicle.sync({ alter: true })
-        const { SpecialTool, FireEvent, EventTeam, EventHistory, SurveyForm, SurveyResponse, ChainSaw, PneumaticTool, PetrolCutter, FireExtenguisher, LightMast } = await import('./models/index.js')
+        const { SpecialTool, FireEvent, EventTeam, EventHistory, SurveyForm, SurveyResponse, ChainSaw, PneumaticTool, PetrolCutter, FireExtenguisher, LightMast, EquipmentDocument } = await import('./models/index.js')
         await SpecialTool.sync({ alter: true })
         await FireEvent.sync({ alter: true })
         await EventTeam.sync({ alter: true })
@@ -219,6 +222,7 @@ async function start() {
         await PetrolCutter.sync({ alter: true })
         await FireExtenguisher.sync({ alter: true })
         await LightMast.sync({ alter: true })
+        await EquipmentDocument.sync({ alter: true })
         console.log('📦 Tables altered for development environment')
     } else {
         console.log('📦 Tables verified for production (no alter)')

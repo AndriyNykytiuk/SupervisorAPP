@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { fetchTestItemsByBrigade, fetchTestLinksByBrigade, updateTestLinks } from '../api/services.js';
+import React, { useState, useRef } from 'react';
+import { toast } from 'react-toastify';
+import { fetchTestItemsByBrigade, fetchTestLinksByBrigade, updateTestLinks, uploadEquipmentDocument } from '../api/services.js';
 import useApi from '../hooks/useApi.js';
 import LoadingSpinner from './ui/LoadingSpinner.jsx';
 import ErrorMessage from './ui/ErrorMessage.jsx';
@@ -14,6 +15,34 @@ const Testcomponent = ({ selectedBrigade }) => {
     const [showLinksModal, setShowLinksModal] = useState(false)
     const [linksFormData, setLinksFormData] = useState({ linkSchedule: '', linkOrder: '' })
     const [searchQuery, setSearchQuery] = useState('')
+    const [uploadingField, setUploadingField] = useState(null) // 'linkSchedule' | 'linkOrder' | null
+    const scheduleFileRef = useRef(null)
+    const orderFileRef = useRef(null)
+
+    const handlePdfUpload = async (field, equipmentType, e) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+        if (file.type !== 'application/pdf') { toast.error('Тільки PDF'); e.target.value = ''; return }
+        if (file.size > 20 * 1024 * 1024) { toast.error('Файл більше 20MB'); e.target.value = ''; return }
+
+        setUploadingField(field)
+        try {
+            const doc = await uploadEquipmentDocument({
+                equipmentType,
+                equipmentId: selectedBrigade,
+                brigadeId: selectedBrigade,
+                documentName: equipmentType === 'TestSchedule' ? 'Графік випробувань' : 'Наказ на випробування',
+                file,
+            })
+            setLinksFormData((prev) => ({ ...prev, [field]: `/api/equipment-documents/${doc.id}/download` }))
+            toast.success('PDF завантажено — натисніть Зберегти')
+        } catch (err) {
+            toast.error(err.response?.data?.error || 'Помилка завантаження')
+        } finally {
+            setUploadingField(null)
+            e.target.value = ''
+        }
+    }
 
     const {
         data: testLists,
@@ -85,19 +114,37 @@ const Testcomponent = ({ selectedBrigade }) => {
                         <form className='add-form' onSubmit={handleLinksSubmit}>
                             <label>Графік випробувань:</label>
                             <input
-                                type='url'
+                                type='text'
                                 value={linksFormData.linkSchedule}
                                 onChange={(e) => setLinksFormData({ ...linksFormData, linkSchedule: e.target.value })}
-                                placeholder='Посилання на графік'
+                                placeholder='Посилання або завантажте PDF'
                             />
+                            <input ref={scheduleFileRef} type='file' accept='application/pdf' style={{ display: 'none' }} onChange={(e) => handlePdfUpload('linkSchedule', 'TestSchedule', e)} />
+                            <button
+                                type='button'
+                                onClick={() => scheduleFileRef.current?.click()}
+                                disabled={uploadingField !== null}
+                                style={{ marginBottom: '0.75rem', backgroundColor: 'var(--navy)', color: '#fff', border: 'none', padding: '0.45rem 0.85rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 500 }}
+                            >
+                                {uploadingField === 'linkSchedule' ? 'Завантаження...' : '+ PDF графік'}
+                            </button>
 
                             <label>Наказ на випробування:</label>
                             <input
-                                type='url'
+                                type='text'
                                 value={linksFormData.linkOrder}
                                 onChange={(e) => setLinksFormData({ ...linksFormData, linkOrder: e.target.value })}
-                                placeholder='Посилання на наказ'
+                                placeholder='Посилання або завантажте PDF'
                             />
+                            <input ref={orderFileRef} type='file' accept='application/pdf' style={{ display: 'none' }} onChange={(e) => handlePdfUpload('linkOrder', 'TestOrder', e)} />
+                            <button
+                                type='button'
+                                onClick={() => orderFileRef.current?.click()}
+                                disabled={uploadingField !== null}
+                                style={{ marginBottom: '0.75rem', backgroundColor: 'var(--navy)', color: '#fff', border: 'none', padding: '0.45rem 0.85rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 500 }}
+                            >
+                                {uploadingField === 'linkOrder' ? 'Завантаження...' : '+ PDF наказ'}
+                            </button>
 
                             <button type='submit'>Зберегти</button>
                         </form>

@@ -267,6 +267,9 @@ const ItemTool = ({ toolList, selectedBrigade, onItemCreated, searchQuery = '', 
             <ArchiveModal
                 isOpen={!!itemToArchive}
                 itemName={itemToArchive?.name}
+                equipmentType='ToolItem'
+                equipmentId={itemToArchive?.id}
+                brigadeId={selectedBrigade}
                 onClose={() => setItemToArchive(null)}
                 onConfirm={handleConfirmArchive}
             />

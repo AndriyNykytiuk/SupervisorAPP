@@ -3,9 +3,10 @@ import { MdUpdate, MdSettings } from "react-icons/md";
 import { FaArrowDownWideShort } from "react-icons/fa6";
 import { MdCheckBox, MdCheckBoxOutlineBlank } from "react-icons/md";
 import { toast } from 'react-toastify'
-import { createTestItem, updateTestItem, bulkUpdateTestItems, archiveEquipmentItem, updateTestList } from '../api/services.js';
+import { createTestItem, updateTestItem, bulkUpdateTestItems, archiveEquipmentItem, updateTestList, openInternalDocumentLink, uploadEquipmentDocumentBulk } from '../api/services.js';
 import { useAuth } from '../context/AuthContext.jsx'
 import ArchiveModal from './ArchiveModal.jsx'
+import DocumentUploader from './DocumentUploader.jsx'
 import '../scss/itemtest.scss'
 
 // testDate (YYYY-MM-DD) + months → YYYY-MM-DD; preserves local date semantics.
@@ -55,6 +56,55 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
     // ── Archive state ──
     const [itemToArchive, setItemToArchive] = useState(null)
     const [isBulkSaving, setIsBulkSaving] = useState(false)
+    const [isBulkUploading, setIsBulkUploading] = useState(false)
+    const bulkFileInputRef = React.useRef(null)
+
+    const handleBulkPdfUpload = async (e) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+        if (file.type !== 'application/pdf') {
+            toast.error('Тільки PDF')
+            e.target.value = ''
+            return
+        }
+        if (file.size > 20 * 1024 * 1024) {
+            toast.error('Файл більше 20MB')
+            e.target.value = ''
+            return
+        }
+        if (selectedIds.length === 0) {
+            toast.error('Не вибрано жодного елемента')
+            e.target.value = ''
+            return
+        }
+        setIsBulkUploading(true)
+        try {
+            const docs = await uploadEquipmentDocumentBulk({
+                equipmentType: 'TestItem',
+                equipmentIds: selectedIds,
+                brigadeId: selectedBrigade,
+                documentName: bulkFormData.linkName?.trim() || file.name,
+                file,
+            })
+            // Each item gets its own download URL — find this item's record after bulk update
+            // Since bulkUpdateTestItems sets the SAME link for all, we use a generic helper URL.
+            // However, each item should ideally point to its own doc. For simplicity, we set
+            // bulkFormData.link to the FIRST doc URL — when user opens DocumentUploader for any item,
+            // it shows its own record (since each has its own equipmentId).
+            const firstDoc = docs[0]
+            setBulkFormData((prev) => ({
+                ...prev,
+                linkName: firstDoc?.documentName || prev.linkName,
+                link: firstDoc ? `/api/equipment-documents/${firstDoc.id}/download` : prev.link,
+            }))
+            toast.success(`PDF прикріплено до ${docs.length} елементів`)
+        } catch (err) {
+            toast.error(err.response?.data?.error || 'Помилка завантаження')
+        } finally {
+            setIsBulkUploading(false)
+            e.target.value = ''
+        }
+    }
 
     // ── GOD interval-settings modal ──
     const [showIntervalModal, setShowIntervalModal] = useState(false)
@@ -430,7 +480,24 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
                             <input type='date' name='nextTestDate' value={bulkFormData.nextTestDate} onChange={handleBulkChange} disabled={bulkFormData.result === 'fail'} title={bulkFormData.result === 'fail' ? 'Непридатне обладнання — наступне випробування не призначається' : undefined} />
 
                             <input type='text' name='linkName' placeholder='Назва документу' value={bulkFormData.linkName} onChange={handleBulkChange} />
-                            <input type='url' name='link' placeholder='Посилання на документ' value={bulkFormData.link} onChange={handleBulkChange} />
+                            <input type='text' name='link' placeholder='Посилання на документ' value={bulkFormData.link} onChange={handleBulkChange} />
+
+                            <input
+                                ref={bulkFileInputRef}
+                                type='file'
+                                accept='application/pdf'
+                                onChange={handleBulkPdfUpload}
+                                disabled={isBulkUploading}
+                                style={{ display: 'none' }}
+                            />
+                            <button
+                                type='button'
+                                onClick={() => bulkFileInputRef.current?.click()}
+                                disabled={isBulkUploading || selectedIds.length === 0}
+                                style={{ background: '#0f172a', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 500 }}
+                            >
+                                {isBulkUploading ? 'Завантаження...' : `+ PDF документ для ${selectedIds.length} елементів`}
+                            </button>
 
                             <button type='submit' disabled={isBulkSaving}>
                                 {isBulkSaving ? 'Збереження...' : `Оновити ${selectedIds.length} елементів`}
@@ -485,13 +552,24 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
                                     <input type='date' name='nextTestDate' value={editFormData.nextTestDate} onChange={handleEditChange} disabled={editFormData.result === 'fail'} title={editFormData.result === 'fail' ? 'Непридатне обладнання — наступне випробування не призначається' : undefined} />
                                     <div className='link-box'>
                                         <input type='text' name='linkName' placeholder='Назва документу' value={editFormData.linkName} onChange={handleEditChange}></input>
-                                        <input type='url' name='link' placeholder='Посилання на документ' value={editFormData.link} onChange={handleEditChange} />
+                                        <input type='text' name='link' placeholder='Посилання на документ' value={editFormData.link} onChange={handleEditChange} />
                                     </div>
 
 
                                     <div className='edit-actions'>
                                         <button type='submit' className='save-btn'>Зберегти</button>
-                                        <button type='button' className='cancel-btn' onClick={handleCancelEdit}>відмінити</button>
+                                        
+                                        <DocumentUploader
+                                            equipmentType='TestItem'
+                                            equipmentId={item.id}
+                                            brigadeId={selectedBrigade}
+                                            canEdit={user?.role === 'GOD' || user?.role === 'RW'}
+                                            onUploaded={(doc) => setEditFormData((prev) => ({
+                                                ...prev,
+                                                linkName: doc.documentName,
+                                                link: `/api/equipment-documents/${doc.id}/download`,
+                                            }))}
+                                        />
                                         <button
                                             type='button'
                                             className='archive-btn'
@@ -500,6 +578,7 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
                                         >
                                             Списати
                                         </button>
+                                        <button type='button' className='cancel-btn' onClick={handleCancelEdit}>відмінити</button>
                                     </div>
                                 </form>
                             ) : (
@@ -518,7 +597,19 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
                                     <span style={{ flex: '0.5' }} title="Результат">{item.result === 'pass' ? 'Придатний' : item.result === 'fail' ? 'Непридатний' : item.result}</span>
                                     <span style={{ flex: '1' }} title="Наступне випробування">{formatDate(item.nextTestDate)}</span>
                                     <span className="link-cell" style={{ flex: '0.5' }}>
-                                        {item.link ? <a href={item.link} target="_blank" rel="noreferrer" style={{ color: 'var(--navy)', textDecoration: 'underline' }}>{item.linkName || 'Акт'}</a> : '—'}
+                                        {item.link ? (
+                                            item.link.startsWith('/api/equipment-documents/') ? (
+                                                <button
+                                                    type='button'
+                                                    onClick={(e) => { e.stopPropagation(); openInternalDocumentLink(item.link).catch(() => toast.error('Не вдалося відкрити документ')) }}
+                                                    style={{ background: 'none', border: 'none', padding: 0, color: 'var(--navy)', textDecoration: 'underline', cursor: 'pointer', font: 'inherit' }}
+                                                >
+                                                    {item.linkName || 'Акт'}
+                                                </button>
+                                            ) : (
+                                                <a href={item.link} target="_blank" rel="noreferrer" style={{ color: 'var(--navy)', textDecoration: 'underline' }}>{item.linkName || 'Акт'}</a>
+                                            )
+                                        ) : '—'}
                                     </span>
                                     {!isSelecting && (
                                         <button className='update-btn' onClick={() => handleEditClick(item)}>
@@ -538,6 +629,9 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
             <ArchiveModal
                 isOpen={!!itemToArchive}
                 itemName={itemToArchive?.name}
+                equipmentType='TestItem'
+                equipmentId={itemToArchive?.id}
+                brigadeId={selectedBrigade}
                 onClose={() => setItemToArchive(null)}
                 onConfirm={handleConfirmArchive}
             />

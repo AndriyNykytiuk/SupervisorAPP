@@ -661,3 +661,57 @@ export const downloadSurveyCsv = async (id) => {
     a.remove();
     URL.revokeObjectURL(url);
 };
+
+// ── Equipment Documents (PDF uploads) ────────────────
+export const fetchEquipmentDocuments = async ({ equipmentType, equipmentId, brigadeId } = {}) => {
+    const { data } = await api.get('/equipment-documents', {
+        params: { equipmentType, equipmentId, brigadeId },
+    });
+    return data;
+};
+
+export const uploadEquipmentDocument = async ({ equipmentType, equipmentId, brigadeId, documentName, file }) => {
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('equipmentType', equipmentType);
+    fd.append('equipmentId', String(equipmentId));
+    if (brigadeId) fd.append('brigadeId', String(brigadeId));
+    if (documentName) fd.append('documentName', documentName);
+    const { data } = await api.post('/equipment-documents', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return data;
+};
+
+export const uploadEquipmentDocumentBulk = async ({ equipmentType, equipmentIds, brigadeId, documentName, file }) => {
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('equipmentType', equipmentType);
+    fd.append('equipmentIds', JSON.stringify(equipmentIds));
+    if (brigadeId) fd.append('brigadeId', String(brigadeId));
+    if (documentName) fd.append('documentName', documentName);
+    const { data } = await api.post('/equipment-documents/bulk', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return data;
+};
+
+export const downloadEquipmentDocumentUrl = (id) => `/api/equipment-documents/${id}/download`;
+
+// Open equipment document (or any internal /api link) authed — fetches as blob and opens in new tab.
+export const openInternalDocumentLink = async (link) => {
+    const m = link.match(/\/api\/equipment-documents\/(\d+)\/download/);
+    if (!m) {
+        window.open(link, '_blank', 'noopener,noreferrer');
+        return;
+    }
+    const id = m[1];
+    const response = await api.get(`/equipment-documents/${id}/download`, { responseType: 'blob' });
+    const blobUrl = URL.createObjectURL(response.data);
+    window.open(blobUrl, '_blank', 'noopener,noreferrer');
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
+};
+
+export const deleteEquipmentDocument = async (id) => {
+    await api.delete(`/equipment-documents/${id}`);
+};

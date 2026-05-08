@@ -282,6 +282,9 @@ const ItemLightMast = ({ selectedBrigade, searchQuery = '', transferBrigades = [
             <ArchiveModal
                 isOpen={!!itemToArchive}
                 itemName={itemToArchive?.name}
+                equipmentType='LightMast'
+                equipmentId={itemToArchive?.id}
+                brigadeId={selectedBrigade}
                 onClose={() => setItemToArchive(null)}
                 onConfirm={handleConfirmArchive}
             />

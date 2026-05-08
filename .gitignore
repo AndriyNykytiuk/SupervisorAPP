@@ -1,3 +1,6 @@
+# Uploads (user-submitted files, not in repo)
+uploads/
+
 # Logs
 logs
 *.log

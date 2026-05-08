@@ -276,9 +276,12 @@ const ItemSwimTool = ({ selectedBrigade, searchQuery = '' }) => {
                 ))}
             </div>
             
-            <ArchiveModal 
+            <ArchiveModal
                 isOpen={!!itemToArchive}
                 itemName="Засоби порятунку на воді (блок)"
+                equipmentType='SwimTools'
+                equipmentId={itemToArchive?.id}
+                brigadeId={selectedBrigade}
                 onClose={() => setItemToArchive(null)}
                 onConfirm={handleConfirmArchive}
             />

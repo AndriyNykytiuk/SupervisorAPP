@@ -303,9 +303,12 @@ const BackPackExtenguisher = ({ selectedBrigade, searchQuery = '', transferBriga
                 ))}
             </div>
             
-            <ArchiveModal 
+            <ArchiveModal
                 isOpen={!!itemToArchive}
                 itemName={itemToArchive?.name}
+                equipmentType='backPackExtenguisher'
+                equipmentId={itemToArchive?.id}
+                brigadeId={selectedBrigade}
                 onClose={() => setItemToArchive(null)}
                 onConfirm={handleConfirmArchive}
             />

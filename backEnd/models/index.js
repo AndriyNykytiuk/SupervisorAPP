@@ -32,6 +32,7 @@ import PneumaticTool from './PneumaticTool.js'
 import PetrolCutter from './PetrolCutter.js'
 import FireExtenguisher from './FireExtenguisher.js'
 import LightMast from './LightMast.js'
+import EquipmentDocument from './EquipmentDocument.js'
 
 // ── Associations ───────────────────────────────
 // One Detachment has many Brigades
@@ -188,5 +189,5 @@ FireExtenguisher.belongsTo(Brigade, { foreignKey: 'brigadeId' })
 Brigade.hasMany(LightMast, { foreignKey: 'brigadeId' })
 LightMast.belongsTo(Brigade, { foreignKey: 'brigadeId' })
 
-export { User, Detachment, Brigade, testList, TestItem, TestLinks, toolList, ToolItem, ElectricStations, WaterPumps, HydravlicTool, SwimTools, FoamAgent, Powder, ExtenguisDocumentLink, UsageLiquidsLog, backPackExtenguisher, EquipmentArchive, TransferLog, VehicleType, EquipmentItem, EquipmentAvailability, BrigadeVehicle, SpecialTool, FireEvent, EventTeam, EventHistory, SurveyForm, SurveyResponse, ChainSaw, PneumaticTool, PetrolCutter, FireExtenguisher, LightMast }
+export { User, Detachment, Brigade, testList, TestItem, TestLinks, toolList, ToolItem, ElectricStations, WaterPumps, HydravlicTool, SwimTools, FoamAgent, Powder, ExtenguisDocumentLink, UsageLiquidsLog, backPackExtenguisher, EquipmentArchive, TransferLog, VehicleType, EquipmentItem, EquipmentAvailability, BrigadeVehicle, SpecialTool, FireEvent, EventTeam, EventHistory, SurveyForm, SurveyResponse, ChainSaw, PneumaticTool, PetrolCutter, FireExtenguisher, LightMast, EquipmentDocument }
 
