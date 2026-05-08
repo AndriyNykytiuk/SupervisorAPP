@@ -209,7 +209,7 @@ const ExtenguisProtocols = ({ selectedBrigade }) => {
                                     disabled={isUploading || !selectedBrigade}
                                     style={{ width: '100%', padding: '0.5rem 0.75rem', backgroundColor: 'var(--navy)', color: '#fff', border: 'none', borderRadius: '0.25rem', cursor: isUploading ? 'not-allowed' : 'pointer', fontWeight: 600 }}
                                 >
-                                    {isUploading ? 'Завантаження...' : '+ PDF з компʼютера'}
+                                    {isUploading ? 'Завантаження...' : 'додати PDF протоколу випробувань'}
                                 </button>
                             </div>
                             <div style={{ display: 'flex', gap: '0.75rem', paddingTop: '1rem' }}>
