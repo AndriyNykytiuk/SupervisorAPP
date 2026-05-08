@@ -3,6 +3,7 @@ import fs from 'fs'
 import crypto from 'crypto'
 import multer from 'multer'
 import { EquipmentDocument } from '../models/index.js'
+import { resolveEquipmentBrigadeId, userHasBrigadeAccess } from '../utils/equipmentAccess.js'
 
 const UPLOADS_DIR = process.env.UPLOADS_DIR || path.resolve(process.cwd(), 'uploads', 'equipment-documents')
 
@@ -35,13 +36,29 @@ export const uploadBulk = async (req, res, next) => {
     try {
         if (!req.file) return res.status(400).json({ error: 'Файл не надіслано' })
 
-        const { equipmentType, equipmentIds, brigadeId, documentName } = req.body
+        const { equipmentType, equipmentIds, documentName } = req.body
         let ids = []
         try { ids = JSON.parse(equipmentIds || '[]') } catch { ids = [] }
 
         if (!equipmentType || !Array.isArray(ids) || ids.length === 0) {
             fs.unlinkSync(req.file.path)
             return res.status(400).json({ error: 'equipmentType та equipmentIds обовʼязкові' })
+        }
+
+        // Resolve and verify access for each item
+        const resolvedBrigadeIds = await Promise.all(
+            ids.map((id) => resolveEquipmentBrigadeId(equipmentType, Number(id)))
+        )
+        if (resolvedBrigadeIds.some((b) => !b)) {
+            fs.unlinkSync(req.file.path)
+            return res.status(404).json({ error: 'Деяке обладнання не знайдено' })
+        }
+        const accessChecks = await Promise.all(
+            resolvedBrigadeIds.map((b) => userHasBrigadeAccess(req.user, b))
+        )
+        if (accessChecks.some((ok) => !ok)) {
+            fs.unlinkSync(req.file.path)
+            return res.status(403).json({ error: 'Немає доступу до частини обладнання' })
         }
 
         // verify PDF magic bytes
@@ -55,10 +72,10 @@ export const uploadBulk = async (req, res, next) => {
         }
 
         const docs = await EquipmentDocument.bulkCreate(
-            ids.map((id) => ({
+            ids.map((id, idx) => ({
                 equipmentType,
                 equipmentId: Number(id),
-                brigadeId: brigadeId ? Number(brigadeId) : null,
+                brigadeId: resolvedBrigadeIds[idx],
                 documentName: documentName || req.file.originalname,
                 originalFilename: req.file.originalname,
                 storedFilename: req.file.filename,
@@ -82,10 +99,22 @@ export const upload = async (req, res, next) => {
     try {
         if (!req.file) return res.status(400).json({ error: 'Файл не надіслано' })
 
-        const { equipmentType, equipmentId, brigadeId, documentName } = req.body
+        const { equipmentType, equipmentId, documentName } = req.body
         if (!equipmentType || !equipmentId) {
             fs.unlinkSync(req.file.path)
             return res.status(400).json({ error: 'equipmentType і equipmentId обовʼязкові' })
+        }
+
+        // Resolve real brigadeId from the equipment itself (don't trust client)
+        const realBrigadeId = await resolveEquipmentBrigadeId(equipmentType, Number(equipmentId))
+        if (!realBrigadeId) {
+            fs.unlinkSync(req.file.path)
+            return res.status(404).json({ error: 'Обладнання не знайдено' })
+        }
+        const allowed = await userHasBrigadeAccess(req.user, realBrigadeId)
+        if (!allowed) {
+            fs.unlinkSync(req.file.path)
+            return res.status(403).json({ error: 'Немає доступу до цього обладнання' })
         }
 
         // optional: verify magic bytes for PDF
@@ -101,7 +130,7 @@ export const upload = async (req, res, next) => {
         const doc = await EquipmentDocument.create({
             equipmentType,
             equipmentId: Number(equipmentId),
-            brigadeId: brigadeId ? Number(brigadeId) : null,
+            brigadeId: realBrigadeId,
             documentName: documentName || req.file.originalname,
             originalFilename: req.file.originalname,
             storedFilename: req.file.filename,
@@ -132,7 +161,16 @@ export const list = async (req, res, next) => {
             where,
             order: [['createdAt', 'DESC']],
         })
-        res.json(docs)
+
+        // Filter by user's access (skip docs for brigades they can't see)
+        const filtered = []
+        for (const doc of docs) {
+            if (!doc.brigadeId) { filtered.push(doc); continue }
+            if (await userHasBrigadeAccess(req.user, doc.brigadeId)) {
+                filtered.push(doc)
+            }
+        }
+        res.json(filtered)
     } catch (err) {
         next(err)
     }
@@ -143,6 +181,11 @@ export const download = async (req, res, next) => {
     try {
         const doc = await EquipmentDocument.findByPk(req.params.id)
         if (!doc) return res.status(404).json({ error: 'Документ не знайдено' })
+
+        if (doc.brigadeId) {
+            const allowed = await userHasBrigadeAccess(req.user, doc.brigadeId)
+            if (!allowed) return res.status(403).json({ error: 'Немає доступу' })
+        }
 
         const filePath = path.join(UPLOADS_DIR, doc.storedFilename)
         if (!fs.existsSync(filePath)) {
@@ -163,6 +206,11 @@ export const remove = async (req, res, next) => {
     try {
         const doc = await EquipmentDocument.findByPk(req.params.id)
         if (!doc) return res.status(404).json({ error: 'Документ не знайдено' })
+
+        if (doc.brigadeId) {
+            const allowed = await userHasBrigadeAccess(req.user, doc.brigadeId)
+            if (!allowed) return res.status(403).json({ error: 'Немає доступу' })
+        }
 
         const storedFilename = doc.storedFilename
         await doc.destroy()
