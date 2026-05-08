@@ -189,7 +189,7 @@ const DocumentUploader = ({ equipmentType, equipmentId, brigadeId, canEdit = tru
                                 <button
                                     type='button'
                                     className='doc-attach-btn'
-                                    onClick={() => fileInputRef.current?.click()}
+                                    onClick={() => setExpanded(false)}
                                     disabled={uploading}
                                 >
                                     <MdAttachFile />
