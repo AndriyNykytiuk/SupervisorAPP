@@ -47,6 +47,8 @@ import petrolCuttersRouter from './routes/petrolCutters.js'
 import fireExtenguishersRouter from './routes/fireExtenguishers.js'
 import lightMastsRouter from './routes/lightMasts.js'
 import equipmentDocumentsRouter from './routes/equipmentDocuments.js'
+import fireHydrantsRouter from './routes/fireHydrants.js'
+import fireHosesRouter from './routes/fireHoses.js'
 
 
 const app = express()
@@ -140,6 +142,8 @@ app.use('/api/petrol-cutters', authenticate, petrolCuttersRouter)
 app.use('/api/fire-extenguishers', authenticate, fireExtenguishersRouter)
 app.use('/api/light-masts', authenticate, lightMastsRouter)
 app.use('/api/equipment-documents', authenticate, equipmentDocumentsRouter)
+app.use('/api/fire-hydrants', authenticate, fireHydrantsRouter)
+app.use('/api/fire-hoses', authenticate, fireHosesRouter)
 
 // ── Catch-all: serve index.html for any other route (React routing) ─────
 const indexPath = path.resolve(__dirname, '../dist/index.html')
@@ -210,7 +214,7 @@ async function start() {
         await EquipmentItem.sync({ alter: true })
         await EquipmentAvailability.sync({ alter: true })
         await BrigadeVehicle.sync({ alter: true })
-        const { SpecialTool, FireEvent, EventTeam, EventHistory, SurveyForm, SurveyResponse, ChainSaw, PneumaticTool, PetrolCutter, FireExtenguisher, LightMast, EquipmentDocument } = await import('./models/index.js')
+        const { SpecialTool, FireEvent, EventTeam, EventHistory, SurveyForm, SurveyResponse, ChainSaw, PneumaticTool, PetrolCutter, FireExtenguisher, LightMast, EquipmentDocument, FireHydrant, FireHose } = await import('./models/index.js')
         await SpecialTool.sync({ alter: true })
         await FireEvent.sync({ alter: true })
         await EventTeam.sync({ alter: true })
@@ -223,6 +227,10 @@ async function start() {
         await FireExtenguisher.sync({ alter: true })
         await LightMast.sync({ alter: true })
         await EquipmentDocument.sync({ alter: true })
+        await FireHydrant.sync({ alter: true })
+        await FireHose.sync({ alter: true })
+        const { FireHydrantInspection } = await import('./models/index.js')
+        await FireHydrantInspection.sync({ alter: true })
         console.log('📦 Tables altered for development environment')
     } else {
         console.log('📦 Tables verified for production (no alter)')

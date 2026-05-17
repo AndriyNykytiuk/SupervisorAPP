@@ -1,4 +1,4 @@
-import { TestItem, WaterPumps, HydravlicTool, ElectricStations, SwimTools, FoamAgent, Powder, backPackExtenguisher, ToolItem, SpecialTool, EquipmentArchive, Brigade, ChainSaw, PneumaticTool, PetrolCutter, FireExtenguisher, LightMast } from '../models/index.js'
+import { TestItem, WaterPumps, HydravlicTool, ElectricStations, SwimTools, FoamAgent, Powder, backPackExtenguisher, ToolItem, SpecialTool, EquipmentArchive, Brigade, ChainSaw, PneumaticTool, PetrolCutter, FireExtenguisher, LightMast, FireHose, FireHydrant } from '../models/index.js'
 import sequelize from '../config/db.js'
 
 const ModelMap = {
@@ -17,6 +17,8 @@ const ModelMap = {
     'PetrolCutter': PetrolCutter,
     'FireExtenguisher': FireExtenguisher,
     'LightMast': LightMast,
+    'FireHose': FireHose,
+    'FireHydrant': FireHydrant,
 }
 
 // POST /api/archives

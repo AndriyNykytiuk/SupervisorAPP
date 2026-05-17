@@ -412,6 +412,68 @@ export const fetchWastedFireExtenguishers = async () => {
     return data;
 };
 
+// ── Fire Hydrants ────────────────────────────────────
+export const fetchFireHydrantsByBrigade = async (brigadeId) => {
+    const { data } = await api.get(`/fire-hydrants/brigade/${brigadeId}`);
+    return data;
+};
+
+export const fetchFireHydrant = async (id) => {
+    const { data } = await api.get(`/fire-hydrants/${id}`);
+    return data;
+};
+
+export const createFireHydrant = async (payload) => {
+    const { data } = await api.post('/fire-hydrants', payload);
+    return data;
+};
+
+export const updateFireHydrant = async (id, payload) => {
+    const { data } = await api.put(`/fire-hydrants/${id}`, payload);
+    return data;
+};
+
+export const deleteFireHydrant = async (id) => {
+    const { data } = await api.delete(`/fire-hydrants/${id}`);
+    return data;
+};
+
+export const fetchHydrantInspections = async (hydrantId) => {
+    const { data } = await api.get(`/fire-hydrants/${hydrantId}/inspections`);
+    return data;
+};
+
+export const createHydrantInspection = async (hydrantId, payload) => {
+    const { data } = await api.post(`/fire-hydrants/${hydrantId}/inspections`, payload);
+    return data;
+};
+
+// ── Fire Hoses ───────────────────────────────────────
+export const fetchFireHosesByBrigade = async (brigadeId) => {
+    const { data } = await api.get(`/fire-hoses/brigade/${brigadeId}`);
+    return data;
+};
+
+export const createFireHose = async (payload) => {
+    const { data } = await api.post('/fire-hoses', payload);
+    return data;
+};
+
+export const updateFireHose = async (id, payload) => {
+    const { data } = await api.put(`/fire-hoses/${id}`, payload);
+    return data;
+};
+
+export const deleteFireHose = async (id) => {
+    const { data } = await api.delete(`/fire-hoses/${id}`);
+    return data;
+};
+
+export const bulkUpdateFireHoses = async (payload) => {
+    const { data } = await api.put('/fire-hoses/bulk-update', payload);
+    return data;
+};
+
 // ── Generic Datas ────────────────────────────────────
 export const fetchGenericDatas = async () => {
     const { data } = await api.get('/generic-datas');

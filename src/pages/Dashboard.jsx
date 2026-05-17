@@ -19,6 +19,8 @@ import EventsPage from './EventsPage.jsx'
 import EventHistoryPage from './EventHistoryPage.jsx'
 import SurveysPage from './SurveysPage.jsx'
 import SurveyPage from './SurveyPage.jsx'
+import WaterSupplyComponent from './WaterSupplyComponent.jsx'
+import HydrantScanPage from './HydrantScanPage.jsx'
 
 const Dashboard = () => {
     const { selectedBrigade } = useAuth()
@@ -57,6 +59,8 @@ const Dashboard = () => {
                         <Route path="/events/:eventId/history" element={<EventHistoryPage />} />
                         <Route path="/surveys" element={<SurveysPage />} />
                         <Route path="/surveys/:id" element={<SurveyPage />} />
+                        <Route path="/water-supply" element={<WaterSupplyComponent selectedBrigade={selectedBrigade} />} />
+                        <Route path="/water-supply/hydrant/:id" element={<HydrantScanPage />} />
                     </Route>
                 </Routes>
             </div>

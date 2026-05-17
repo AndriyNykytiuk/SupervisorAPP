@@ -33,6 +33,9 @@ import PetrolCutter from './PetrolCutter.js'
 import FireExtenguisher from './FireExtenguisher.js'
 import LightMast from './LightMast.js'
 import EquipmentDocument from './EquipmentDocument.js'
+import FireHydrant from './FireHydrant.js'
+import FireHose from './FireHose.js'
+import FireHydrantInspection from './FireHydrantInspection.js'
 
 // ── Associations ───────────────────────────────
 // One Detachment has many Brigades
@@ -189,5 +192,21 @@ FireExtenguisher.belongsTo(Brigade, { foreignKey: 'brigadeId' })
 Brigade.hasMany(LightMast, { foreignKey: 'brigadeId' })
 LightMast.belongsTo(Brigade, { foreignKey: 'brigadeId' })
 
-export { User, Detachment, Brigade, testList, TestItem, TestLinks, toolList, ToolItem, ElectricStations, WaterPumps, HydravlicTool, SwimTools, FoamAgent, Powder, ExtenguisDocumentLink, UsageLiquidsLog, backPackExtenguisher, EquipmentArchive, TransferLog, VehicleType, EquipmentItem, EquipmentAvailability, BrigadeVehicle, SpecialTool, FireEvent, EventTeam, EventHistory, SurveyForm, SurveyResponse, ChainSaw, PneumaticTool, PetrolCutter, FireExtenguisher, LightMast, EquipmentDocument }
+// One Brigade has many FireHydrants
+Brigade.hasMany(FireHydrant, { foreignKey: 'brigadeId' })
+FireHydrant.belongsTo(Brigade, { foreignKey: 'brigadeId' })
+
+// One Brigade has many FireHoses
+Brigade.hasMany(FireHose, { foreignKey: 'brigadeId' })
+FireHose.belongsTo(Brigade, { foreignKey: 'brigadeId' })
+
+// FireHydrant <-> FireHydrantInspection
+FireHydrant.hasMany(FireHydrantInspection, { foreignKey: 'fireHydrantId', onDelete: 'CASCADE' })
+FireHydrantInspection.belongsTo(FireHydrant, { foreignKey: 'fireHydrantId' })
+Brigade.hasMany(FireHydrantInspection, { foreignKey: 'brigadeId' })
+FireHydrantInspection.belongsTo(Brigade, { foreignKey: 'brigadeId' })
+User.hasMany(FireHydrantInspection, { foreignKey: 'inspectorUserId' })
+FireHydrantInspection.belongsTo(User, { foreignKey: 'inspectorUserId', as: 'Inspector' })
+
+export { User, Detachment, Brigade, testList, TestItem, TestLinks, toolList, ToolItem, ElectricStations, WaterPumps, HydravlicTool, SwimTools, FoamAgent, Powder, ExtenguisDocumentLink, UsageLiquidsLog, backPackExtenguisher, EquipmentArchive, TransferLog, VehicleType, EquipmentItem, EquipmentAvailability, BrigadeVehicle, SpecialTool, FireEvent, EventTeam, EventHistory, SurveyForm, SurveyResponse, ChainSaw, PneumaticTool, PetrolCutter, FireExtenguisher, LightMast, EquipmentDocument, FireHydrant, FireHose, FireHydrantInspection }
 

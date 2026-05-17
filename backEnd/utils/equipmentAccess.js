@@ -1,7 +1,7 @@
 import {
     TestItem, ToolItem, FireExtenguisher, LightMast, ChainSaw, PneumaticTool,
     PetrolCutter, ElectricStations, WaterPumps, HydravlicTool, SwimTools,
-    backPackExtenguisher, SpecialTool, Brigade, User,
+    backPackExtenguisher, SpecialTool, FireHydrant, FireHose, Brigade, User,
 } from '../models/index.js'
 
 // Map equipmentType (sent from frontend) to its Sequelize model.
@@ -20,6 +20,8 @@ const MODEL_MAP = {
     SwimTools,
     backPackExtenguisher,
     SpecialTool,
+    FireHydrant,
+    FireHose,
 }
 
 // "Virtual" types where equipmentId IS the brigadeId itself (1 doc per brigade).
