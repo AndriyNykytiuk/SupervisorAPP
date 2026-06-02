@@ -23,7 +23,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                 <NavLink to="/tests" onClick={() => isOpen && toggleSidebar()}>Випробування</NavLink>
                 <NavLink to="/tools" onClick={() => isOpen && toggleSidebar()}>Відомості ПТО та АРО</NavLink>
                 <NavLink to="/extenguisLiquids" onClick={() => isOpen && toggleSidebar()}>Вогонегасні речовини</NavLink>
-                <NavLink to="/water-supply" onClick={() => isOpen && toggleSidebar()}>Водопостачання</NavLink>
+                {/*<NavLink to="/water-supply" onClick={() => isOpen && toggleSidebar()}>Водопостачання</NavLink>*/}
                 <NavLink to="/transfer" onClick={() => isOpen && toggleSidebar()}>Передача майна</NavLink>
                 {user?.role !== 'RW' && (
                     <NavLink to="/genericDatas" onClick={() => isOpen && toggleSidebar()}>Загальні дані</NavLink>
