@@ -59,8 +59,8 @@ const Dashboard = () => {
                         <Route path="/events/:eventId/history" element={<EventHistoryPage />} />
                         <Route path="/surveys" element={<SurveysPage />} />
                         <Route path="/surveys/:id" element={<SurveyPage />} />
-                        <Route path="/water-supply" element={<WaterSupplyComponent selectedBrigade={selectedBrigade} />} />
-                        <Route path="/water-supply/hydrant/:id" element={<HydrantScanPage />} />
+                        {/*<Route path="/water-supply" element={<WaterSupplyComponent selectedBrigade={selectedBrigade} />} />
+                        <Route path="/water-supply/hydrant/:id" element={<HydrantScanPage />} />*/}
                     </Route>
                 </Routes>
             </div>
