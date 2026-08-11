@@ -119,6 +119,16 @@
         }
     }
 
+    // Approaching or overdue test date — takes priority over pass/fail coloring.
+    &.item-due-soon {
+        background: var(--warning-bg);
+        border-color: var(--warning-border);
+
+        &:hover {
+            background: var(--warning-border);
+        }
+    }
+
     input[type='checkbox'] {
         accent-color: var(--navy);
         width: 16px;

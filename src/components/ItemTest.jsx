@@ -22,6 +22,21 @@ const addMonthsToISODate = (isoDateStr, months) => {
     return `${yyyy}-${mm}-${dd}`
 }
 
+// Mirrors the backend "upcoming" window (testItemController.getUpcoming): next 10 days, plus overdue.
+const isDueSoonOrOverdue = (item) => {
+    if (!item.nextTestDate || item.result === 'fail') return false
+    const next = new Date(item.nextTestDate)
+    if (Number.isNaN(next.getTime())) return false
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const inTenDays = new Date(today)
+    inTenDays.setDate(inTenDays.getDate() + 10)
+    inTenDays.setHours(23, 59, 59, 999)
+
+    return next <= inTenDays
+}
+
 const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }) => {
     const { user } = useAuth()
     const [showForm, setShowForm] = useState(false)
@@ -582,7 +597,7 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
                                     </div>
                                 </form>
                             ) : (
-                                <div className={`item-row ${item.result === 'pass' ? 'item-pass' : item.result === 'fail' ? 'item-fail' : ''}`}>
+                                <div className={`item-row ${item.result === 'pass' ? 'item-pass' : item.result === 'fail' ? 'item-fail' : ''} ${isDueSoonOrOverdue(item) ? 'item-due-soon' : ''}`}>
                                     {isSelecting && (
                                         <span className='bulk-checkbox' onClick={() => toggleItemSelection(item.id)}>
                                             {selectedIds.includes(item.id)

@@ -33,6 +33,8 @@
   --success-border: #ceead6;
   --fail-bg: #fce8e6;
   --fail-border: #fad2cf;
+  --warning-bg: #fff8dd;
+  --warning-border: #f7dc6f;
 
   /* ─── Shadows ───────────────────────────── */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);

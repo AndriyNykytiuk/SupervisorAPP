@@ -29,6 +29,21 @@ const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('uk-UA')
 }
 
+// Mirrors the backend "upcoming" window (testItemController.getUpcoming): next 10 days, plus overdue.
+const isDueSoonOrOverdue = (item) => {
+    if (!item.nextMaintenanceDate) return false
+    const next = new Date(item.nextMaintenanceDate)
+    if (Number.isNaN(next.getTime())) return false
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const inTenDays = new Date(today)
+    inTenDays.setDate(inTenDays.getDate() + 10)
+    inTenDays.setHours(23, 59, 59, 999)
+
+    return next <= inTenDays
+}
+
 const FireExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
     const { user } = useAuth()
     const canEdit = user?.role === 'GOD' || user?.role === 'RW'
@@ -282,7 +297,7 @@ const FireExtenguisher = ({ selectedBrigade, searchQuery = '' }) => {
                                     </div>
                                 </form>
                             ) : (
-                                <div className='item-row'>
+                                <div className={`item-row ${isDueSoonOrOverdue(item) ? 'item-due-soon' : ''}`}>
                                     <span style={{ flex: '0.8' }} title='Інвентарний номер'>{item.inventoryNumber || '—'}</span>
                                     <span style={{ flex: '0.7' }} title='Тип'>{item.extinguisherType}</span>
                                     <span style={{ flex: '1.2' }} title='Місце розташування'>{item.location || '—'}</span>
