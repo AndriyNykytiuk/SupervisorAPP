@@ -12,6 +12,7 @@ import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import sequelize, { testConnection } from './config/db.js'
 import { authenticate } from './middleware/authenticate.js'
+import { ensureFkIndexes } from './utils/ensureFkIndexes.js'
 import authRouter from './routes/auth.js'
 import userRouter from './routes/users.js'
 import detachmentRouter from './routes/detachments.js'
@@ -190,6 +191,9 @@ async function start() {
         await BrigadeVehicle.sync({ alter: true })
         await testList.sync({ alter: true })
         await EquipmentDocument.sync({ alter: true })
+
+        // Індекси на всі зовнішні ключі схеми (див. utils/ensureFkIndexes.js)
+        await ensureFkIndexes()
 
         // Idempotent additive: Users.detachmentId for SEMI-GOD direct binding.
         // Raw SQL (not User.sync alter) to avoid touching the role ENUM.
