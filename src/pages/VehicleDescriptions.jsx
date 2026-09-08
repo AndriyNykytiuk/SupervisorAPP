@@ -15,17 +15,20 @@ import {
     syncVehicleStandard,
 } from '../api/services.js'
 import LoadingSpinner from '../components/ui/LoadingSpinner.jsx'
-import { MdDelete, MdAdd, MdEdit, MdCheck, MdSearch, MdDirectionsCar, MdArrowBack } from 'react-icons/md'
+import { MdDelete, MdAdd, MdEdit, MdCheck, MdSearch, MdArrowBack } from 'react-icons/md'
 import { TfiPrinter } from 'react-icons/tfi'
 import html2pdf from 'html2pdf.js'
 import '../scss/vehicledescriptions.scss'
 
 const STATUSES = [
-    { value: 'combat', label: 'В бойовому розрахунку' },
-    { value: 'reserve', label: 'В резерві' },
+    { value: 'combat', label: 'В оперативному розрахунку' },
     { value: 'repair', label: 'В ремонті' },
+    { value: 'reserve', label: 'В резерві' },
     { value: 'decommissioned', label: 'Списаний' },
 ]
+
+// Порядок карток у сітці: спершу те, що в розрахунку, далі ремонт, резерв, списані
+const STATUS_ORDER = Object.fromEntries(STATUSES.map((s, i) => [s.value, i]))
 
 const statusLabel = (v) => STATUSES.find(s => s.value === v)?.label || '—'
 
@@ -69,8 +72,8 @@ const NOTES_TEMPLATE = `1. До складу аптечки автомобіль
 //   align      — вирівнювання тексту всередині: 'left' / 'center' / 'right'
 // Сума offsetLeft + width має дорівнювати 100%.
 const APPROVAL_BLOCK = {
-    offsetLeft: '65%',
-    width: '35%',
+    offsetLeft: '60%',
+    width: '40%',
     align: 'left',
 }
 
@@ -551,12 +554,17 @@ const VehicleDescriptions = ({ selectedBrigade }) => {
     )
 
     // На першому шарі той самий рядок пошуку фільтрує автомобілі
-    const visibleVehicles = vehicles.filter(v => {
-        const q = searchQuery.toLowerCase()
-        return (v.brand || '').toLowerCase().includes(q)
-            || (v.stateNumber || '').toLowerCase().includes(q)
-            || (v.VehicleType?.name || '').toLowerCase().includes(q)
-    })
+    const visibleVehicles = vehicles
+        .filter(v => {
+            const q = searchQuery.toLowerCase()
+            return (v.brand || '').toLowerCase().includes(q)
+                || (v.stateNumber || '').toLowerCase().includes(q)
+                || (v.VehicleType?.name || '').toLowerCase().includes(q)
+        })
+        .sort((a, b) => {
+            const byStatus = (STATUS_ORDER[a.status] ?? 99) - (STATUS_ORDER[b.status] ?? 99)
+            return byStatus !== 0 ? byStatus : (a.brand || '').localeCompare(b.brand || '', 'uk')
+        })
 
     if (!selectedBrigade) {
         return (
@@ -839,7 +847,6 @@ const VehicleDescriptions = ({ selectedBrigade }) => {
                                 onClick={() => { setSelectedVehicleId(v.id); setSearchQuery('') }}
                             >
                                 <span className={`vd-grid-status vd-grid-status--${v.status}`}>{statusLabel(v.status)}</span>
-                                <MdDirectionsCar size={38} className="vd-grid-icon" />
                                 <span className="vd-grid-brand">{v.brand}</span>
                                 <span className="vd-grid-number">{v.stateNumber || 'без номера'}</span>
                                 <span className="vd-grid-meta">
