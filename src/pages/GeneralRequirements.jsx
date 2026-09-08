@@ -4,16 +4,13 @@ import { toast } from 'react-toastify'
 import {
     fetchVehicleTypes,
     createVehicleType,
-    updateVehicleType,
     deleteVehicleType,
-    fetchEquipmentItems,
     createEquipmentItem,
     updateEquipmentItem,
     deleteEquipmentItem,
-    fetchEquipmentAvailability,
-    createEquipmentAvailability,
-    updateEquipmentAvailability,
     fetchTransferBrigades,
+    fetchRequirements,
+    fetchRequirementsSummary,
 } from '../api/services.js'
 import LoadingSpinner from '../components/ui/LoadingSpinner.jsx'
 import { MdDelete, MdAdd, MdEdit, MdCheck, MdSearch } from 'react-icons/md'
@@ -30,7 +27,6 @@ const GeneralRequirements = ({ selectedBrigade }) => {
     const [vehicleTypes, setVehicleTypes] = useState([])
     const [selectedType, setSelectedType] = useState('')
     const [items, setItems] = useState([])
-    const [availability, setAvailability] = useState([])
     const [loading, setLoading] = useState(false)
     const [isEditing, setIsEditing] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
@@ -39,13 +35,12 @@ const GeneralRequirements = ({ selectedBrigade }) => {
     const [showSummaryModal, setShowSummaryModal] = useState(false)
     const [summaryLoading, setSummaryLoading] = useState(false)
     const [summaryData, setSummaryData] = useState([])
-    const [rawSummaryData, setRawSummaryData] = useState([])
+    const [vehicleCount, setVehicleCount] = useState(0)
     const [availableDetachments, setAvailableDetachments] = useState([])
     const [selectedSummaryDetachment, setSelectedSummaryDetachment] = useState('')
 
     // New vehicle type form
     const [newTypeName, setNewTypeName] = useState('')
-    const [newTypeVehicleCount, setNewTypeVehicleCount] = useState('')
     const [newTypeCloneFromId, setNewTypeCloneFromId] = useState('')
 
     // New equipment item form
@@ -136,26 +131,21 @@ const GeneralRequirements = ({ selectedBrigade }) => {
         const today = new Date().toLocaleDateString('uk-UA')
 
         const tableRows = items.map((item, i) => {
+            // Значення приходять уже порахованими з /api/requirements
             const reqPerVehicle = item.required_per_vehicle || 0
-            const totalRequired = reqPerVehicle * vehicleCount
-            const actualCount = item.actual_count || 0
-            const vehicleShortage = totalRequired - actualCount
-
-            const warehouseRequired = item.warehouse_required || 0
-            let calculatedWarehouseNorm = warehouseRequired
-            if (item.warehouse_rule === 'percent_of_actual' && item.warehouse_percent) {
-                // % \u0432\u0456\u0434 \u043d\u043e\u0440\u043c\u0438 = % \u0432\u0456\u0434 (\u043d\u043e\u0440\u043c\u0430 \u043d\u0430 1 \u0430\u0432\u0442\u043e \u00d7 \u043a\u0456\u043b\u044c\u043a\u0456\u0441\u0442\u044c \u0430\u0432\u0442\u043e)
-                calculatedWarehouseNorm = Math.ceil(totalRequired * (item.warehouse_percent / 100))
-            }
-            const warehouseActual = item.warehouse_actual || 0
-            const warehouseShortage = calculatedWarehouseNorm - warehouseActual
-            const totalNeed = Math.max(0, vehicleShortage) + Math.max(0, warehouseShortage)
+            const actualCount = item.onVehicles || 0
+            const vehicleShortage = item.vehicleShortage || 0
+            const calculatedWarehouseNorm = item.reserveNorm || 0
+            const warehouseActual = item.reserveActual || 0
+            const warehouseShortage = item.reserveShortage || 0
+            const totalNeed = item.totalNeed || 0
 
             const normDisplay = item.required_rule === 'tu' ? '\u0412\u0456\u0434\u043f\u043e\u0432\u0456\u0434\u043d\u043e \u0434\u043e \u0422\u0423' :
                 item.required_rule === 'min' ? `\u043d\u0435 \u043c\u0435\u043d\u0448\u0435 ${reqPerVehicle}` : reqPerVehicle
 
-            const whNormDisplay = item.warehouse_rule === 'percent_of_actual' ? `${item.warehouse_percent}%` :
-                item.warehouse_rule === 'min' ? `\u043d\u0435 \u043c\u0435\u043d\u0448\u0435 ${warehouseRequired}` : warehouseRequired
+            const whNormDisplay = item.warehouse_rule === 'percent_of_actual'
+                ? `${calculatedWarehouseNorm} (${item.warehouse_percent}%)`
+                : item.warehouse_rule === 'min' ? `\u043d\u0435 \u043c\u0435\u043d\u0448\u0435 ${calculatedWarehouseNorm}` : calculatedWarehouseNorm
 
             return `
                 <tr style="background: ${i % 2 === 0 ? '#fff' : '#f5f5fa'};">
@@ -216,122 +206,26 @@ const GeneralRequirements = ({ selectedBrigade }) => {
             })
     }
 
-    // ── Summary Logic ───────────────────────────────
-    const buildMatrix = (data, detachmentFilter, allItems, allDetachments) => {
-        // 2. Prepare items reference & fallback dictionary
-        const itemsById = new Map()
-        if (allItems) {
-            allItems.forEach(item => {
-                let itemName = item.name
-                const vType = item.VehicleType?.name
-                if (vType && !selectedType) itemName += ` (${vType})`
-                itemsById.set(item.id, { ...item, _displayName: itemName })
-            })
-        }
-
-        const regionsSet = new Set()
-
-        // Pre-seed all regions
-        if (allDetachments) {
-            if (isGod && !detachmentFilter) {
-                allDetachments.forEach(d => regionsSet.add(d.name))
-            } else {
-                let targetDetachment = null
-                if (isGod && detachmentFilter) {
-                    targetDetachment = allDetachments.find(d => d.name === detachmentFilter)
-                } else if (isSemiGod) {
-                    targetDetachment = allDetachments.find(d => d.Brigades.some(b => b.id === user?.brigadeId))
-                }
-
-                if (targetDetachment) {
-                    targetDetachment.Brigades.forEach(b => regionsSet.add(b.name))
-                }
-            }
-        }
-
-        const matrix = {}
-
-        data.forEach(d => {
-            const dName = d.Brigade?.Detachment?.name || 'Інше'
-            if (isGod && detachmentFilter && dName !== detachmentFilter) return
-
-            if (!d.EquipmentItem) return
-            const itemId = d.EquipmentItem.id
-
-            // If item wasn't caught by pre-seed
-            if (!itemsById.has(itemId)) {
-                let itemName = d.EquipmentItem.name
-                const vTypeName = d.EquipmentItem.VehicleType?.name
-                if (vTypeName && !selectedType) itemName += ` (${vTypeName})`
-                itemsById.set(itemId, { ...d.EquipmentItem, _displayName: itemName })
-            }
-
-            if (!matrix[itemId]) matrix[itemId] = {}
-
-            let regionName = 'Інше'
-            if (isGod && !detachmentFilter) {
-                regionName = dName
-            } else {
-                regionName = d.Brigade?.name || 'Інше'
-            }
-
-            regionsSet.add(regionName)
-            if (!matrix[itemId][regionName]) matrix[itemId][regionName] = 0
-            matrix[itemId][regionName] += (d.total_need || 0)
-        })
-
-        const columns = Array.from(regionsSet).sort()
-        const rowsData = []
-
-        for (const [itemId, item] of itemsById.entries()) {
-            const row = { id: itemId, name: item._displayName, total: 0 }
-            columns.forEach(col => {
-                const val = (matrix[itemId] && matrix[itemId][col]) || 0
-                row[col] = val
-                row.total += val
-            })
-            rowsData.push(row)
-        }
-
-        rowsData.sort((a, b) => a.id - b.id)
-
-        const colTotals = { total: 0 }
-        columns.forEach(c => colTotals[c] = 0)
-        rowsData.forEach(r => {
-            columns.forEach(c => {
-                colTotals[c] += r[c]
-            })
-            colTotals.total += r.total
-        })
-
-        setSummaryData({ columns, rows: rowsData, colTotals })
-    }
-
-    const [fullItemsCache, setFullItemsCache] = useState(null)
-    const [fullDetachmentsCache, setFullDetachmentsCache] = useState(null)
-
+    // Зведення теж рахує сервер: колонки — частини (або загони для GOD),
+    // клітинки — сума потреби по кожній позиції нормативу.
     const handleShowSummary = async () => {
         setSummaryLoading(true)
         setShowSummaryModal(true)
         try {
             const params = {}
             if (selectedType) params.vehicleTypeId = selectedType
+            if (selectedSummaryDetachment) params.detachmentName = selectedSummaryDetachment
+            if (isGod && !selectedSummaryDetachment) params.groupBy = 'detachment'
 
-            const [data, allItems, allDetachments] = await Promise.all([
-                fetchEquipmentAvailability(params),
-                fetchEquipmentItems(selectedType || undefined),
-                fetchTransferBrigades()
+            const [data, allDetachments] = await Promise.all([
+                fetchRequirementsSummary(params),
+                isGod ? fetchTransferBrigades() : Promise.resolve([]),
             ])
 
-            setRawSummaryData(data)
-            setFullItemsCache(allItems)
-            setFullDetachmentsCache(allDetachments)
-
+            setSummaryData(data)
             if (isGod) {
                 setAvailableDetachments(allDetachments.map(d => d.name).sort())
             }
-
-            buildMatrix(data, selectedSummaryDetachment, allItems, allDetachments)
         } catch (err) {
             console.error(err)
             toast.error('Помилка завантаження зведення')
@@ -342,9 +236,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
     }
 
     useEffect(() => {
-        if (showSummaryModal && rawSummaryData.length > 0) {
-            buildMatrix(rawSummaryData, selectedSummaryDetachment, fullItemsCache, fullDetachmentsCache)
-        }
+        if (showSummaryModal) handleShowSummary()
     }, [selectedSummaryDetachment])
 
     // ── Load vehicle types ──────────────────────────
@@ -374,23 +266,22 @@ const GeneralRequirements = ({ selectedBrigade }) => {
         }
     }, [selectedType, selectedBrigade])
 
+    // Потреба приходить уже порахованою: кількість авто береться з карток,
+    // наявність — сума з описів авто. Клієнт нічого не рахує.
     const loadData = async ({ silent = false } = {}) => {
         if (!silent) setLoading(true)
         try {
-            const itemsData = await fetchEquipmentItems(selectedType, selectedBrigade)
-            setItems(itemsData)
+            const params = { vehicleTypeId: selectedType }
+            if (selectedBrigade) params.brigadeId = selectedBrigade
+            const data = await fetchRequirements(params)
+            setItems(data.rows || [])
+            setVehicleCount(data.vehicleCount || 0)
         } catch (err) {
             console.error('Failed to load data:', err)
+            toast.error('Помилка завантаження потреби')
         } finally {
             if (!silent) setLoading(false)
         }
-    }
-
-    // ── Helpers ─────────────────────────────────────
-
-    const getVehicleCount = () => {
-        const vt = vehicleTypes.find(t => t.id === selectedType)
-        return vt?.viechle_count || 0
     }
 
     // ── Vehicle Type CRUD ───────────────────────────
@@ -407,7 +298,6 @@ const GeneralRequirements = ({ selectedBrigade }) => {
             if (newTypeCloneFromId) payload.cloneFromId = Number(newTypeCloneFromId)
             const created = await createVehicleType(payload)
             setNewTypeName('')
-            setNewTypeVehicleCount('')
             setNewTypeCloneFromId('')
             setShowAddTypeModal(false)
             if (created?.clonedCount > 0) {
@@ -423,15 +313,6 @@ const GeneralRequirements = ({ selectedBrigade }) => {
         }
     }
 
-    const handleUpdateVehicleCount = async (value) => {
-        if (!selectedType) return
-        try {
-            await updateVehicleType(selectedType, { viechle_count: Number(value) || 0, brigadeId: selectedBrigade })
-            loadVehicleTypes()
-        } catch (err) {
-            toast.error('Помилка при оновленні кількості авто')
-        }
-    }
 
     const handleDeleteType = async (id) => {
         if (!confirm('Видалити тип автомобіля та всі пов\'язані дані?')) return
@@ -501,7 +382,6 @@ const GeneralRequirements = ({ selectedBrigade }) => {
 
     // ── End of CRUD ─────────────────────────────────
 
-    const vehicleCount = selectedBrigade ? getVehicleCount() : 0
 
     return (
         <div className="gr-page">
@@ -623,15 +503,10 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                         {/* ── Vehicle count editor ── */}
                         {(isRW || isGod) && selectedType && (
                             <div className="gr-vehicle-count">
-                                <label>Кількість автомобілів:
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        className="gr-input"
-                                        value={vehicleCount || ''}
-                                        onChange={(e) => handleUpdateVehicleCount(e.target.value)}
-                                        disabled={!isEditing}
-                                    />
+                                {/* Кількість береться з карток авто («Описи автомобілів»), руками не вводиться */}
+                                <label title="Рахується за картками автомобілів цього типу в частині">
+                                    Кількість автомобілів:
+                                    <b style={{ marginLeft: '0.5rem', fontSize: '1.2rem', color: 'var(--navy)' }}>{vehicleCount}</b>
                                 </label>
                             </div>
                         )}
@@ -774,27 +649,19 @@ const GeneralRequirements = ({ selectedBrigade }) => {
 
                                 {items.filter(i => i.name.toLowerCase().includes(searchQuery.toLowerCase())).map((item, index) => {
                                     // Vehicle equipment calculation
+                                    // Усе пораховано на сервері з описів авто — клієнт лише показує
                                     const reqPerVehicle = item.required_per_vehicle || 0
-                                    const totalRequired = reqPerVehicle * vehicleCount
-                                    const actualCount = item.actual_count || 0
-                                    const vehicleShortage = totalRequired - actualCount
-
-                                    // Warehouse calculation
+                                    const actualCount = item.onVehicles || 0
+                                    const vehicleShortage = item.vehicleShortage || 0
                                     const warehouseRequired = item.warehouse_required || 0
                                     const warehousePercent = item.warehouse_percent || 0
-
-                                    let calculatedWarehouseNorm = warehouseRequired
-                                    if (item.warehouse_rule === 'percent_of_actual' && item.warehouse_percent) {
-                                        // % від норми = % від (норма на 1 авто × кількість авто)
-                                        calculatedWarehouseNorm = Math.ceil(totalRequired * (item.warehouse_percent / 100))
-                                    }
-                                    const warehouseActual = item.warehouse_actual || 0
-                                    const warehouseShortage = calculatedWarehouseNorm - warehouseActual
-
-                                    const totalNeed = Math.max(0, vehicleShortage) + Math.max(0, warehouseShortage)
+                                    const calculatedWarehouseNorm = item.reserveNorm || 0
+                                    const warehouseActual = item.reserveActual || 0
+                                    const warehouseShortage = item.reserveShortage || 0
+                                    const totalNeed = item.totalNeed || 0
 
                                     return (
-                                        <div key={item.id} className="gr-content-row">
+                                        <div key={item.equipmentItemId} className="gr-content-row">
                                             <span data-label="№:">{index + 1}</span>
                                             <span data-label="Найменування:" className="gr-item-name">
                                                 {isGod && isEditing ? (
@@ -802,9 +669,9 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                                         type="text"
                                                         className="gr-input"
                                                         value={item.name || ''}
-                                                        onBlur={(e) => handleItemFieldChange(item.id, 'name', e.target.value)}
+                                                        onBlur={(e) => handleItemFieldChange(item.equipmentItemId, 'name', e.target.value)}
                                                         onChange={(e) => {
-                                                            const newItems = items.map(i => i.id === item.id ? { ...i, name: e.target.value } : i)
+                                                            const newItems = items.map(i => i.equipmentItemId === item.equipmentItemId ? { ...i, name: e.target.value } : i)
                                                             setItems(newItems)
                                                         }}
                                                         style={{ width: '100%' }}
@@ -820,8 +687,8 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                                             value={item.required_rule || 'exact'}
                                                             onChange={(e) => {
                                                                 const newRule = e.target.value
-                                                                handleItemFieldChange(item.id, 'required_rule', newRule, totalNeed)
-                                                                const newItems = items.map(i => i.id === item.id ? { ...i, required_rule: newRule } : i)
+                                                                handleItemFieldChange(item.equipmentItemId, 'required_rule', newRule, totalNeed)
+                                                                const newItems = items.map(i => i.equipmentItemId === item.equipmentItemId ? { ...i, required_rule: newRule } : i)
                                                                 setItems(newItems)
                                                             }}
                                                             className="gr-select-rule"
@@ -837,9 +704,9 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                                                 min="0"
                                                                 className="gr-input"
                                                                 value={reqPerVehicle || ''}
-                                                                onBlur={(e) => handleItemFieldChange(item.id, 'required_per_vehicle', Number(e.target.value) || 0, totalNeed)}
+                                                                onBlur={(e) => handleItemFieldChange(item.equipmentItemId, 'required_per_vehicle', Number(e.target.value) || 0, totalNeed)}
                                                                 onChange={(e) => {
-                                                                    const newItems = items.map(i => i.id === item.id ? { ...i, required_per_vehicle: Number(e.target.value) || 0 } : i)
+                                                                    const newItems = items.map(i => i.equipmentItemId === item.equipmentItemId ? { ...i, required_per_vehicle: Number(e.target.value) || 0 } : i)
                                                                     setItems(newItems)
                                                                 }}
                                                                 style={{ maxWidth: '60px' }}
@@ -852,20 +719,9 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                                 )}
                                             </span>
 
-                                            <span data-label="В наявності:">
-                                                {(isRW || isGod) && isEditing ? (
-                                                    <input
-                                                        type="number"
-                                                        min="0"
-                                                        className="gr-input"
-                                                        value={actualCount || ''}
-                                                        onBlur={(e) => handleItemFieldChange(item.id, 'actual_count', Number(e.target.value) || 0, totalNeed)}
-                                                        onChange={(e) => {
-                                                            const newItems = items.map(i => i.id === item.id ? { ...i, actual_count: Number(e.target.value) || 0 } : i)
-                                                            setItems(newItems)
-                                                        }}
-                                                    />
-                                                ) : actualCount}
+                                            {/* Наявність не редагується — це сума з описів авто частини */}
+                                            <span data-label="В наявності:" title="Сума з описів автомобілів цього типу">
+                                                {actualCount}
                                             </span>
                                             <span data-label="Не комплект:" className={vehicleShortage > 0 ? 'gr-shortage' : ''}>{vehicleShortage > 0 ? vehicleShortage : '—'}</span>
                                             <span data-label="Резерв частини (норма):">
@@ -875,8 +731,8 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                                             value={item.warehouse_rule || 'exact'}
                                                             onChange={(e) => {
                                                                 const newRule = e.target.value
-                                                                handleItemFieldChange(item.id, 'warehouse_rule', newRule, totalNeed)
-                                                                const newItems = items.map(i => i.id === item.id ? { ...i, warehouse_rule: newRule } : i)
+                                                                handleItemFieldChange(item.equipmentItemId, 'warehouse_rule', newRule, totalNeed)
+                                                                const newItems = items.map(i => i.equipmentItemId === item.equipmentItemId ? { ...i, warehouse_rule: newRule } : i)
                                                                 setItems(newItems)
                                                             }}
                                                             className="gr-select-rule"
@@ -894,19 +750,19 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                                             value={item.warehouse_rule === 'percent_of_actual' ? (warehousePercent || '') : (warehouseRequired || '')}
                                                             onBlur={(e) => {
                                                                 const field = item.warehouse_rule === 'percent_of_actual' ? 'warehouse_percent' : 'warehouse_required'
-                                                                handleItemFieldChange(item.id, field, Number(e.target.value) || 0, totalNeed)
+                                                                handleItemFieldChange(item.equipmentItemId, field, Number(e.target.value) || 0, totalNeed)
                                                             }}
                                                             onChange={(e) => {
                                                                 const field = item.warehouse_rule === 'percent_of_actual' ? 'warehouse_percent' : 'warehouse_required'
-                                                                const newItems = items.map(i => i.id === item.id ? { ...i, [field]: Number(e.target.value) || 0 } : i)
+                                                                const newItems = items.map(i => i.equipmentItemId === item.equipmentItemId ? { ...i, [field]: Number(e.target.value) || 0 } : i)
                                                                 setItems(newItems)
                                                             }}
                                                             style={{ maxWidth: '60px' }}
                                                         />
                                                     </div>
                                                 ) : (
-                                                    item.warehouse_rule === 'percent_of_actual' ? `${warehousePercent}%` :
-                                                        item.warehouse_rule === 'min' ? `не менше ${warehouseRequired}` : warehouseRequired
+                                                    item.warehouse_rule === 'percent_of_actual' ? `${calculatedWarehouseNorm} (${warehousePercent}%)` :
+                                                        item.warehouse_rule === 'min' ? `не менше ${calculatedWarehouseNorm}` : calculatedWarehouseNorm
                                                 )}
                                             </span>
                                             <span data-label="Резерв частини (наявн.):">
@@ -916,9 +772,9 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                                         min="0"
                                                         className="gr-input"
                                                         value={warehouseActual || ''}
-                                                        onBlur={(e) => handleItemFieldChange(item.id, 'warehouse_actual', Number(e.target.value) || 0, totalNeed)}
+                                                        onBlur={(e) => handleItemFieldChange(item.equipmentItemId, 'warehouse_actual', Number(e.target.value) || 0, totalNeed)}
                                                         onChange={(e) => {
-                                                            const newItems = items.map(i => i.id === item.id ? { ...i, warehouse_actual: Number(e.target.value) || 0 } : i)
+                                                            const newItems = items.map(i => i.equipmentItemId === item.equipmentItemId ? { ...i, warehouse_actual: Number(e.target.value) || 0 } : i)
                                                             setItems(newItems)
                                                         }}
                                                     />
@@ -928,7 +784,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                             <span data-label="Загальна потреба:" className={totalNeed > 0 ? 'gr-total-need' : ''}>{totalNeed > 0 ? totalNeed : '—'}</span>
                                             {isGod && isEditing && (
                                                 <span data-label="Дії:">
-                                                    <button className="gr-delete-btn" onClick={() => handleDeleteItem(item.id)} title="Видалити">
+                                                    <button className="gr-delete-btn" onClick={() => handleDeleteItem(item.equipmentItemId)} title="Видалити">
                                                         <MdDelete size={18} />
                                                     </button>
                                                 </span>

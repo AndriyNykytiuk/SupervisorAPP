@@ -1,0 +1,759 @@
+/* ─── Vehicle Descriptions Page ─── */
+.vd-page {
+    animation: fadeIn 0.3s ease-in-out;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.vd-title-wrapp {
+    width: 100%;
+    text-align: center;
+
+    h2 {
+        margin: 0;
+        padding: 1rem 0;
+        color: var(--navy);
+    }
+}
+
+.vd-placeholder {
+    padding: 3rem;
+    text-align: center;
+    font-size: 1.1rem;
+    color: #7f8c8d;
+}
+
+.vd-loader {
+    text-align: center;
+    padding: 2rem;
+}
+
+/* ─── Toolbar ─── */
+.vd-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+.vd-search {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex: 1;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    background: var(--white);
+    color: var(--navy);
+
+    input {
+        flex: 1;
+        border: none;
+        outline: none;
+        font-size: 0.95rem;
+        color: var(--navy);
+        background: transparent;
+    }
+}
+
+.vd-btn-add {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.5rem 1.2rem;
+    font-size: 0.95rem;
+    font-weight: bold;
+    white-space: nowrap;
+    color: white;
+    background: var(--navy);
+    border: 1px solid var(--gold);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s;
+
+    &:hover:not(:disabled) {
+        background: var(--gold);
+        color: var(--navy);
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: default;
+    }
+}
+
+.vd-btn-standard {
+    padding: 0.4rem 0.9rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    white-space: nowrap;
+    color: var(--navy);
+    background: var(--gold);
+    border: 1px solid var(--gold);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+        color: var(--gold);
+        background: var(--navy);
+    }
+}
+
+.vd-btn-ghost {
+    padding: 0.5rem 1.2rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--navy);
+    background: transparent;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+
+    &:hover {
+        background: var(--gray-50);
+    }
+}
+
+.vd-btn-edit-toggle,
+.print-btn {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.8rem;
+    font-size: 1.2rem;
+    color: white;
+    background: var(--navy);
+    border: 1px solid var(--gold);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s;
+
+    &:hover {
+        background: var(--gold);
+        color: var(--navy);
+    }
+}
+
+.vd-btn-back {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    white-space: nowrap;
+    color: var(--navy);
+    background: var(--white);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s;
+
+    &:hover {
+        color: var(--gold);
+        background: var(--navy);
+        border-color: var(--gold);
+    }
+}
+
+/* ─── Шар 1: сітка автомобілів частини (3 у ряд) ─── */
+.vd-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    align-items: stretch;
+}
+
+.vd-grid-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 190px;
+    padding: 2rem 1rem 1.2rem;
+    text-align: center;
+    color: var(--navy);
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: all 0.18s;
+
+    &:hover {
+        border-color: var(--gold);
+        box-shadow: 0 6px 18px rgba(26, 26, 46, 0.14);
+        transform: translateY(-2px);
+
+        .vd-grid-icon {
+            color: var(--gold);
+        }
+    }
+
+    .vd-grid-icon {
+        color: var(--navy);
+        transition: color 0.18s;
+    }
+
+    .vd-grid-brand {
+        font-size: 1rem;
+        font-weight: 700;
+        line-height: 1.25;
+    }
+
+    .vd-grid-number {
+        font-size: 0.9rem;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        color: var(--navy);
+    }
+
+    .vd-grid-meta {
+        font-size: 0.78rem;
+        color: var(--gray-500, #6b7280);
+    }
+
+    .vd-grid-count {
+        margin-top: auto;
+        padding-top: 0.6rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--navy);
+    }
+}
+
+.vd-grid-status {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 0.25rem 0.4rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: var(--white);
+    background: var(--gray-500, #6b7280);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+
+    &--combat { background: #16a34a; }
+    &--reserve { background: #2563eb; }
+    &--repair { background: #d97706; }
+    &--decommissioned { background: #b91c1c; }
+}
+
+/* ─── Шар 2: картка авто та опис ─── */
+.vd-layout {
+    display: block;
+}
+
+.vd-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-width: 0;
+}
+
+/* ─── Vehicle card ─── */
+.vd-card {
+    padding: 0.9rem 1rem;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.vd-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.6rem;
+    margin-bottom: 0.8rem;
+    border-bottom: 2px solid var(--gold);
+
+    h3 {
+        margin: 0;
+        font-size: 1.05rem;
+        color: var(--navy);
+    }
+}
+
+.vd-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.7rem 1rem;
+
+    label {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        min-width: 0;
+
+        span {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: var(--gray-500, #6b7280);
+        }
+
+        b {
+            font-size: 0.95rem;
+            color: var(--navy);
+            word-break: break-word;
+        }
+    }
+
+    .vd-card-notes {
+        grid-column: 1 / -1;
+    }
+}
+
+/* ─── Inputs ─── */
+.vd-input {
+    width: 100%;
+    padding: 0.3rem 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--navy);
+    background: var(--white);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    transition: border-color 0.2s;
+
+    &:focus {
+        outline: none;
+        border-color: var(--gold);
+        box-shadow: 0 0 0 2px rgba(252, 215, 0, 0.2);
+    }
+
+    /* Поле очищається при фокусі, тож стрілки-спінери лише збивали б з пантелику */
+    &[type='number'] {
+        appearance: textfield;
+        -moz-appearance: textfield;
+
+        &::-webkit-outer-spin-button,
+        &::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    }
+}
+
+/* ─── Тип техніки: список для всіх, «+» лише для GOD ─── */
+.vd-type-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    width: 100%;
+}
+
+.vd-type-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    width: 100%;
+
+    select,
+    input {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .vd-btn-add {
+        padding: 0.45rem 0.9rem;
+        font-size: 0.85rem;
+    }
+}
+
+.vd-type-add-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.95rem;
+    color: var(--navy);
+    background: var(--gold);
+    border: 1px solid var(--gold);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+        color: var(--gold);
+        background: var(--navy);
+    }
+}
+
+.vd-type-new input {
+    padding: 0.45rem 0.6rem;
+    font-size: 0.9rem;
+    color: var(--navy);
+    border: 1px solid var(--gold);
+    border-radius: var(--radius-md);
+    outline: none;
+}
+
+/* ─── Inventory table ─── */
+.vd-table-wrapper {
+    overflow-x: auto;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Колонки за зразком опису: № / Найменування / Од. / Необхідно / Знаходиться / Некомплект */
+.vd-content-title,
+.vd-content-row {
+    display: grid;
+    grid-template-columns: 0.4fr 4fr 0.8fr 1.2fr 1.2fr 1fr 0.6fr;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+/* Без колонки «Дії» поза режимом редагування */
+.vd-content-title:not(:has(> :nth-child(7))),
+.vd-content-row:not(:has(> :nth-child(7))) {
+    grid-template-columns: 0.4fr 4fr 0.8fr 1.2fr 1.2fr 1fr;
+}
+
+.vd-shortage {
+    font-weight: 700;
+    color: var(--danger, #ef4444);
+}
+
+.vd-content-title {
+    padding: 0.7rem 0.8rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: white;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    background: var(--navy);
+    border-bottom: 2px solid var(--gold);
+}
+
+.vd-content-row {
+    padding: 0.45rem 0.8rem;
+    font-size: 0.85rem;
+    color: var(--navy);
+    text-align: center;
+    border-bottom: 1px solid var(--gray-100);
+    transition: background 0.15s;
+
+    &:hover {
+        background: var(--gray-50);
+    }
+
+    .vd-item-name {
+        text-align: left;
+        font-weight: 500;
+    }
+}
+
+.vd-empty {
+    padding: 2rem;
+    text-align: center;
+    color: var(--gray-500, #6b7280);
+}
+
+.vd-delete-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem;
+    color: var(--danger, #ef4444);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.15s;
+
+    &:hover {
+        transform: scale(1.15);
+    }
+}
+
+/* ─── Add inventory row ─── */
+.vd-add-item {
+    padding: 0.9rem 1rem;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+
+    h4 {
+        margin: 0;
+        font-size: 0.95rem;
+        color: var(--navy);
+    }
+
+    .vd-add-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 0.7rem;
+    }
+
+    .vd-hint {
+        margin: 0 0 0.7rem;
+        font-size: 0.82rem;
+        line-height: 1.4;
+        color: var(--gray-500, #6b7280);
+    }
+
+    .vd-add-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+
+        input {
+            flex: 1;
+            min-width: 120px;
+            padding: 0.45rem 0.6rem;
+            font-size: 0.9rem;
+            color: var(--navy);
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius-md);
+
+            &:focus {
+                outline: none;
+                border-color: var(--gold);
+            }
+        }
+
+        .vd-input-small {
+            flex: 0 0 70px;
+            min-width: 70px;
+        }
+    }
+}
+
+/* ─── Add-vehicle modal ─── */
+.vd-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.vd-modal {
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.vd-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    color: #fff;
+    background: var(--navy);
+
+    h3 {
+        margin: 0;
+        font-size: 1.05rem;
+    }
+
+    button {
+        font-size: 1.2rem;
+        color: #fff;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+    }
+}
+
+.vd-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.25rem;
+
+    label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--navy);
+    }
+
+    input,
+    select,
+    textarea {
+        width: 100%;
+        padding: 0.55rem 0.7rem;
+        font-size: 0.95rem;
+        font-family: inherit;
+        color: var(--navy);
+        border: 1px solid var(--gray-300, #d1d5db);
+        border-radius: 6px;
+        outline: none;
+
+        &:focus {
+            border-color: var(--gold);
+        }
+    }
+}
+
+.vd-modal--wide {
+    max-width: 720px;
+}
+
+.vd-modal-hint {
+    margin: 0 0 0.3rem;
+    font-size: 0.8rem;
+    line-height: 1.35;
+    color: var(--gray-500, #6b7280);
+}
+
+.vd-modal-section {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+    padding-bottom: 0.3rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--navy);
+    border-bottom: 2px solid var(--gold);
+}
+
+.vd-link-btn {
+    padding: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--navy);
+    background: transparent;
+    border: none;
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover {
+        color: var(--gold);
+    }
+}
+
+.vd-input-year {
+    max-width: 120px;
+}
+
+.vd-modal-row {
+    display: flex;
+    gap: 0.75rem;
+
+    > div {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        min-width: 0;
+    }
+}
+
+.vd-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+
+/* Планшет: дві колонки замість трьох */
+@media (max-width: 1100px) and (min-width: 769px) {
+    .vd-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ─── Mobile ─── */
+@media (max-width: 768px) {
+    .vd-toolbar {
+        flex-wrap: wrap;
+    }
+
+    .vd-search {
+        flex: 1 0 100%;
+    }
+
+    .vd-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .vd-content-title {
+        display: none;
+    }
+
+    .vd-content-row {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        gap: 0.3rem;
+        padding: 0.8rem;
+        border-bottom: 2px solid var(--gray-200);
+
+        span {
+            display: flex;
+            width: 100%;
+            padding: 0 0.5rem;
+            justify-content: space-between;
+            align-items: flex-start;
+            word-break: break-word;
+
+            &::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: var(--gray-500);
+                margin-right: 0.5rem;
+                text-align: left;
+            }
+        }
+    }
+
+    .vd-item-name {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--navy);
+    }
+
+    .vd-add-item .vd-add-form {
+        flex-direction: column;
+
+        input {
+            width: 100%;
+        }
+
+        .vd-input-small {
+            flex: 1;
+        }
+    }
+
+    .print-btn {
+        display: none !important;
+    }
+}

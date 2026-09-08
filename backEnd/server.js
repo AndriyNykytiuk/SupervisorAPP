@@ -49,6 +49,8 @@ import lightMastsRouter from './routes/lightMasts.js'
 import equipmentDocumentsRouter from './routes/equipmentDocuments.js'
 import fireHydrantsRouter from './routes/fireHydrants.js'
 import fireHosesRouter from './routes/fireHoses.js'
+import vehiclesRouter from './routes/vehicles.js'
+import requirementsRouter from './routes/requirements.js'
 
 
 const app = express()
@@ -144,6 +146,8 @@ app.use('/api/light-masts', authenticate, lightMastsRouter)
 app.use('/api/equipment-documents', authenticate, equipmentDocumentsRouter)
 app.use('/api/fire-hydrants', authenticate, fireHydrantsRouter)
 app.use('/api/fire-hoses', authenticate, fireHosesRouter)
+app.use('/api/vehicles', authenticate, vehiclesRouter)
+app.use('/api/requirements', authenticate, requirementsRouter)
 
 // ── Catch-all: serve index.html for any other route (React routing) ─────
 const indexPath = path.resolve(__dirname, '../dist/index.html')
@@ -176,9 +180,12 @@ async function start() {
 
     // ── Safe one-time migrations (run on ALL environments) ──────
     try {
-        const { VehicleType, EquipmentItem, EquipmentAvailability, BrigadeVehicle, testList, EquipmentDocument } = await import('./models/index.js')
+        const { VehicleType, EquipmentItem, EquipmentAvailability, BrigadeVehicle, testList, EquipmentDocument, Vehicle, VehicleInventoryItem } = await import('./models/index.js')
         await VehicleType.sync({ alter: true })
         await EquipmentItem.sync({ alter: true })
+        await Vehicle.sync({ alter: true })
+        // Після EquipmentItem — VehicleInventoryItem має на нього зовнішній ключ
+        await VehicleInventoryItem.sync({ alter: true })
         await EquipmentAvailability.sync({ alter: true })
         await BrigadeVehicle.sync({ alter: true })
         await testList.sync({ alter: true })

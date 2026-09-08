@@ -11,6 +11,19 @@ const EquipmentItem = sequelize.define('EquipmentItem', {
         type: DataTypes.STRING,
         allowNull: false,
     },
+    // Одиниці виміру для опису автомобіля («шт.», «компл.», «м», «пара»).
+    unit: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: 'шт.',
+    },
+    // Норма з наказу як текст, коли вона не числова: «Відповідно до ТУ»,
+    // «1х100», «По 1-му на кожну одиницю…». Для друку опису й показу в UI.
+    // У розрахунках бере участь required_per_vehicle.
+    required_text: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
     required_per_vehicle: {
         type: DataTypes.INTEGER,
         allowNull: false,

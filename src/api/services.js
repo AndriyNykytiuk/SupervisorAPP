@@ -563,6 +563,70 @@ export const deleteEquipmentAvailability = async (id) => {
     return data;
 };
 
+// ── Потреба ПТО (рахується на сервері з описів авто) ──
+export const fetchRequirements = async (params = {}) => {
+    const { data } = await api.get('/requirements', { params });
+    return data;
+};
+
+export const fetchRequirementsSummary = async (params = {}) => {
+    const { data } = await api.get('/requirements/summary', { params });
+    return data;
+};
+
+// ── Vehicles (Описи автомобілів) ─────────────────────
+export const fetchVehicles = async (params = {}) => {
+    const { data } = await api.get('/vehicles', { params });
+    return data;
+};
+
+export const fetchVehicle = async (id) => {
+    const { data } = await api.get(`/vehicles/${id}`);
+    return data;
+};
+
+export const createVehicle = async (payload) => {
+    const { data } = await api.post('/vehicles', payload);
+    return data;
+};
+
+export const updateVehicle = async (id, payload) => {
+    const { data } = await api.put(`/vehicles/${id}`, payload);
+    return data;
+};
+
+export const deleteVehicle = async (id) => {
+    const { data } = await api.delete(`/vehicles/${id}`);
+    return data;
+};
+
+// ── Vehicle inventory (опис майна на авто) ───────────
+export const fetchVehicleItems = async (vehicleId) => {
+    const { data } = await api.get(`/vehicles/${vehicleId}/items`);
+    return data;
+};
+
+// Підтягнути норматив типу авто в опис (додає лише відсутні позиції)
+export const syncVehicleStandard = async (vehicleId) => {
+    const { data } = await api.post(`/vehicles/${vehicleId}/items/sync-standard`);
+    return data;
+};
+
+export const createVehicleItem = async (vehicleId, payload) => {
+    const { data } = await api.post(`/vehicles/${vehicleId}/items`, payload);
+    return data;
+};
+
+export const updateVehicleItem = async (vehicleId, itemId, payload) => {
+    const { data } = await api.put(`/vehicles/${vehicleId}/items/${itemId}`, payload);
+    return data;
+};
+
+export const deleteVehicleItem = async (vehicleId, itemId) => {
+    const { data } = await api.delete(`/vehicles/${vehicleId}/items/${itemId}`);
+    return data;
+};
+
 // ── Search Tools ─────────────────────────────────────
 export const searchAllTools = async (query) => {
     const { data } = await api.get('/search/tools', { params: { q: query } });

@@ -21,6 +21,8 @@ import VehicleType from './VehicleType.js'
 import EquipmentItem from './EquipmentItem.js'
 import EquipmentAvailability from './EquipmentAvailability.js'
 import BrigadeVehicle from './BrigadeVehicle.js'
+import Vehicle from './Vehicle.js'
+import VehicleInventoryItem from './VehicleInventoryItem.js'
 import SpecialTool from './SpecialTool.js'
 import FireEvent from './FireEvent.js'
 import EventTeam from './EventTeam.js'
@@ -208,5 +210,21 @@ FireHydrantInspection.belongsTo(Brigade, { foreignKey: 'brigadeId' })
 User.hasMany(FireHydrantInspection, { foreignKey: 'inspectorUserId' })
 FireHydrantInspection.belongsTo(User, { foreignKey: 'inspectorUserId', as: 'Inspector' })
 
-export { User, Detachment, Brigade, testList, TestItem, TestLinks, toolList, ToolItem, ElectricStations, WaterPumps, HydravlicTool, SwimTools, FoamAgent, Powder, ExtenguisDocumentLink, UsageLiquidsLog, backPackExtenguisher, EquipmentArchive, TransferLog, VehicleType, EquipmentItem, EquipmentAvailability, BrigadeVehicle, SpecialTool, FireEvent, EventTeam, EventHistory, SurveyForm, SurveyResponse, ChainSaw, PneumaticTool, PetrolCutter, FireExtenguisher, LightMast, EquipmentDocument, FireHydrant, FireHose, FireHydrantInspection }
+
+// Vehicle (картка авто) <-> Brigade / VehicleType
+Brigade.hasMany(Vehicle, { foreignKey: 'brigadeId', onDelete: 'CASCADE' })
+Vehicle.belongsTo(Brigade, { foreignKey: 'brigadeId' })
+VehicleType.hasMany(Vehicle, { foreignKey: 'vehicleTypeId', onDelete: 'SET NULL' })
+Vehicle.belongsTo(VehicleType, { foreignKey: 'vehicleTypeId' })
+
+// EquipmentItem <-> VehicleInventoryItem: позиція опису знає свій норматив.
+// SET NULL — видалення нормативу не стирає введену частиною наявність.
+EquipmentItem.hasMany(VehicleInventoryItem, { foreignKey: 'equipmentItemId', onDelete: 'SET NULL' })
+VehicleInventoryItem.belongsTo(EquipmentItem, { foreignKey: 'equipmentItemId' })
+
+// Vehicle <-> VehicleInventoryItem (опис майна на авто)
+Vehicle.hasMany(VehicleInventoryItem, { foreignKey: 'vehicleId', onDelete: 'CASCADE' })
+VehicleInventoryItem.belongsTo(Vehicle, { foreignKey: 'vehicleId' })
+
+export { User, Detachment, Brigade, testList, TestItem, TestLinks, toolList, ToolItem, ElectricStations, WaterPumps, HydravlicTool, SwimTools, FoamAgent, Powder, ExtenguisDocumentLink, UsageLiquidsLog, backPackExtenguisher, EquipmentArchive, TransferLog, VehicleType, EquipmentItem, EquipmentAvailability, BrigadeVehicle, SpecialTool, FireEvent, EventTeam, EventHistory, SurveyForm, SurveyResponse, ChainSaw, PneumaticTool, PetrolCutter, FireExtenguisher, LightMast, EquipmentDocument, FireHydrant, FireHose, FireHydrantInspection, Vehicle, VehicleInventoryItem }
 
