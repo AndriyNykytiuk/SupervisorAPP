@@ -25,6 +25,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
     const isRW = user?.role === 'RW'
 
     const [vehicleTypes, setVehicleTypes] = useState([])
+    // '' — нічого не обрано, 'all' — зведена потреба по всіх типах техніки
     const [selectedType, setSelectedType] = useState('')
     const [items, setItems] = useState([])
     const [loading, setLoading] = useState(false)
@@ -54,6 +55,11 @@ const GeneralRequirements = ({ selectedBrigade }) => {
     // ── Add-type modal ──
     const [showAddTypeModal, setShowAddTypeModal] = useState(false)
     const [isCreatingType, setIsCreatingType] = useState(false)
+
+    // У режимі «усі типи» рядки зведені з кількох позицій довідника, тож
+    // редагувати норматив нема на чому — правки робляться в межах типу.
+    const isAggregate = selectedType === 'all'
+    const canEdit = isEditing && !isAggregate
 
     // ── PDF Export ─────────────────────────────────
     const exportSummaryToPdf = () => {
@@ -127,7 +133,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
         if (!items.length || !selectedType) return
         const brigadeName = user?.brigadeName || ''
         const vType = vehicleTypes.find(t => t.id === Number(selectedType))
-        const typeName = vType?.name || ''
+        const typeName = selectedType === 'all' ? 'Усі типи техніки' : (vType?.name || '')
         const today = new Date().toLocaleDateString('uk-UA')
 
         const tableRows = items.map((item, i) => {
@@ -140,7 +146,8 @@ const GeneralRequirements = ({ selectedBrigade }) => {
             const warehouseShortage = item.reserveShortage || 0
             const totalNeed = item.totalNeed || 0
 
-            const normDisplay = item.required_rule === 'tu' ? '\u0412\u0456\u0434\u043f\u043e\u0432\u0456\u0434\u043d\u043e \u0434\u043e \u0422\u0423' :
+            const normDisplay = item.merged && item.required_per_vehicle === null ? '\u0440\u0456\u0437\u043d\u0430' :
+                item.required_rule === 'tu' ? '\u0412\u0456\u0434\u043f\u043e\u0432\u0456\u0434\u043d\u043e \u0434\u043e \u0422\u0423' :
                 item.required_rule === 'min' ? `\u043d\u0435 \u043c\u0435\u043d\u0448\u0435 ${reqPerVehicle}` : reqPerVehicle
 
             const whNormDisplay = item.warehouse_rule === 'percent_of_actual'
@@ -467,16 +474,21 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                             <span>Оберіть тип автомобіля:</span>
                             <select
                                 value={selectedType}
-                                onChange={(e) => setSelectedType(Number(e.target.value))}
+                                onChange={(e) => {
+                                    const v = e.target.value
+                                    if (v === 'all') setIsEditing(false)
+                                    setSelectedType(v === 'all' || v === '' ? v : Number(v))
+                                }}
                             >
                                 <option value="">—</option>
+                                <option value="all">Усі типи — загальна потреба</option>
                                 {vehicleTypes.map(t => (
                                     <option key={t.id} value={t.id}>{t.name}</option>
                                 ))}
                             </select>
                         </div>
 
-                        {isGod && isEditing && (
+                        {isGod && canEdit && (
                             <button
                                 className="gr-btn-add"
                                 onClick={() => {
@@ -490,7 +502,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                             </button>
                         )}
 
-                        {isGod && selectedType && isEditing && (
+                        {isGod && selectedType && canEdit && (
                             <button
                                 className="gr-btn-delete-type"
                                 onClick={() => handleDeleteType(selectedType)}
@@ -504,13 +516,13 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                         {(isRW || isGod) && selectedType && (
                             <div className="gr-vehicle-count">
                                 {/* Кількість береться з карток авто («Описи автомобілів»), руками не вводиться */}
-                                <label title="Рахується за картками автомобілів цього типу в частині">
-                                    Кількість автомобілів:
+                                <label title={isAggregate ? 'Усі автомобілі частини, яким призначено тип техніки' : 'Рахується за картками автомобілів цього типу в частині'}>
+                                    {isAggregate ? 'Автомобілів усього:' : 'Кількість автомобілів:'}
                                     <b style={{ marginLeft: '0.5rem', fontSize: '1.2rem', color: 'var(--navy)' }}>{vehicleCount}</b>
                                 </label>
                             </div>
                         )}
-                        {(isRW || isGod) && (
+                        {(isRW || isGod) && !isAggregate && (
                             <button className="gr-btn-edit-toggle" onClick={() => setIsEditing(!isEditing)} title={isEditing ? "Завершити редагування" : "Редагувати"}>
                                 {isEditing ? <MdCheck size={20} /> : <MdEdit size={20} />}
                             </button>
@@ -632,7 +644,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                     ) : (
                         <>
                             {/* ── Table ── */}
-                            <div className={`gr-table-wrapper${isGod && isEditing ? ' gr-table-wrapper--scrollable' : ''}`}>
+                            <div className={`gr-table-wrapper${isGod && canEdit ? ' gr-table-wrapper--scrollable' : ''}`}>
                                 <div className="gr-content-title">
                                     <span>№</span>
                                     <span>Найменування</span>
@@ -644,7 +656,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                     <span>Резерв частини (наявн.)</span>
                                     <span>Не комплект</span>
                                     <span>Загальна потреба</span>
-                                    {isGod && isEditing && <span>Дії</span>}
+                                    {isGod && canEdit && <span>Дії</span>}
                                 </div>
 
                                 {items.filter(i => i.name.toLowerCase().includes(searchQuery.toLowerCase())).map((item, index) => {
@@ -661,10 +673,10 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                     const totalNeed = item.totalNeed || 0
 
                                     return (
-                                        <div key={item.equipmentItemId} className="gr-content-row">
+                                        <div key={item.equipmentItemId ?? item.key} className="gr-content-row">
                                             <span data-label="№:">{index + 1}</span>
                                             <span data-label="Найменування:" className="gr-item-name">
-                                                {isGod && isEditing ? (
+                                                {isGod && canEdit ? (
                                                     <input
                                                         type="text"
                                                         className="gr-input"
@@ -681,7 +693,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                                 )}
                                             </span>
                                             <span data-label="Норма на одиницю техніки:">
-                                                {isGod && isEditing ? (
+                                                {isGod && canEdit ? (
                                                     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                                                         <select
                                                             value={item.required_rule || 'exact'}
@@ -713,6 +725,11 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                                             />
                                                         )}
                                                     </div>
+                                                ) : item.merged && item.required_per_vehicle === null ? (
+                                                    // Норма різна в різних типах техніки — показуємо розкладку
+                                                    <span title={(item.sources || []).map(src => `${src.vehicleTypeName || '—'}: ${src.required_per_vehicle} × ${src.vehicleCount} авто`).join('\n')}>
+                                                        різна ({(item.sources || []).length} типи)
+                                                    </span>
                                                 ) : (
                                                     item.required_rule === 'tu' ? 'Відповідно до ТУ' :
                                                         item.required_rule === 'min' ? `не менше ${reqPerVehicle}` : reqPerVehicle
@@ -720,12 +737,12 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                             </span>
 
                                             {/* Наявність не редагується — це сума з описів авто частини */}
-                                            <span data-label="В наявності:" title="Сума з описів автомобілів цього типу">
+                                            <span data-label="В наявності:" title={item.merged ? 'Сума з описів усіх автомобілів частини' : 'Сума з описів автомобілів цього типу'}>
                                                 {actualCount}
                                             </span>
                                             <span data-label="Не комплект:" className={vehicleShortage > 0 ? 'gr-shortage' : ''}>{vehicleShortage > 0 ? vehicleShortage : '—'}</span>
                                             <span data-label="Резерв частини (норма):">
-                                                {isGod && isEditing ? (
+                                                {isGod && canEdit ? (
                                                     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                                                         <select
                                                             value={item.warehouse_rule || 'exact'}
@@ -782,7 +799,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                             </span>
                                             <span data-label="Не комплект:" className={warehouseShortage > 0 ? 'gr-shortage' : ''}>{warehouseShortage > 0 ? warehouseShortage : '—'}</span>
                                             <span data-label="Загальна потреба:" className={totalNeed > 0 ? 'gr-total-need' : ''}>{totalNeed > 0 ? totalNeed : '—'}</span>
-                                            {isGod && isEditing && (
+                                            {isGod && canEdit && (
                                                 <span data-label="Дії:">
                                                     <button className="gr-delete-btn" onClick={() => handleDeleteItem(item.equipmentItemId)} title="Видалити">
                                                         <MdDelete size={18} />
@@ -800,7 +817,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
 
 
                             {/* ── Add new item (GOD only) ── */}
-                            {isGod && selectedType && isEditing && (
+                            {isGod && selectedType && canEdit && (
                                 <div className="gr-add-item">
                                     <h4>Додати нову позицію для цього типу</h4>
                                     <div className="gr-add-form">

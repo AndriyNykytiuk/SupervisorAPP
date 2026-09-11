@@ -15,6 +15,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import sequelize from './config/db.js'
 import { VehicleType, EquipmentItem, Vehicle, VehicleInventoryItem } from './models/index.js'
+import { normalizeName } from './utils/normalizeName.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const { norms } = JSON.parse(fs.readFileSync(path.join(__dirname, 'data/norms.json'), 'utf8'))
@@ -34,13 +35,6 @@ const parseRequired = (text) => {
 
 const isNumericNorm = (text) => /^\s*\d+\s*$/.test(String(text ?? ''))
 
-const normalizeName = (s) => String(s ?? '')
-    .toLowerCase()
-    .replace(/[’‘]/g, "'")
-    .replace(/[‒–—]/g, '-')
-    .replace(/[^\wа-яіїєґ']+/gi, ' ')
-    .trim()
-    .replace(/\s+/g, ' ')
 
 async function seedType(norma, code) {
     const typeName = norma.typeNames[code]

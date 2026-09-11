@@ -9,6 +9,7 @@ import {
     Detachment,
 } from '../models/index.js'
 import { buildScopedWhere } from '../utils/scopeHelpers.js'
+import { normalizeName } from '../utils/normalizeName.js'
 
 // Потреба — похідна величина, у БД не зберігається:
 //   норма на парк   = required_per_vehicle × кількість авто цього типу в частині
@@ -47,6 +48,96 @@ function calcRow(item, vehicleCount, onVehicles, reserveActual) {
         reserveShortage,
         totalNeed: vehicleShortage + reserveShortage,
     }
+}
+
+// ─── Режим «усі типи» ──────────────────────────────────────────────────────
+// Один і той самий предмет (лопата, ліхтар, аптечка) стоїть у нормах майже
+// кожного типу техніки окремою позицією довідника. Щоб показати потребу
+// частини загалом, такі позиції зводяться в один рядок.
+const ALL_TYPES = 'all'
+
+// Тип техніки з запиту: число, або null у режимі «усі типи».
+const parseTypeFilter = (v) => (v && v !== ALL_TYPES ? Number(v) : null)
+const isAllTypes = (v) => v === ALL_TYPES
+
+// Ключ групи: нормалізована назва + одиниця виміру, щоб «шт.» і «компл.»
+// з однаковою назвою не злилися в один рядок.
+const groupKey = (item) => `${normalizeName(item.name)}|${(item.unit || 'шт.').toLowerCase()}`
+
+// Зведення групи. Норма й наявність складаються ДО обчислення некомплекту:
+// max(0, Σнорма − Σнаявність) ≠ Σ max(0, норма − наявність). Тобто надлишок
+// на одному типі авто гасить нестачу на іншому — це і є «потреба загалом».
+function mergeGroup(calcs) {
+    const first = calcs[0]
+    const totalRequired = calcs.reduce((a, c) => a + c.totalRequired, 0)
+    const onVehicles = calcs.reduce((a, c) => a + c.onVehicles, 0)
+    const vehicleShortage = Math.max(0, totalRequired - onVehicles)
+
+    // Склад частини фізично один, а норма резерву прописана окремо в кожному
+    // типі. Тому норма — найбільша з них (а не сума), наявність — сума, бо
+    // зберігається окремим рядком EquipmentAvailability на кожну позицію.
+    const percent = calcs.reduce(
+        (a, c) => (c.warehouse_rule === 'percent_of_actual' ? Math.max(a, c.warehouse_percent || 0) : a), 0)
+    // Відсоток рахується від зведеної норми на весь парк, а не від найбільшого
+    // типу: інакше «100% від норми» дало б резерв лише під одну групу авто.
+    const percentNorm = percent ? Math.ceil(totalRequired * (percent / 100)) : 0
+    const exactNorm = calcs.reduce(
+        (a, c) => (c.warehouse_rule === 'percent_of_actual' ? a : Math.max(a, c.reserveNorm)), 0)
+    const reserveNorm = Math.max(exactNorm, percentNorm)
+    const reserveActual = calcs.reduce((a, c) => a + c.reserveActual, 0)
+    const reserveShortage = Math.max(0, reserveNorm - reserveActual)
+
+    // Норма на одиницю техніки має сенс лише коли вона однакова в усіх типах
+    const perVehicleSet = new Set(calcs.map(c => c.required_per_vehicle))
+    const ruleSet = new Set(calcs.map(c => c.required_rule))
+
+    return {
+        equipmentItemId: null,
+        equipmentItemIds: calcs.map(c => c.equipmentItemId),
+        key: `agg:${groupKey(first)}`,
+        merged: true,
+        name: first.name,
+        unit: first.unit,
+        vehicleTypeId: null,
+        vehicleTypeName: null,
+        required_rule: ruleSet.size === 1 ? first.required_rule : 'mixed',
+        required_text: null,
+        required_per_vehicle: perVehicleSet.size === 1 ? first.required_per_vehicle : null,
+        // Розкладка по типах техніки — для підказки в інтерфейсі.
+        // Типи, яких у частині немає, у розрахунок не входять і лише засмічували б
+        // підказку; якщо авто немає зовсім — показуємо всі типи, де є норма.
+        sources: (calcs.some(c => c.vehicleCount > 0)
+            ? calcs.filter(c => c.vehicleCount > 0)
+            : calcs.filter(c => c.required_per_vehicle > 0))
+            .map(c => ({
+                vehicleTypeId: c.vehicleTypeId,
+                vehicleTypeName: c.vehicleTypeName,
+                vehicleCount: c.vehicleCount,
+                required_per_vehicle: c.required_per_vehicle,
+            })),
+        vehicleCount: calcs.reduce((a, c) => a + c.vehicleCount, 0),
+        totalRequired,
+        onVehicles,
+        vehicleShortage,
+        // Правило описує те, як реально порахована норма вище
+        warehouse_rule: percent && percentNorm >= exactNorm ? 'percent_of_actual' : 'exact',
+        warehouse_percent: percent && percentNorm >= exactNorm ? percent : null,
+        reserveNorm,
+        reserveActual,
+        reserveShortage,
+        totalNeed: vehicleShortage + reserveShortage,
+    }
+}
+
+// Групує вже пораховані рядки за назвою, зберігаючи порядок першої появи.
+function mergeCalcRows(calcs) {
+    const groups = new Map()
+    for (const c of calcs) {
+        const k = groupKey(c)
+        if (!groups.has(k)) groups.set(k, [])
+        groups.get(k).push(c)
+    }
+    return [...groups.values()].map(mergeGroup)
 }
 
 // Скільки авто кожного типу має частина — рахуємо по картках авто,
@@ -126,33 +217,37 @@ async function resolveBrigadeIds(req, explicitBrigadeId) {
 export const getForBrigade = async (req, res, next) => {
     try {
         const { vehicleTypeId } = req.query
+        const typeFilter = parseTypeFilter(vehicleTypeId)
+        const aggregate = isAllTypes(vehicleTypeId)
         const brigadeIds = await resolveBrigadeIds(req, req.query.brigadeId)
         if (brigadeIds.length === 0) return res.json({ vehicleCount: 0, rows: [] })
         const brigadeId = brigadeIds[0]
 
         const itemWhere = {}
-        if (vehicleTypeId) itemWhere.vehicleTypeId = vehicleTypeId
+        if (typeFilter) itemWhere.vehicleTypeId = typeFilter
         const items = await EquipmentItem.findAll({
             where: itemWhere,
             include: [{ model: VehicleType, attributes: ['name'] }],
             order: [['id', 'ASC']],
         })
 
-        const { counts, vehicles } = await countVehiclesByType([brigadeId], vehicleTypeId)
+        const { counts, vehicles } = await countVehiclesByType([brigadeId], typeFilter)
         const sums = await sumFromDescriptions(vehicles)
         const reserves = await reserveByBrigade([brigadeId])
 
-        const rows = items.map(item => calcRow(
+        const calcs = items.map(item => calcRow(
             item,
             counts.get(`${brigadeId}:${item.vehicleTypeId}`) || 0,
             sums.get(`${brigadeId}:${item.id}`) || 0,
             reserves.get(`${brigadeId}:${item.id}`) || 0,
         ))
+        const rows = aggregate ? mergeCalcRows(calcs) : calcs
 
         res.json({
             brigadeId,
-            vehicleTypeId: vehicleTypeId ? Number(vehicleTypeId) : null,
-            vehicleCount: vehicleTypeId ? (counts.get(`${brigadeId}:${Number(vehicleTypeId)}`) || 0) : vehicles.length,
+            vehicleTypeId: typeFilter,
+            aggregate,
+            vehicleCount: typeFilter ? (counts.get(`${brigadeId}:${typeFilter}`) || 0) : vehicles.length,
             rows,
         })
     } catch (err) {
@@ -165,6 +260,8 @@ export const getForBrigade = async (req, res, next) => {
 export const getSummary = async (req, res, next) => {
     try {
         const { vehicleTypeId, detachmentId, detachmentName } = req.query
+        const typeFilter = parseTypeFilter(vehicleTypeId)
+        const aggregate = isAllTypes(vehicleTypeId)
         const groupBy = req.query.groupBy === 'detachment' ? 'detachment' : 'brigade'
 
         const brigadeWhere = {}
@@ -191,14 +288,14 @@ export const getSummary = async (req, res, next) => {
         ]))
 
         const itemWhere = {}
-        if (vehicleTypeId) itemWhere.vehicleTypeId = vehicleTypeId
+        if (typeFilter) itemWhere.vehicleTypeId = typeFilter
         const items = await EquipmentItem.findAll({
             where: itemWhere,
             include: [{ model: VehicleType, attributes: ['name'] }],
             order: [['id', 'ASC']],
         })
 
-        const { counts, vehicles } = await countVehiclesByType(brigadeIds, vehicleTypeId)
+        const { counts, vehicles } = await countVehiclesByType(brigadeIds, typeFilter)
         const sums = await sumFromDescriptions(vehicles)
         const reserves = await reserveByBrigade(brigadeIds)
 
@@ -206,26 +303,45 @@ export const getSummary = async (req, res, next) => {
         const colTotals = Object.fromEntries(columns.map(c => [c, 0]))
         colTotals.total = 0
 
-        const rows = items.map(item => {
-            const row = {
+        // Рядок = позиція нормативу, або (в режимі «усі типи») група позицій
+        // з однаковою назвою. Некомплект по групі рахується після складання
+        // норм і наявності — так само, як у getForBrigade.
+        const lines = aggregate
+            ? [...items.reduce((m, item) => {
+                const k = groupKey(item)
+                if (!m.has(k)) m.set(k, { id: `agg:${k}`, name: item.name, unit: item.unit || 'шт.', members: [] })
+                m.get(k).members.push(item)
+                return m
+            }, new Map()).values()]
+            : items.map(item => ({
                 id: item.id,
-                name: item.name + (vehicleTypeId ? '' : ` (${item.VehicleType?.name || '—'})`),
+                name: item.name + (typeFilter ? '' : ` (${item.VehicleType?.name || '—'})`),
                 unit: item.unit || 'шт.',
-                required_per_vehicle: item.required_per_vehicle || 0,
+                members: [item],
+            }))
+
+        const rows = lines.map(line => {
+            const perVehicleSet = new Set(line.members.map(i => i.required_per_vehicle || 0))
+            const row = {
+                id: line.id,
+                name: line.name,
+                unit: line.unit,
+                required_per_vehicle: perVehicleSet.size === 1 ? [...perVehicleSet][0] : null,
                 total: 0,
             }
             columns.forEach(c => { row[c] = 0 })
 
             for (const b of brigades) {
-                const calc = calcRow(
+                const calcs = line.members.map(item => calcRow(
                     item,
                     counts.get(`${b.id}:${item.vehicleTypeId}`) || 0,
                     sums.get(`${b.id}:${item.id}`) || 0,
                     reserves.get(`${b.id}:${item.id}`) || 0,
-                )
+                ))
+                const need = calcs.length === 1 ? calcs[0].totalNeed : mergeGroup(calcs).totalNeed
                 const col = columnOf.get(b.id)
-                row[col] += calc.totalNeed
-                row.total += calc.totalNeed
+                row[col] += need
+                row.total += need
             }
 
             columns.forEach(c => { colTotals[c] += row[c] })
@@ -242,7 +358,7 @@ export const getSummary = async (req, res, next) => {
             }
         }
 
-        res.json({ columns, rows, colTotals, vehiclesPerColumn, groupBy })
+        res.json({ columns, rows, colTotals, vehiclesPerColumn, groupBy, aggregate })
     } catch (err) {
         next(err)
     }
