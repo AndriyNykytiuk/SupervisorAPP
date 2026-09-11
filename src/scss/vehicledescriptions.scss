@@ -437,8 +437,9 @@
 }
 
 .vd-content-row {
-    padding: 0.45rem 0.8rem;
-    font-size: 0.85rem;
+    padding: 0.55rem 0.8rem;
+    font-size: 1rem;
+    line-height: 1.35;
     color: var(--navy);
     text-align: center;
     border-bottom: 1px solid var(--gray-100);
@@ -451,6 +452,11 @@
     .vd-item-name {
         text-align: left;
         font-weight: 500;
+    }
+
+    /* Поля редагування — тим самим кеглем, що й текст рядка */
+    .vd-input {
+        font-size: 0.95rem;
     }
 }
 
