@@ -451,7 +451,7 @@ const VehicleDescriptions = ({ selectedBrigade }) => {
             // приватний режим — просто не запам'ятовуємо
         }
 
-        const cell = 'border: 1px solid #000; padding: 3px 5px;'
+        const cell = 'border: 1px solid #000; padding: 3px 5px; font-size: 14px; vertical-align: middle;'
         const head = 'border: 1px solid #000; padding: 4px 5px; font-weight: 700; text-align: center; vertical-align: middle;'
 
         const html = `
@@ -475,7 +475,7 @@ const VehicleDescriptions = ({ selectedBrigade }) => {
                 яке знаходиться на ${escapeHtml(vehicleTitle)}
             </div>
 
-            <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
                 <thead>
                     <tr>
                         <th style="${head} width: 32px;">№<br/>з/п</th>

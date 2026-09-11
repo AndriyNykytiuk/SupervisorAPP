@@ -35,7 +35,17 @@ export async function ensureFkIndexes() {
             .slice(0, 63)
         const cols = columns.map(col => `"${col}"`).join(', ')
         try {
-            await sequelize.query(`CREATE INDEX IF NOT EXISTS "${name}" ON ${table_name} (${cols})`)
+            // CREATE INDEX бере SHARE-блокування і зупиняє записи в таблицю.
+            // На старті це має бути миттєво; якщо ні — краще відмовитись, ніж
+            // тримати застосунок і чужі запити. lock_timeout діє лише в межах
+            // цієї транзакції.
+            await sequelize.transaction(async (transaction) => {
+                await sequelize.query("SET LOCAL lock_timeout = '3s'", { transaction })
+                await sequelize.query(
+                    `CREATE INDEX IF NOT EXISTS "${name}" ON ${table_name} (${cols})`,
+                    { transaction },
+                )
+            })
             created.push(`${bare}(${columns.join(', ')})`)
         } catch (e) {
             console.error(`  індекс ${name} не створено: ${e.message}`)
