@@ -532,6 +532,13 @@ export const createEquipmentItem = async (payload) => {
     return data;
 };
 
+// Одна позиція одразу в кілька типів техніки. Типи, де позиція з такою назвою
+// вже є, сервер пропускає — повторне натискання не плодить дублікатів.
+export const createEquipmentItemsBulk = async (items) => {
+    const { data } = await api.post('/equipment-items/bulk', { items });
+    return data;
+};
+
 export const updateEquipmentItem = async (id, payload) => {
     const { data } = await api.put(`/equipment-items/${id}`, payload);
     return data;

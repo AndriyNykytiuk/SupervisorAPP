@@ -1,4 +1,5 @@
 import { EquipmentItem, VehicleType, EquipmentAvailability } from '../models/index.js'
+import { normalizeName } from '../utils/normalizeName.js'
 
     // GET /api/equipment-items?vehicleTypeId=
     export const getAll = async (req, res, next) => {
@@ -124,6 +125,17 @@ import { EquipmentItem, VehicleType, EquipmentAvailability } from '../models/ind
             const types = await VehicleType.findAll({ where: { id: typeIds }, transaction: t })
             const validIds = new Set(types.map((v) => v.id))
 
+            // Позиції, що вже є в типі, пропускаємо — інакше «додати в усі типи»
+            // на другому натисканні наплодить дублікатів довідника
+            const existing = await EquipmentItem.findAll({
+                where: { vehicleTypeId: typeIds },
+                attributes: ['name', 'vehicleTypeId'],
+                transaction: t,
+            })
+            const taken = new Set(existing.map((e) => `${e.vehicleTypeId}:${normalizeName(e.name)}`))
+            const typeName = new Map(types.map((v) => [v.id, v.name]))
+            const skipped = []
+
             const prepared = []
             for (const [idx, raw] of items.entries()) {
                 if (!raw.name || !raw.vehicleTypeId) {
@@ -134,8 +146,16 @@ import { EquipmentItem, VehicleType, EquipmentAvailability } from '../models/ind
                     await t.rollback()
                     return res.status(400).json({ error: `Row ${idx}: vehicleTypeId ${raw.vehicleTypeId} not found` })
                 }
+                const key = `${Number(raw.vehicleTypeId)}:${normalizeName(raw.name)}`
+                if (taken.has(key)) {
+                    skipped.push({ vehicleTypeId: Number(raw.vehicleTypeId), vehicleTypeName: typeName.get(Number(raw.vehicleTypeId)) || null, name: String(raw.name).trim() })
+                    continue
+                }
+                taken.add(key)
                 prepared.push({
                     name: String(raw.name).trim(),
+                    unit: raw.unit || 'шт.',
+                    required_text: raw.required_text || null,
                     required_per_vehicle: Number(raw.required_per_vehicle) || 0,
                     required_rule: raw.required_rule || 'exact',
                     warehouse_required: Number(raw.warehouse_required) || 0,
@@ -145,9 +165,9 @@ import { EquipmentItem, VehicleType, EquipmentAvailability } from '../models/ind
                 })
             }
 
-            const created = await EquipmentItem.bulkCreate(prepared, { transaction: t })
+            const created = prepared.length ? await EquipmentItem.bulkCreate(prepared, { transaction: t }) : []
             await t.commit()
-            res.status(201).json({ created: created.length, items: created })
+            res.status(201).json({ created: created.length, skipped, items: created })
         } catch (err) {
             await t.rollback()
             next(err)

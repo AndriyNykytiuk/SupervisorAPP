@@ -6,6 +6,7 @@ import {
     createVehicleType,
     deleteVehicleType,
     createEquipmentItem,
+    createEquipmentItemsBulk,
     updateEquipmentItem,
     deleteEquipmentItem,
     fetchTransferBrigades,
@@ -54,6 +55,9 @@ const GeneralRequirements = ({ selectedBrigade }) => {
     // Одиниця виміру потрапляє в опис авто і на друк, тож задається тут,
     // а не лишається мовчазним «шт.» з дефолту моделі
     const [newItemUnit, setNewItemUnit] = useState('шт.')
+    // Куди додавати позицію: часто одне й те саме майно стоїть у нормах
+    // усіх типів техніки, і обходити 21 тип вручну — марна робота
+    const [newItemTypeIds, setNewItemTypeIds] = useState([])
 
     // ── Add-type modal ──
     const [showAddTypeModal, setShowAddTypeModal] = useState(false)
@@ -261,6 +265,11 @@ const GeneralRequirements = ({ selectedBrigade }) => {
         }
     }
 
+    // За замовчуванням позиція додається в поточний тип
+    useEffect(() => {
+        setNewItemTypeIds(selectedType ? [Number(selectedType)] : [])
+    }, [selectedType])
+
     // ── Load items + availability when type or brigade changes ──
     useEffect(() => {
         if (!selectedType) return
@@ -366,8 +375,9 @@ const GeneralRequirements = ({ selectedBrigade }) => {
     // ── Equipment Item CRUD ─────────────────────────
     const handleAddItem = async () => {
         if (!newItemName.trim() || !selectedType) return
+        const targets = newItemTypeIds.length ? newItemTypeIds : [Number(selectedType)]
         try {
-            await createEquipmentItem({
+            const base = {
                 name: newItemName.trim(),
                 unit: newItemUnit.trim() || 'шт.',
                 required_per_vehicle: Number(newItemPerVehicle) || 0,
@@ -375,8 +385,9 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                 warehouse_required: Number(newItemWarehouseRequired) || 0,
                 warehouse_rule: newItemWarehouseRule,
                 warehouse_percent: newItemWarehouseRule === 'percent_of_actual' ? (Number(newItemWarehousePercent) || 0) : null,
-                vehicleTypeId: selectedType,
-            })
+            }
+            const r = await createEquipmentItemsBulk(targets.map(id => ({ ...base, vehicleTypeId: id })))
+
             setNewItemName('')
             setNewItemUnit('шт.')
             setNewItemPerVehicle('')
@@ -384,10 +395,23 @@ const GeneralRequirements = ({ selectedBrigade }) => {
             setNewItemWarehouseRequired('')
             setNewItemWarehouseRule('exact')
             setNewItemWarehousePercent('')
-            toast.success('Позицію додано')
+            setNewItemTypeIds([Number(selectedType)])
+
+            const skipped = r.skipped?.length ? `, пропущено ${r.skipped.length} (вже були)` : ''
+            toast.success(`Позицію додано в ${r.created} тип(ів)${skipped}`)
             loadData({ silent: true })
+
+            // Норматив без описів нічого не означає — одразу доносимо його
+            // в усі авто зачеплених типів по всіх частинах
+            if (r.created > 0) {
+                const sync = await syncVehicleStandardBulk({})
+                if (sync.added > 0) {
+                    toast.info(`В описи додано ${sync.added} позицій (авто: ${sync.vehiclesUpdated}, частин: ${sync.brigadesUpdated})`)
+                }
+            }
         } catch (err) {
-            toast.error('Помилка при додаванні позиції')
+            console.error(err)
+            toast.error(err?.response?.data?.error || 'Помилка при додаванні позиції')
         }
     }
 
@@ -916,6 +940,28 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                         <button className="gr-btn-add" onClick={handleAddItem}>
                                             <MdAdd size={20} /> Додати
                                         </button>
+                                    </div>
+
+                                    <div className="gr-add-types">
+                                        <div className="gr-add-types-head">
+                                            <span>Додати в типи техніки ({newItemTypeIds.length}):</span>
+                                            <button type="button" onClick={() => setNewItemTypeIds(vehicleTypes.map(t => t.id))}>усі</button>
+                                            <button type="button" onClick={() => setNewItemTypeIds(selectedType ? [Number(selectedType)] : [])}>лише цей</button>
+                                        </div>
+                                        <div className="gr-add-types-list">
+                                            {vehicleTypes.map(t => (
+                                                <label key={t.id} className={newItemTypeIds.includes(t.id) ? 'is-on' : ''}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={newItemTypeIds.includes(t.id)}
+                                                        onChange={(e) => setNewItemTypeIds(prev => (
+                                                            e.target.checked ? [...prev, t.id] : prev.filter(x => x !== t.id)
+                                                        ))}
+                                                    />
+                                                    {t.name}
+                                                </label>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             )}
