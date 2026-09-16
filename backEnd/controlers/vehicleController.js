@@ -1,4 +1,4 @@
-import { Vehicle, VehicleInventoryItem, VehicleType, EquipmentItem, Brigade } from '../models/index.js'
+import { Vehicle, VehicleInventoryItem, VehicleType, EquipmentItem, Brigade, Detachment } from '../models/index.js'
 import { buildScopedWhere, isSemiGodReadOnly, checkBrigadeAccess } from '../utils/scopeHelpers.js'
 
 const inventoryOrder = [['sortOrder', 'ASC'], ['id', 'ASC']]
@@ -310,27 +310,39 @@ export const syncStandardBulk = async (req, res, next) => {
 
         const vehicles = await Vehicle.findAll({
             where,
-            include: [{ model: Brigade, attributes: ['name'] }],
+            include: [{ model: Brigade, attributes: ['name'], include: [{ model: Detachment, attributes: ['name'] }] }],
             order: [['id', 'ASC']],
         })
 
         let added = 0
         const touched = []
+        // Зведення по частинах і загонах — норматив міняється централізовано,
+        // тож видно має бути, куди саме він поїхав
+        const byBrigade = new Map()
         for (const vehicle of vehicles) {
             if (!vehicle.vehicleTypeId) continue
+            const brigadeName = vehicle.Brigade?.name || '—'
+            const detachmentName = vehicle.Brigade?.Detachment?.name || '—'
             const n = await fillFromStandard(vehicle)
             if (n > 0) {
                 added += n
-                touched.push({
-                    vehicleId: vehicle.id,
-                    brand: vehicle.brand,
-                    brigadeName: vehicle.Brigade?.name || null,
-                    added: n,
-                })
+                touched.push({ vehicleId: vehicle.id, brand: vehicle.brand, brigadeName, detachmentName, added: n })
+                const key = `${detachmentName}|${brigadeName}`
+                const acc = byBrigade.get(key) || { detachmentName, brigadeName, vehicles: 0, added: 0 }
+                acc.vehicles++
+                acc.added += n
+                byBrigade.set(key, acc)
             }
         }
 
-        res.json({ vehiclesScanned: vehicles.length, vehiclesUpdated: touched.length, added, touched })
+        res.json({
+            vehiclesScanned: vehicles.length,
+            vehiclesUpdated: touched.length,
+            brigadesUpdated: byBrigade.size,
+            added,
+            byBrigade: [...byBrigade.values()],
+            touched,
+        })
     } catch (err) {
         next(err)
     }

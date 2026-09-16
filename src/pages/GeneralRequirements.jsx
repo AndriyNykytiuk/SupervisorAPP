@@ -294,16 +294,21 @@ const GeneralRequirements = ({ selectedBrigade }) => {
     const handleSyncAll = async () => {
         if (!selectedType) return
         const typeName = vehicleTypes.find(t => t.id === Number(selectedType))?.name || ''
-        const scope = selectedBrigade ? 'обраної частини' : 'усіх частин'
+        // Норматив — величина централізована: зміна їде в усі частини всіх
+        // загонів, де є така техніка, а не лише в обрану у фільтрі.
+        // RW обмежує сервер за скоупом, тому частина в запиті не вказується.
+        const scope = isGod ? 'усіх частин усіх загонів' : 'вашої частини'
         if (!window.confirm(`Додати відсутні позиції нормативу в описи всіх авто типу «${typeName}» ${scope}?\n\nВведені кількості не зміняться.`)) return
 
         setIsSyncingAll(true)
         try {
-            const payload = { vehicleTypeId: selectedType }
-            if (selectedBrigade) payload.brigadeId = selectedBrigade
-            const r = await syncVehicleStandardBulk(payload)
+            const r = await syncVehicleStandardBulk({ vehicleTypeId: selectedType })
             if (r.added > 0) {
-                toast.success(`Додано ${r.added} позицій у ${r.vehiclesUpdated} описах (переглянуто авто: ${r.vehiclesScanned})`)
+                const where = r.brigadesUpdated > 1 ? ` у ${r.brigadesUpdated} частинах` : ''
+                toast.success(`Додано ${r.added} позицій у ${r.vehiclesUpdated} описах${where} (переглянуто авто: ${r.vehiclesScanned})`)
+                if (r.byBrigade?.length) {
+                    console.table(r.byBrigade)
+                }
             } else {
                 toast.info(`Описи вже повні за нормативом (переглянуто авто: ${r.vehiclesScanned})`)
             }
