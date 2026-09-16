@@ -612,6 +612,13 @@ export const syncVehicleStandard = async (vehicleId) => {
     return data;
 };
 
+// Підтягнути норматив одразу в усі авто типу (GOD — по всіх частинах у скоупі,
+// RW — по своїй). Додає лише відсутні позиції.
+export const syncVehicleStandardBulk = async (payload = {}) => {
+    const { data } = await api.post('/vehicles/items/sync-standard', payload);
+    return data;
+};
+
 export const createVehicleItem = async (vehicleId, payload) => {
     const { data } = await api.post(`/vehicles/${vehicleId}/items`, payload);
     return data;

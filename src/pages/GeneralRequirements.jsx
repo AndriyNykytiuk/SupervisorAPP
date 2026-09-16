@@ -11,6 +11,7 @@ import {
     fetchTransferBrigades,
     fetchRequirements,
     fetchRequirementsSummary,
+    syncVehicleStandardBulk,
 } from '../api/services.js'
 import LoadingSpinner from '../components/ui/LoadingSpinner.jsx'
 import { MdDelete, MdAdd, MdEdit, MdCheck, MdSearch } from 'react-icons/md'
@@ -50,10 +51,14 @@ const GeneralRequirements = ({ selectedBrigade }) => {
     const [newItemWarehouseRequired, setNewItemWarehouseRequired] = useState('')
     const [newItemWarehouseRule, setNewItemWarehouseRule] = useState('exact')
     const [newItemWarehousePercent, setNewItemWarehousePercent] = useState('')
+    // Одиниця виміру потрапляє в опис авто і на друк, тож задається тут,
+    // а не лишається мовчазним «шт.» з дефолту моделі
+    const [newItemUnit, setNewItemUnit] = useState('шт.')
 
     // ── Add-type modal ──
     const [showAddTypeModal, setShowAddTypeModal] = useState(false)
     const [isCreatingType, setIsCreatingType] = useState(false)
+    const [isSyncingAll, setIsSyncingAll] = useState(false)
 
     // ── PDF Export ─────────────────────────────────
     const exportSummaryToPdf = () => {
@@ -284,6 +289,33 @@ const GeneralRequirements = ({ selectedBrigade }) => {
         }
     }
 
+    // Донести нові позиції нормативу в описи всіх авто цього типу.
+    // Введені кількості не чіпаються — додаються лише відсутні рядки.
+    const handleSyncAll = async () => {
+        if (!selectedType) return
+        const typeName = vehicleTypes.find(t => t.id === Number(selectedType))?.name || ''
+        const scope = selectedBrigade ? 'обраної частини' : 'усіх частин'
+        if (!window.confirm(`Додати відсутні позиції нормативу в описи всіх авто типу «${typeName}» ${scope}?\n\nВведені кількості не зміняться.`)) return
+
+        setIsSyncingAll(true)
+        try {
+            const payload = { vehicleTypeId: selectedType }
+            if (selectedBrigade) payload.brigadeId = selectedBrigade
+            const r = await syncVehicleStandardBulk(payload)
+            if (r.added > 0) {
+                toast.success(`Додано ${r.added} позицій у ${r.vehiclesUpdated} описах (переглянуто авто: ${r.vehiclesScanned})`)
+            } else {
+                toast.info(`Описи вже повні за нормативом (переглянуто авто: ${r.vehiclesScanned})`)
+            }
+            loadData({ silent: true })
+        } catch (err) {
+            console.error(err)
+            toast.error(err?.response?.data?.error || 'Не вдалося підтягнути норматив')
+        } finally {
+            setIsSyncingAll(false)
+        }
+    }
+
     // ── Vehicle Type CRUD ───────────────────────────
     const handleAddType = async (e) => {
         if (e?.preventDefault) e.preventDefault()
@@ -332,6 +364,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
         try {
             await createEquipmentItem({
                 name: newItemName.trim(),
+                unit: newItemUnit.trim() || 'шт.',
                 required_per_vehicle: Number(newItemPerVehicle) || 0,
                 required_rule: newItemRequiredRule,
                 warehouse_required: Number(newItemWarehouseRequired) || 0,
@@ -340,6 +373,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                 vehicleTypeId: selectedType,
             })
             setNewItemName('')
+            setNewItemUnit('шт.')
             setNewItemPerVehicle('')
             setNewItemRequiredRule('exact')
             setNewItemWarehouseRequired('')
@@ -497,6 +531,17 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                 title="Видалити обраний тип"
                             >
                                 <span>Видалити тип</span>
+                            </button>
+                        )}
+
+                        {(isGod || isRW) && selectedType && (
+                            <button
+                                className="gr-btn-add"
+                                onClick={handleSyncAll}
+                                disabled={isSyncingAll}
+                                title="Додати нові позиції нормативу в описи всіх авто цього типу. Введені кількості не зміняться."
+                            >
+                                <span>{isSyncingAll ? 'Підтягую…' : 'Норматив → в усі описи'}</span>
                             </button>
                         )}
 
@@ -809,6 +854,14 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                             value={newItemName}
                                             onChange={(e) => setNewItemName(e.target.value)}
                                             placeholder="Назва обладнання"
+                                        />
+                                        <input
+                                            type="text"
+                                            value={newItemUnit}
+                                            onChange={(e) => setNewItemUnit(e.target.value)}
+                                            placeholder="Од. виміру"
+                                            className="gr-input-small"
+                                            title="шт., компл., м, пара — як у наказі"
                                         />
                                         <select
                                             value={newItemRequiredRule}

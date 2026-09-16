@@ -42,6 +42,8 @@ import { EquipmentItem, VehicleType, EquipmentAvailability } from '../models/ind
         try {
             const {
                 name,
+                unit,
+                required_text,
                 required_per_vehicle,
                 required_rule,
                 warehouse_required,
@@ -54,6 +56,9 @@ import { EquipmentItem, VehicleType, EquipmentAvailability } from '../models/ind
             }
             const item = await EquipmentItem.create({
                 name,
+                // Одиниця виміру й текстова норма їдуть далі в опис авто та на друк
+                unit: unit || 'шт.',
+                required_text: required_text || null,
                 required_per_vehicle: required_per_vehicle || 0,
                 required_rule: required_rule || 'exact',
                 warehouse_required: warehouse_required || 0,

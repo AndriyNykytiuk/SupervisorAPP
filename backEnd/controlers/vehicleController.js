@@ -284,6 +284,58 @@ export const syncStandard = async (req, res, next) => {
     }
 }
 
+// POST /api/vehicles/items/sync-standard  { vehicleTypeId?, brigadeId? }
+// Масове підтягування нормативу: коли в наказі з'явилися нові позиції, їх
+// треба донести в описи ВСІХ авто відповідного типу, а не ходити по картках.
+// Додаються лише відсутні рядки — введені кількості не змінюються.
+export const syncStandardBulk = async (req, res, next) => {
+    try {
+        if (isSemiGodReadOnly(req.scope, res)) return
+
+        const where = await buildScopedWhere(req.scope)
+        const { vehicleTypeId, brigadeId } = req.body || {}
+
+        // RW обмежений своєю частиною скоупом; GOD може звузити вручну
+        if (brigadeId) {
+            if (!where.brigadeId) where.brigadeId = Number(brigadeId)
+            else {
+                const allowed = Array.isArray(where.brigadeId) ? where.brigadeId : [where.brigadeId]
+                if (!allowed.includes(Number(brigadeId))) {
+                    return res.status(403).json({ error: 'Немає доступу до цієї частини' })
+                }
+                where.brigadeId = Number(brigadeId)
+            }
+        }
+        if (vehicleTypeId) where.vehicleTypeId = Number(vehicleTypeId)
+
+        const vehicles = await Vehicle.findAll({
+            where,
+            include: [{ model: Brigade, attributes: ['name'] }],
+            order: [['id', 'ASC']],
+        })
+
+        let added = 0
+        const touched = []
+        for (const vehicle of vehicles) {
+            if (!vehicle.vehicleTypeId) continue
+            const n = await fillFromStandard(vehicle)
+            if (n > 0) {
+                added += n
+                touched.push({
+                    vehicleId: vehicle.id,
+                    brand: vehicle.brand,
+                    brigadeName: vehicle.Brigade?.name || null,
+                    added: n,
+                })
+            }
+        }
+
+        res.json({ vehiclesScanned: vehicles.length, vehiclesUpdated: touched.length, added, touched })
+    } catch (err) {
+        next(err)
+    }
+}
+
 // PUT /api/vehicles/:vehicleId/items/:itemId
 export const updateItem = async (req, res, next) => {
     try {

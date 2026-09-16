@@ -5,6 +5,10 @@ import { scopeByRole } from '../middleware/scopeByRole.js'
 
 const router = Router()
 
+// Масове підтягування нормативу — перед '/:vehicleId/items', інакше
+// 'items' потрапить у :vehicleId
+router.post('/items/sync-standard', authorize('GOD', 'RW'), scopeByRole, ctrl.syncStandardBulk)
+
 // Опис майна на авто
 router.get('/:vehicleId/items', scopeByRole, ctrl.getItems)
 router.post('/:vehicleId/items/sync-standard', authorize('GOD', 'RW'), scopeByRole, ctrl.syncStandard)
