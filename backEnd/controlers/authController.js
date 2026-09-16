@@ -40,8 +40,11 @@ export const login = async (req, res, next) => {
         }
 
         // Update lastLogin for RW users (marks data as "refreshed")
+        const now = new Date()
         if (user.role === 'RW') {
-            await user.update({ lastLogin: new Date() })
+            await user.update({ lastLogin: now, lastSeen: now })
+        } else {
+            await user.update({ lastSeen: now })
         }
 
         const payload = userPayload(user)

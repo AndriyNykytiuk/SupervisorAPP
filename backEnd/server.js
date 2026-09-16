@@ -179,6 +179,16 @@ async function start() {
     // Disable global alter to avoid ER_TOO_MANY_KEYS on Detachments bug
     await sequelize.sync()
 
+    // Own try: User model includes lastSeen, so every Users query fails without this column
+    try {
+        await sequelize.query(`
+            ALTER TABLE "Users"
+            ADD COLUMN IF NOT EXISTS "lastSeen" TIMESTAMP WITH TIME ZONE
+        `)
+    } catch (e) {
+        console.error('Users.lastSeen migration error:', e.message)
+    }
+
     // ── Safe one-time migrations (run on ALL environments) ──────
     try {
         const { VehicleType, EquipmentItem, EquipmentAvailability, BrigadeVehicle, testList, EquipmentDocument, Vehicle, VehicleInventoryItem } = await import('./models/index.js')

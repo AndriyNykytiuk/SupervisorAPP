@@ -33,6 +33,11 @@ const User = sequelize.define('User', {
         type: DataTypes.DATE,
         allowNull: true,
     },
+    // Last authenticated request from any role (throttled, see middleware/authenticate.js)
+    lastSeen: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
 })
 
 export default User
