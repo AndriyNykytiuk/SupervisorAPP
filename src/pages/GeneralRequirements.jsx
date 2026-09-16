@@ -570,7 +570,7 @@ const GeneralRequirements = ({ selectedBrigade }) => {
                                 disabled={isSyncingAll}
                                 title="Додати нові позиції нормативу в описи всіх авто цього типу. Введені кількості не зміняться."
                             >
-                                <span>{isSyncingAll ? 'Підтягую…' : 'Норматив → в усі описи'}</span>
+                                <span>{isSyncingAll ? 'Підтягую…' : 'Норматив в описи'}</span>
                             </button>
                         )}
 
