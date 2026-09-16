@@ -53,8 +53,13 @@ export const create = async (req, res, next) => {
                 transaction: t,
             })
             if (sourceItems.length > 0) {
+                // Норми обнуляються — їх задають за новим наказом. А ось одиниця
+                // виміру від наказу не залежить і друкується в описі авто, тож
+                // переноситься; текст норми має сенс лише разом із правилом «ТУ».
                 const clones = sourceItems.map((it) => ({
                     name: it.name,
+                    unit: it.unit || 'шт.',
+                    required_text: it.required_rule === 'tu' ? it.required_text : null,
                     required_per_vehicle: 0,
                     required_rule: it.required_rule || 'exact',
                     warehouse_required: 0,
