@@ -7,6 +7,7 @@ import { createTestItem, updateTestItem, bulkUpdateTestItems, archiveEquipmentIt
 import { useAuth } from '../context/AuthContext.jsx'
 import ArchiveModal from './ArchiveModal.jsx'
 import DocumentUploader from './DocumentUploader.jsx'
+import { ACT_ELIGIBLE_TESTLIST_IDS } from '../constants/testAct.js'
 import '../scss/itemtest.scss'
 
 // testDate (YYYY-MM-DD) + months → YYYY-MM-DD; preserves local date semantics.
@@ -37,10 +38,13 @@ const isDueSoonOrOverdue = (item) => {
     return next <= inTenDays
 }
 
-const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }) => {
+const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '', onAddToAct }) => {
     const { user } = useAuth()
     const [showForm, setShowForm] = useState(false)
     const [isExpanded, setIsExpanded] = useState(false)
+
+    // Категорії з ACT_ROWS — зміни в них автоматично потрапляють до чернетки акту випробування ПТО
+    const isActEligible = ACT_ELIGIBLE_TESTLIST_IDS.has(testList.id)
 
     const [formData, setFormData] = useState({
         inventoryNumber: '',
@@ -227,6 +231,10 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
 
             setEditingItemId(null)
             onItemCreated({ silent: true }) // refetch the updated data
+            if (isActEligible) {
+                onAddToAct?.([id])
+                toast.success('Додано до акту випробування ПТО')
+            }
         } catch (err) {
             console.error('Failed to update item:', err)
         }
@@ -327,6 +335,10 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '' }
 
             setShowBulkModal(false)
             setIsSelecting(false)
+            if (isActEligible) {
+                onAddToAct?.(selectedIds)
+                toast.success(`Додано до акту випробування ПТО: ${selectedIds.length}`)
+            }
             setSelectedIds([])
             setBulkFormData({ testDate: '', result: 'pass', nextTestDate: '', linkName: '', link: '' })
             onItemCreated({ silent: true })

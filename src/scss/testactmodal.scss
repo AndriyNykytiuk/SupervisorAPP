@@ -1,0 +1,236 @@
+// Стилі модалки «Акт випробування ПТО». Той самий патерн, що й .vd-modal-* у
+// vehicledescriptions.scss, але з власним префіксом (ta-), щоб не залежати від
+// іншого компонента.
+
+.ta-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.ta-modal {
+    width: 100%;
+    max-width: 760px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.ta-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    color: #fff;
+    background: var(--navy);
+    position: sticky;
+    top: 0;
+
+    h3 {
+        margin: 0;
+        font-size: 1.05rem;
+    }
+
+    button {
+        font-size: 1.2rem;
+        color: #fff;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+    }
+}
+
+.ta-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.25rem;
+
+    label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--navy);
+    }
+
+    input,
+    select,
+    textarea {
+        width: 100%;
+        padding: 0.55rem 0.7rem;
+        font-size: 0.95rem;
+        font-family: inherit;
+        color: var(--navy);
+        border: 1px solid var(--gray-300, #d1d5db);
+        border-radius: 6px;
+        outline: none;
+
+        &:focus {
+            border-color: var(--gold);
+        }
+    }
+}
+
+.ta-hint {
+    margin: 0 0 0.3rem;
+    font-size: 0.8rem;
+    line-height: 1.35;
+    color: var(--gray-500, #6b7280);
+}
+
+.ta-draft-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-bottom: 0.5rem;
+}
+
+.ta-draft-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 0.6rem;
+    background: var(--gray-50, #f9fafb);
+    border: 1px solid var(--gray-200, #e5e7eb);
+    border-radius: 6px;
+    font-size: 0.85rem;
+
+    .ta-draft-cat {
+        flex: 0 0 30%;
+        color: var(--gray-500, #6b7280);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .ta-draft-name {
+        flex: 1;
+        font-weight: 600;
+        color: var(--navy);
+    }
+
+    .ta-draft-result {
+        flex: 0 0 auto;
+        color: var(--success, #16a34a);
+
+        &.fail { color: #dc2626; }
+    }
+
+    .ta-draft-remove {
+        flex: 0 0 auto;
+        padding: 0.2rem;
+        color: #dc2626;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        display: flex;
+    }
+}
+
+.ta-empty {
+    margin: 0;
+    padding: 0.6rem;
+    font-style: italic;
+    color: var(--gray-500, #6b7280);
+    text-align: center;
+}
+
+.ta-modal-section {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+    padding-bottom: 0.3rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--navy);
+    border-bottom: 2px solid var(--gold);
+}
+
+.ta-link-btn {
+    padding: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--navy);
+    background: transparent;
+    border: none;
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover { color: var(--gold); }
+
+    &--danger {
+        color: #dc2626;
+        margin-top: 0.15rem;
+        align-self: flex-start;
+
+        &:hover { color: #991b1b; }
+    }
+}
+
+.ta-member-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.6rem;
+    margin-bottom: 0.3rem;
+    background: var(--gray-50, #f9fafb);
+    border: 1px solid var(--gray-200, #e5e7eb);
+    border-radius: 6px;
+}
+
+.ta-modal-row {
+    display: flex;
+    gap: 0.75rem;
+
+    > div {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        min-width: 0;
+    }
+}
+
+.ta-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.ta-btn-ghost {
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--gray-300, #d1d5db);
+    color: var(--gray-700, #374151);
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    background: transparent;
+}
+
+.ta-btn-add {
+    padding: 0.5rem 1.1rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    background: var(--navy);
+
+    &:disabled {
+        background: var(--gray-400, #9ca3af);
+        cursor: not-allowed;
+    }
+}
