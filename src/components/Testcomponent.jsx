@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { toast } from 'react-toastify';
 import { fetchTestItemsByBrigade, fetchTestLinksByBrigade, updateTestLinks, uploadEquipmentDocument } from '../api/services.js';
+import { useAuth } from '../context/AuthContext.jsx'
 import useApi from '../hooks/useApi.js';
 import LoadingSpinner from './ui/LoadingSpinner.jsx';
 import ErrorMessage from './ui/ErrorMessage.jsx';
@@ -13,6 +14,11 @@ import SearchBar from './ui/SearchBar.jsx';
 import '../scss/testcomponent.scss'
 
 const Testcomponent = ({ selectedBrigade }) => {
+    const { user } = useAuth()
+    // Чернетка акта може наповнитись лише через успішне збереження в ItemTest, яке вже
+    // недоступне RO/SEMI-GOD — але перевіряємо явно, а не покладаємось лише на це.
+    const canEdit = user?.role === 'GOD' || user?.role === 'RW'
+
     const [showLinksModal, setShowLinksModal] = useState(false)
     const [linksFormData, setLinksFormData] = useState({ linkSchedule: '', linkOrder: '' })
     const [searchQuery, setSearchQuery] = useState('')
@@ -117,7 +123,7 @@ const Testcomponent = ({ selectedBrigade }) => {
                     <MdOutlinePublishedWithChanges onClick={() => setShowLinksModal(true)}
                         className="edit-button" />
 
-                    {actItemIds.length > 0 && (
+                    {canEdit && actItemIds.length > 0 && (
                         <button
                             type='button'
                             className='act-form-btn'
@@ -130,7 +136,7 @@ const Testcomponent = ({ selectedBrigade }) => {
                 </div>
             </div>
 
-            {showActModal && (
+            {canEdit && showActModal && (
                 <TestActModal
                     testLists={testLists}
                     actItemIds={actItemIds}

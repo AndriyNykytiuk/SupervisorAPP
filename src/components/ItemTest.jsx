@@ -46,6 +46,10 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '', 
     // Категорії з ACT_ROWS — зміни в них автоматично потрапляють до чернетки акту випробування ПТО
     const isActEligible = ACT_ELIGIBLE_TESTLIST_IDS.has(testList.id)
 
+    // RO й SEMI-GOD не можуть писати (бекенд усе одно відхилить 403-ю) — ховаємо кнопки
+    // редагування явно, а не покладаємось лише на відмову сервера
+    const canEdit = user?.role === 'GOD' || user?.role === 'RW'
+
     const [formData, setFormData] = useState({
         inventoryNumber: '',
         name: '',
@@ -211,6 +215,7 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '', 
             onItemCreated({ silent: true })
         } catch (err) {
             console.error('Failed to create item:', err)
+            toast.error(err.response?.data?.error || 'Не вдалося створити обладнання')
         }
     }
 
@@ -237,6 +242,7 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '', 
             }
         } catch (err) {
             console.error('Failed to update item:', err)
+            toast.error(err.response?.data?.error || 'Не вдалося зберегти зміни')
         }
     }
 
@@ -344,6 +350,7 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '', 
             onItemCreated({ silent: true })
         } catch (err) {
             console.error('Failed to bulk update:', err)
+            toast.error(err.response?.data?.error || 'Не вдалося оновити обрані елементи')
         } finally {
             setIsBulkSaving(false)
         }
@@ -408,12 +415,12 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '', 
                                 <MdSettings size={20} />
                             </button>
                         )}
-                        {isExpanded && testList.TestItems?.length > 0 && (
+                        {canEdit && isExpanded && testList.TestItems?.length > 0 && (
                             <h3 className={`bulk-select-btn ${isSelecting ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); toggleSelectMode(); }}>
                                 {isSelecting ? '✕ Скасувати' : '☑ Обрати'}
                             </h3>
                         )}
-                        {isExpanded && (
+                        {canEdit && isExpanded && (
                             <h3 className='add-btn' onClick={(e) => { e.stopPropagation(); setShowForm(!showForm); }}>
                                 {showForm ? '✕' : '+ додати'}
                             </h3>
@@ -428,7 +435,7 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '', 
                         <span>результат</span>
                         <span>наступне випробування</span>
                         <span>посилання на акт/протокол</span>
-                        <span>оновити дані</span>
+                        {canEdit && <span>оновити дані</span>}
                     </div>
                 )}
             </div>
@@ -638,7 +645,7 @@ const ItemTest = ({ testList, selectedBrigade, onItemCreated, searchQuery = '', 
                                             )
                                         ) : '—'}
                                     </span>
-                                    {!isSelecting && (
+                                    {canEdit && !isSelecting && (
                                         <button className='update-btn' onClick={() => handleEditClick(item)}>
                                             <MdUpdate />
                                         </button>
