@@ -7,7 +7,8 @@ import ErrorMessage from './ui/ErrorMessage.jsx';
 import ItemTest from './ItemTest';
 import FireExtenguisher from './FireExtenguisher.jsx';
 import Testorderschedulelinks from './Testorderschedulelinks';
-import { MdOutlinePublishedWithChanges } from "react-icons/md";
+import TestActModal from './TestActModal.jsx';
+import { MdOutlinePublishedWithChanges, MdAssignment } from "react-icons/md";
 import SearchBar from './ui/SearchBar.jsx';
 import '../scss/testcomponent.scss'
 
@@ -18,6 +19,23 @@ const Testcomponent = ({ selectedBrigade }) => {
     const [uploadingField, setUploadingField] = useState(null) // 'linkSchedule' | 'linkOrder' | null
     const scheduleFileRef = useRef(null)
     const orderFileRef = useRef(null)
+
+    // ── Акт випробування ПТО: чернетка збирається з кількох категорій ItemTest ──
+    // Зберігаємо лише id обраних TestItem — повні дані для друку беремо
+    // при формуванні акта прямо з testLists, тож чернетка завжди свіжа.
+    const [actItemIds, setActItemIds] = useState([])
+    const [showActModal, setShowActModal] = useState(false)
+
+    const addToAct = (ids) => {
+        setActItemIds((prev) => [...new Set([...prev, ...ids])])
+    }
+
+    const removeFromAct = (id) => {
+        setActItemIds((prev) => prev.filter((x) => x !== id))
+    }
+
+    // Чернетка акта прив'язана до конкретної частини — при перемиканні частини скидаємо
+    React.useEffect(() => { setActItemIds([]) }, [selectedBrigade])
 
     const handlePdfUpload = async (field, equipmentType, e) => {
         const file = e.target.files?.[0]
@@ -99,8 +117,28 @@ const Testcomponent = ({ selectedBrigade }) => {
                     <MdOutlinePublishedWithChanges onClick={() => setShowLinksModal(true)}
                         className="edit-button" />
 
+                    {actItemIds.length > 0 && (
+                        <button
+                            type='button'
+                            className='act-form-btn'
+                            onClick={() => setShowActModal(true)}
+                            title='Сформувати акт випробування ПТО з доданих позицій'
+                        >
+                            <MdAssignment /> Сформувати акт ({actItemIds.length})
+                        </button>
+                    )}
                 </div>
             </div>
+
+            {showActModal && (
+                <TestActModal
+                    testLists={testLists}
+                    actItemIds={actItemIds}
+                    onRemoveItem={removeFromAct}
+                    onClose={() => setShowActModal(false)}
+                    onFormed={() => { setActItemIds([]); setShowActModal(false) }}
+                />
+            )}
 
             <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Пошук за назвою списку випробувань..." />
 
@@ -157,7 +195,7 @@ const Testcomponent = ({ selectedBrigade }) => {
                 list.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 list.TestItems?.some(i => i.name?.toLowerCase().includes(searchQuery.toLowerCase()))
             ).sort((a, b) => a.id - b.id).map((list) => (
-                <ItemTest key={list.id} testList={list} selectedBrigade={selectedBrigade} onItemCreated={refetch} searchQuery={searchQuery} />
+                <ItemTest key={list.id} testList={list} selectedBrigade={selectedBrigade} onItemCreated={refetch} searchQuery={searchQuery} onAddToAct={addToAct} />
             ))}
 
             <FireExtenguisher selectedBrigade={selectedBrigade} searchQuery={searchQuery} />

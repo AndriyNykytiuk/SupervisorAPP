@@ -23,9 +23,28 @@
 
     .btn-box {
         display: flex;
+        align-items: center;
+        gap: 1rem;
         padding: 0.85rem 1.5rem;
         width: 100%;
         justify-content: space-between;
+    }
+
+    .act-form-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.5rem 0.9rem;
+        border: none;
+        border-radius: 6px;
+        background: var(--navy);
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        white-space: nowrap;
+
+        &:hover { background: var(--gold); }
     }
 }
 
